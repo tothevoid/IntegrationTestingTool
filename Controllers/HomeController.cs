@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using IntegrationTestingTool.Model;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -9,17 +10,17 @@ namespace IntegrationTestingTool.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class HomeController : ControllerBase
+    public class EndpointController : ControllerBase
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly ILogger<EndpointController> _logger;
 
-        public HomeController(ILogger<HomeController> logger)
+        public EndpointController(ILogger<EndpointController> logger)
         {
             _logger = logger;
         }
 
-        [HttpGet]
-        public void Get()
+        [HttpPost]
+        public void Post(Endpoint endpoint)
         {
 
         }

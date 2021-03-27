@@ -1,0 +1,29 @@
+﻿.input-parameter-name{
+    width: 200px;
+}
+
+.input-parameter-type {
+    width: 200px;
+}
+
+.output-parameter-name{
+    width: 250px;
+}
+
+.output-parameter-type{
+    width: 250px;
+}
+
+.output-parameter-desired{
+    width: 250px;
+}
+
+.button-default{
+    font-family: 'Roboto', sans-serif;
+    height: 50px;
+    background-color: #f0b90b;
+    width: 300px;
+    border-radius: 10px;
+    border: solid 5px transparent;
+    box-shadow: 0px 2px 2px 0 rgba(0, 0, 0, 0.301);
+}

@@ -15,6 +15,7 @@ export class Home extends Component {
 
     componentDidMount() {
         this.getTypes();
+        this.getConfig();
     }
 
     renderInputParameters = (inputParameters) =>
@@ -62,6 +63,7 @@ export class Home extends Component {
     render () {
         return (
             <div>
+                <p>Server url: {this?.state?.config?.testUrl}<input type="text"/></p>
                 <div>New endpoint:</div>
                 <button className="button-default">Add new input parameter</button>
                 {this.renderInputParameters(this.state.inputParameters)}
@@ -80,6 +82,12 @@ export class Home extends Component {
                 'Content-Type': 'application/json'
             }
         });
+    }
+
+    getConfig() {
+        fetch("ServerConfig")
+            .then((response)=> response.json())
+            .then((config)=> {this.setState({config: config})});
     }
 
     getTypes() {

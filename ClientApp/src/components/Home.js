@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import "./Home.css"
-import {InputParameter} from "./forms/InputParameter"
-import { ComboBox } from './controls/ComboBox/ComboBox';
+import { InputParameter } from "./forms/InputParameter"
+import { InputParameters } from './tables/InputParameters';
 export class Home extends Component {
     static displayName = Home.name;
 
@@ -18,51 +18,6 @@ export class Home extends Component {
     componentDidMount() {
         this.getTypes();
         this.getConfig();
-    }
-
-    renderInputParameters = (inputParameters) => {
-        return <div>
-            <p>Input parameters</p>
-            <table className="input-parameter-container">
-                <thead>
-                    <tr>
-                        <th className="input-parameter-name">Name</th>
-                        <th className="input-parameter-type">Type</th>
-                    </tr>
-                </thead>
-                <tbody>
-                {
-                    inputParameters.map((parameter, ix) => 
-                    {
-                        const onInputTypeSelected = (selectedType) => {
-                            this.setState((state) => {
-                                const inputParameters = state.inputParameters.map((storedParameter) =>
-                                    (parameter.name === storedParameter.name) ? 
-                                        {...storedParameter, type: selectedType}: 
-                                        storedParameter
-                                );
-                                return {inputParameters};
-                            })
-                        }
-
-                        return <tr key={ix}>
-                            <td className="input-parameter-name">{parameter.name}</td>
-                            <td className="input-parameter-type">
-                                <ComboBox onSelect={onInputTypeSelected} values={this.state.types} selectedValue={parameter.type}></ComboBox>
-                            </td>
-                            <td><button onClick={() => this.deleteInputParameter(parameter)}>X</button></td>
-                        </tr>
-                    }) 
-                }
-                </tbody>
-         </table>
-        </div> 
-    }
-   
-    deleteInputParameter = (selectedParameter) => {
-        const filteredParameters = this.state.inputParameters.filter((parameter) =>
-            parameter.name !== selectedParameter.name)
-        this.setState({inputParameters: filteredParameters});
     }
 
     renderOutputParamers = (outputParameters) => 
@@ -97,7 +52,9 @@ export class Home extends Component {
         return (
             <div>
                 <p>Server url: {this?.state?.config?.testUrl}<input type="text"/></p>
-                {this.renderInputParameters(this.state.inputParameters)}
+                <InputParameters onParameterTypeUpdated={this.onParameterTypeUpdated}
+                    onParameterDeleted={this.onParameterDeleted}
+                    parameters={this.state.inputParameters} types={this.state.types}></InputParameters>
                 <hr/>
                 <InputParameter onParameterAdded={this.onParameterAdded} types={this.state.types}></InputParameter>
                 <hr/>
@@ -106,6 +63,23 @@ export class Home extends Component {
                 <button className="button-default" onClick={() => this.addEndpoint()}>Add endpoint</button>
             </div>
         );
+    }
+
+    onParameterDeleted = (selectedParameter) => {
+        const filteredParameters = this.state.inputParameters.filter((parameter) =>
+            parameter.name !== selectedParameter.name)
+        this.setState({inputParameters: filteredParameters});
+    }
+
+    onParameterTypeUpdated = (name, newType) => {
+        this.setState((state) => {
+            const inputParameters = state.inputParameters.map((storedParameter) =>
+                (name === storedParameter.name) ? 
+                    {...storedParameter, type: newType}: 
+                    storedParameter
+            );
+            return {inputParameters};
+        })
     }
 
     onParameterAdded = (name, type) => {

@@ -11,6 +11,8 @@ namespace IntegrationTestingTool.Model
 
         public IEnumerable<InputParameter> InputParameters { get; set; }
 
+        public bool AcceptJustSuccessfulStatusCode { get; set; }
+
         public IEnumerable<OutputParameter> OutputParameters { get; set; }
     }
 }

@@ -1,0 +1,8 @@
+.output-parameter-form{
+    display: flex;
+    align-items: center;
+}
+
+.output-parameter-element{
+    margin: 0 5px;
+}

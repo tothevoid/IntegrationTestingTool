@@ -1,6 +1,5 @@
 ﻿using IntegrationTestingTool.Model;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,19 +9,22 @@ namespace IntegrationTestingTool.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class EndpointController : ControllerBase
+    [Produces("application/json")]
+    public class EndpointController
     {
-        private readonly ILogger<EndpointController> _logger;
-
-        public EndpointController(ILogger<EndpointController> logger)
+        [HttpGet]
+        public IEnumerable<Endpoint> Get()
         {
-            _logger = logger;
+            //fetch endpoints from DB
+            return new List<Endpoint>();
         }
 
         [HttpPost]
-        public void Post(Endpoint endpoint)
+        public bool Post(Endpoint endpoint)
         {
-
+            //insert into DB
+            return false;
         }
+
     }
 }

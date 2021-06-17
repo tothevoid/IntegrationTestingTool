@@ -60,9 +60,10 @@ namespace IntegrationTestingTool
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapDynamicControllerRoute<TestRequestsValueTransformer>("test/{**data}");
-                endpoints.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller}/{action=Index}/{id?}");
+                //endpoints.MapControllerRoute(
+                //    name: "default",
+                //    pattern: "{controller}/{action=Index}/{id?}");
+                endpoints.MapControllers();
             });
 
             app.UseSpa(spa =>

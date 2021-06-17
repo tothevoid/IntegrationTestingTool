@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import "./InputParameter.css"
-import { Button } from "../controls/Button/Button"
-import { ComboBox } from '../controls/ComboBox/ComboBox';
+import "./InputParameterForm.css"
+import { Button } from "../../controls/Button/Button"
+import { ComboBox } from '../../controls/ComboBox/ComboBox';
 
-export class InputParameter extends Component {
+export class InputParameterForm extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -34,7 +34,6 @@ export class InputParameter extends Component {
     }
 
     onSelect = (selectedValue) => {
-        debugger;
         this.setState({type: selectedValue})
     }
 

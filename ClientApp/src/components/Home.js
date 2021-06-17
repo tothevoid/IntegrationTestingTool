@@ -1,7 +1,11 @@
 import React, { Component, Fragment } from 'react';
 import "./Home.css"
-import { InputParameter } from "./forms/InputParameter"
+import { InputParameterForm } from "./forms/InputParameterForm/InputParameterForm"
+import { OutputParameterForm } from "./forms/OutputParameterForm/OutputParameterForm"
 import { InputParameters } from './tables/InputParameters';
+import { OutputParameters } from './tables/OutputParameters';
+import { Button } from "./controls/Button/Button"
+
 export class Home extends Component {
     static displayName = Home.name;
 
@@ -11,35 +15,14 @@ export class Home extends Component {
             path: "",
             types: [],
             inputParameters: [{ name: "val", type: "Integer" }, { name: "day", type: "DateTime" }],
-            outputParameters: [{ name: "isSuccessful", type: "bool", desiredValue: "true"}]
+            outputParameters: [{ name: "isSuccessful", type: "Boolean", desiredValue: "true"}],
         };
     }
 
     componentDidMount() {
         this.getTypes();
         this.getConfig();
-    }
-
-    renderOutputParamers = (outputParameters) => 
-        <table className="output-parameter-container">
-            <thead>
-                <tr>
-                    <th className="output-parameter-name">Name</th>
-                    <th className="output-parameter-type">Type</th>
-                    <th className="output-parameter-desired">DesiredValue</th>
-                </tr>
-            </thead>
-            <tbody>
-                {
-                    outputParameters.map((parameter, ix) => <tr key={ix}>
-                        <td className="output-parameter-name">{parameter.name}</td>
-                        <td className="output-parameter-type">{parameter.type}</td>
-                        <td className="output-parameter-desired">{parameter.desiredValue}</td>
-                    </tr>)
-                }
-            </tbody>
-          
-        </table>
+    }    
 
     renderNewInputParameter = () => 
         <div>
@@ -51,18 +34,43 @@ export class Home extends Component {
     render () {
         return (
             <div>
-                <p>Server url: {this?.state?.config?.testUrl}<input type="text"/></p>
+                <p>Server url: {this?.state?.config?.testUrl}
+                    <input type="text"/>
+                </p>
                 <InputParameters onParameterTypeUpdated={this.onParameterTypeUpdated}
                     onParameterDeleted={this.onParameterDeleted}
-                    parameters={this.state.inputParameters} types={this.state.types}></InputParameters>
+                    parameters={this.state.inputParameters} types={this.state.types}>    
+                </InputParameters>
                 <hr/>
-                <InputParameter onParameterAdded={this.onParameterAdded} types={this.state.types}></InputParameter>
+                <InputParameterForm onParameterAdded={this.onParameterAdded} types={this.state.types}></InputParameterForm>
                 <hr/>
-                    <button onClick={()=>console.log(this.state.inputParameters)} className="button-default">Add output parameter</button>
-                {this.renderOutputParamers(this.state.outputParameters)}
-                <button className="button-default" onClick={() => this.addEndpoint()}>Add endpoint</button>
+                <OutputParameters onParameterTypeUpdated={this.onOutputParameterTypeUpdated}
+                    onParameterDeleted={this.onOutputParameterTypeDeleted}
+                    parameters={this.state.outputParameters} types={this.state.types}>
+                </OutputParameters>
+                <hr/>
+                <OutputParameterForm onParameterAdded={this.onOutputParameterAdded} types={this.state.types}></OutputParameterForm>
+                <hr/>
+                <Button onClick={this.addEndpoint} caption={"Add endpoint"}></Button>
             </div>
         );
+    }
+
+    onOutputParameterTypeUpdated = (name, newType) => {
+        this.setState((state) => {
+            const outputParameters = state.outputParameters.map((storedParameter) =>
+                (name === storedParameter.name) ? 
+                    {...storedParameter, type: newType}: 
+                    storedParameter
+            );
+            return {outputParameters};
+        })
+    }
+
+    onOutputParameterTypeDeleted = (selectedParameter) => {
+        const filteredParameters = this.state.outputParameters.filter((parameter) =>
+            parameter.name !== selectedParameter.name)
+        this.setState({outputParameters: filteredParameters});
     }
 
     onParameterDeleted = (selectedParameter) => {
@@ -92,11 +100,39 @@ export class Home extends Component {
         }
     }
 
-    async addEndpoint(endpoint) {
-        console.log(this.state.inputParameters);
-        await fetch("Endpoint", {
+    onOutputParameterAdded = (name, type, desiredValue) => {
+        if (this.state.outputParameters.some((param) => param.name === name)){
+            console.log(`parameter with name {name} already exists`);
+        } else {
+            this.setState(prevState => ({
+                outputParameters: [...prevState.outputParameters, {name: name, type: type, desiredValue: desiredValue}]
+            }))
+        }
+    }
+
+    addEndpoint = () => {
+        //temporary solution
+        const {inputParameters, outputParameters} = this.state;
+
+        const updatedInputParameters = inputParameters.map((param) => {
+            const type = this.state.types.find((type) => type.name === param.type);
+            return {type: type, name: param.name};
+        })
+
+        const updatedOutputParameters = outputParameters.map((param) => {
+            const type = this.state.types.find((type) => type.name === param.type);
+            return {type: type, name: param.name, desiredValue: param.desiredValue};
+        })
+
+        const data = {
+            path: "",
+            inputParameters: updatedInputParameters,
+            outputParameters: updatedOutputParameters
+        }
+
+        fetch("Endpoint", {
             method: 'POST',
-            body: JSON.stringify(endpoint),
+            body: JSON.stringify(data),
             headers: {
                 'Content-Type': 'application/json'
             }

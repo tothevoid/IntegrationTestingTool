@@ -1,0 +1,9 @@
+.button-default{
+    font-family: 'Roboto', sans-serif;
+    height: 40px;
+    padding: 5px;
+    background-color: #f0b90b;
+    border-radius: 10px;
+    border: solid 5px transparent;
+    box-shadow: 0px 2px 2px 0 rgba(0, 0, 0, 0.301);
+}

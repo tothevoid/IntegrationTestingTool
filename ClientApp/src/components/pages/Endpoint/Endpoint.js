@@ -1,15 +1,16 @@
 import React, { Component, Fragment } from 'react';
-import "./Home.css"
-import { InputParameterForm } from "./forms/InputParameterForm/InputParameterForm"
-import { OutputParameterForm } from "./forms/OutputParameterForm/OutputParameterForm"
-import { InputParameters } from './tables/InputParameters';
-import { OutputParameters } from './tables/OutputParameters';
-import { Button } from "./controls/Button/Button"
+import "./Endpoint.css"
+import { InputParameterForm } from "../../forms/InputParameterForm/InputParameterForm"
+import { OutputParameterForm } from "../../forms/OutputParameterForm/OutputParameterForm"
+import { InputParameters } from '../../tables/InputParameters';
+import { OutputParameters } from '../../tables/OutputParameters';
+import { Button } from "../../controls/Button/Button"
 
-export class Home extends Component {
-    static displayName = Home.name;
+export class Endpoint extends Component {
+    static displayName = Endpoint.name;
 
     constructor(props) {
+        debugger;
         super(props);
         this.state = {
             path: "",

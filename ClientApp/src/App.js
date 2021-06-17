@@ -1,8 +1,11 @@
 import React, { Component } from 'react';
-import { Route } from 'react-router';
-import { Layout } from './components/Layout';
-import { Home } from './components/Home';
-
+import { Route, Switch, HashRouter as Router } from 'react-router-dom';
+import { Endpoints } from './components/pages/Endpoints/Endpoints';
+import { Endpoint } from './components/pages/Endpoint/Endpoint';
+import { Logs } from './components/pages/Logs/Logs';
+import { NotFound } from './components/pages/NotFound/NotFound';
+import { NavMenu } from "./components/controls/NavMenu/NavMenu"
+import { Container } from 'reactstrap';
 import './custom.css'
 
 export default class App extends Component {
@@ -10,9 +13,18 @@ export default class App extends Component {
 
   render () {
     return (
-      <Layout>
-        <Route exact path='/' component={Home} />
-      </Layout>
+      <Router>
+        <NavMenu/>
+        <Container>
+          <Switch>
+            <Route exact path='/' component={Endpoints} />
+            <Route exact path='/endpoints' component={Endpoints} />
+            <Route exact path='/endpoint' component={Endpoint} />
+            <Route exact path='/logs' component={Logs} />
+            <Route component={NotFound} />
+          </Switch>
+        </Container>
+      </Router>
     );
   }
 }

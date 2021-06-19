@@ -1,6 +1,8 @@
 using IntegrationTestingTool.Controllers;
-using IntegrationTestingTool.Interfaces;
 using IntegrationTestingTool.Services;
+using IntegrationTestingTool.Services.Inerfaces;
+using IntegrationTestingTool.Services.Interfaces;
+using IntegrationTestingTool.Settings;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -11,6 +13,7 @@ using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using System.Threading.Tasks;
 
 namespace IntegrationTestingTool
@@ -27,6 +30,12 @@ namespace IntegrationTestingTool
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure<MongoSettings>(
+                 Configuration.GetSection("AppDatabaseSettings"));
+
+            services.AddSingleton<IMongoSettings>(sp =>
+                sp.GetRequiredService<IOptions<MongoSettings>>().Value);
+
             services.AddControllersWithViews();
 
             // In production, the React files will be served from this directory
@@ -37,6 +46,7 @@ namespace IntegrationTestingTool
 
             services.AddSingleton<TestRequestsValueTransformer>();
             services.AddTransient<IRouteHandlerService, RouteHandlerService>();
+            services.AddTransient<IEndpointService, EndpointService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -60,9 +70,6 @@ namespace IntegrationTestingTool
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapDynamicControllerRoute<TestRequestsValueTransformer>("test/{**data}");
-                //endpoints.MapControllerRoute(
-                //    name: "default",
-                //    pattern: "{controller}/{action=Index}/{id?}");
                 endpoints.MapControllers();
             });
 

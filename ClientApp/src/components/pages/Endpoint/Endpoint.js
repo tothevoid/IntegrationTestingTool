@@ -5,12 +5,12 @@ import { OutputParameterForm } from "../../forms/OutputParameterForm/OutputParam
 import { InputParameters } from '../../tables/InputParameters';
 import { OutputParameters } from '../../tables/OutputParameters';
 import { Button } from "../../controls/Button/Button"
+import { useHistory } from "react-router-dom";
 
 export class Endpoint extends Component {
     static displayName = Endpoint.name;
 
     constructor(props) {
-        debugger;
         super(props);
         this.state = {
             path: "",
@@ -112,6 +112,7 @@ export class Endpoint extends Component {
     }
 
     addEndpoint = () => {
+        const history = useHistory();
         //temporary solution
         const {inputParameters, outputParameters} = this.state;
 
@@ -137,7 +138,8 @@ export class Endpoint extends Component {
             headers: {
                 'Content-Type': 'application/json'
             }
-        });
+        }).then(response => response.status)
+            .then(status => { if (status === 200) history.push("/home")});
     }
     
     getConfig() {

@@ -1,4 +1,5 @@
 ﻿using IntegrationTestingTool.Model;
+using IntegrationTestingTool.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -12,19 +13,20 @@ namespace IntegrationTestingTool.Controllers
     [Produces("application/json")]
     public class EndpointController
     {
-        [HttpGet]
-        public IEnumerable<Endpoint> Get()
+        private readonly IEndpointService _endpointService;
+
+        public EndpointController(IEndpointService endpointService)
         {
-            //fetch endpoints from DB
-            return new List<Endpoint>();
+            _endpointService = endpointService;
         }
 
+        [HttpGet]
+        public IEnumerable<Endpoint> Get() =>
+            _endpointService.GetAll();
+
         [HttpPost]
-        public bool Post(Endpoint endpoint)
-        {
-            //insert into DB
-            return false;
-        }
+        public void Post(Endpoint endpoint) =>
+            _endpointService.Create(endpoint);
 
     }
 }

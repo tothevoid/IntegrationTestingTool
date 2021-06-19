@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MongoDB.Bson.Serialization.Attributes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,6 +8,9 @@ namespace IntegrationTestingTool.Model
 {
     public class Endpoint
     {
+        [BsonId]
+        public Guid Id { get; set; }
+
         public string Path { get; set; }
 
         public IEnumerable<InputParameter> InputParameters { get; set; }

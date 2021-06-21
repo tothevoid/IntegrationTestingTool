@@ -5,7 +5,6 @@ import { OutputParameterForm } from "../../forms/OutputParameterForm/OutputParam
 import { InputParameters } from '../../tables/InputParameters';
 import { OutputParameters } from '../../tables/OutputParameters';
 import { Button } from "../../controls/Button/Button"
-import { useHistory } from "react-router-dom";
 
 export class Endpoint extends Component {
     static displayName = Endpoint.name;
@@ -17,6 +16,7 @@ export class Endpoint extends Component {
             types: [],
             inputParameters: [{ name: "val", type: "Integer" }, { name: "day", type: "DateTime" }],
             outputParameters: [{ name: "isSuccessful", type: "Boolean", desiredValue: "true"}],
+            noOutput: false
         };
     }
 
@@ -45,16 +45,30 @@ export class Endpoint extends Component {
                 <hr/>
                 <InputParameterForm onParameterAdded={this.onParameterAdded} types={this.state.types}></InputParameterForm>
                 <hr/>
-                <OutputParameters onParameterTypeUpdated={this.onOutputParameterTypeUpdated}
-                    onParameterDeleted={this.onOutputParameterTypeDeleted}
-                    parameters={this.state.outputParameters} types={this.state.types}>
-                </OutputParameters>
-                <hr/>
-                <OutputParameterForm onParameterAdded={this.onOutputParameterAdded} types={this.state.types}></OutputParameterForm>
+                <input onChange={this.noOutputChanged} checked={this.state.noOutput} type="checkbox"/>
+                <span> Without output</span>
+                {
+                    !this.state.noOutput ?
+                        <Fragment>
+                            <OutputParameters onParameterTypeUpdated={this.onOutputParameterTypeUpdated}
+                                onParameterDeleted={this.onOutputParameterTypeDeleted}
+                                parameters={this.state.outputParameters} types={this.state.types}>
+                            </OutputParameters>
+                            <hr/>
+                            <OutputParameterForm onParameterAdded={this.onOutputParameterAdded} types={this.state.types}></OutputParameterForm>
+                        </Fragment> :
+                        <div></div>                   
+                }
+                
                 <hr/>
                 <Button onClick={this.addEndpoint} caption={"Add endpoint"}></Button>
             </div>
         );
+    }
+
+    noOutputChanged = (event) => {
+        debugger;
+        this.setState({noOutput: event.target.checked});
     }
 
     onOutputParameterTypeUpdated = (name, newType) => {
@@ -112,19 +126,20 @@ export class Endpoint extends Component {
     }
 
     addEndpoint = () => {
-        const history = useHistory();
         //temporary solution
-        const {inputParameters, outputParameters} = this.state;
+        const {inputParameters, outputParameters, noOutput} = this.state;
 
         const updatedInputParameters = inputParameters.map((param) => {
             const type = this.state.types.find((type) => type.name === param.type);
             return {type: type, name: param.name};
         })
 
-        const updatedOutputParameters = outputParameters.map((param) => {
-            const type = this.state.types.find((type) => type.name === param.type);
-            return {type: type, name: param.name, desiredValue: param.desiredValue};
-        })
+        const updatedOutputParameters = (!noOutput) ? 
+            outputParameters.map((param) => {
+                const type = this.state.types.find((type) => type.name === param.type);
+                return {type: type, name: param.name, desiredValue: param.desiredValue};
+            }) :
+            [];
 
         const data = {
             path: "",
@@ -139,7 +154,7 @@ export class Endpoint extends Component {
                 'Content-Type': 'application/json'
             }
         }).then(response => response.status)
-            .then(status => { if (status === 200) history.push("/home")});
+            .then(status => { if (status === 200) this.props.history.push("/endpoints")});
     }
     
     getConfig() {

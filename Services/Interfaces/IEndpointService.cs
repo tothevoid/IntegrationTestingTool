@@ -8,8 +8,10 @@ namespace IntegrationTestingTool.Services.Interfaces
 {
     public interface IEndpointService
     {
-        public IEnumerable<Endpoint> GetAll();
+        IEnumerable<Endpoint> GetAll();
 
-        public Endpoint Create(Endpoint endpoint);
+        Endpoint Create(Endpoint endpoint);
+
+        IEnumerable<Endpoint> FindByParameter(string parameterName, string value);
     }
 }

@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using IntegrationTestingTool.Model;
+using IntegrationTestingTool.Services.Inerfaces;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,26 +11,25 @@ namespace IntegrationTestingTool.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class GenericController
+    public class GenericController: Controller
     {
-        public string Get(string data)
+        private readonly IRouteHandlerService _routeHandlerService;
+        public GenericController(IRouteHandlerService routeHandlerService)
         {
-            return "Success";
+            _routeHandlerService = routeHandlerService;
         }
 
-        public string Post(string data)
+        public string Get([FromRoute(Name = "data")] string data, [FromRoute(Name = "endpoint")] string endpointRaw)
         {
-            return "Success";
-        }
-
-        public string Put(string data)
-        {
-            return "Success";
-        }
-
-        public string Delete(string data)
-        {
-            return "Success";
+            var endpoint = JsonConvert.DeserializeObject<Endpoint>(endpointRaw);
+            if (endpoint.AcceptJustSuccessfulStatusCode)
+            {
+                return string.Empty;
+            }
+            else
+            {
+                return _routeHandlerService.FormatResponse(endpoint.OutputParameters);
+            }
         }
     }
 }

@@ -29,5 +29,9 @@ namespace IntegrationTestingTool.Services
             _mongoDB.GetCollection<Endpoint>("Endpoints").InsertOne(endpoint);
             return endpoint;
         }
+
+        public IEnumerable<Endpoint> FindByParameter(string parameterName, string value) =>
+            _mongoDB.GetCollection<Endpoint>("Endpoints")
+                .Find(new BsonDocument(parameterName, value)).ToList();
     }
 }

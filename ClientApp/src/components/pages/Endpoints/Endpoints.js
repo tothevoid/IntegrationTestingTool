@@ -3,13 +3,24 @@ import "./Endpoints.css"
 
 export class Endpoints extends Component {
     
-    componentDidMount() {
+    constructor(props) {
+        super(props);
+        this.state = {
+            endpoints: []
+        }
         this.getEndpoints();
     }
-    
+
+    renderEndpoint = (endpoint) =>
+        <div className="endpoint">
+            <span>URL: {this.props?.config?.testUrl}{endpoint.path}</span>
+            <span>Input: {endpoint.inputParameters.length}</span>
+            <span>Output: {endpoint.outputParameters.length}</span>
+        </div>
+
     render() {
         return <div>
-            {this.state?.endpoints?.length}
+            {this.state.endpoints.map((endpoint)=>this.renderEndpoint(endpoint))}
         </div>
     }
 

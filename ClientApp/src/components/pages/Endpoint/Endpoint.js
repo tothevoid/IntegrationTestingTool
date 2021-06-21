@@ -22,7 +22,6 @@ export class Endpoint extends Component {
 
     componentDidMount() {
         this.getTypes();
-        this.getConfig();
     }    
 
     renderNewInputParameter = () => 
@@ -35,8 +34,8 @@ export class Endpoint extends Component {
     render () {
         return (
             <div>
-                <p>Server url: {this?.state?.config?.testUrl}
-                    <input type="text"/>
+                <p>Server url: {this.props.config?.testUrl}
+                    <input onChange={this.onPathChanged} value={this.state.path} type="text"/>
                 </p>
                 <InputParameters onParameterTypeUpdated={this.onParameterTypeUpdated}
                     onParameterDeleted={this.onParameterDeleted}
@@ -66,8 +65,11 @@ export class Endpoint extends Component {
         );
     }
 
+    onPathChanged = (event) => {
+        this.setState({path: event.target.value});
+    }
+
     noOutputChanged = (event) => {
-        debugger;
         this.setState({noOutput: event.target.checked});
     }
 
@@ -127,7 +129,7 @@ export class Endpoint extends Component {
 
     addEndpoint = () => {
         //temporary solution
-        const {inputParameters, outputParameters, noOutput} = this.state;
+        const {inputParameters, outputParameters, noOutput, path} = this.state;
 
         const updatedInputParameters = inputParameters.map((param) => {
             const type = this.state.types.find((type) => type.name === param.type);
@@ -142,7 +144,7 @@ export class Endpoint extends Component {
             [];
 
         const data = {
-            path: "",
+            path: path,
             inputParameters: updatedInputParameters,
             outputParameters: updatedOutputParameters
         }
@@ -155,12 +157,6 @@ export class Endpoint extends Component {
             }
         }).then(response => response.status)
             .then(status => { if (status === 200) this.props.history.push("/endpoints")});
-    }
-    
-    getConfig() {
-        fetch("ServerConfig")
-            .then((response)=> response.json())
-            .then((config)=> {this.setState({config: config})});
     }
 
     getTypes() {

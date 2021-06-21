@@ -11,20 +11,37 @@ import './custom.css'
 export default class App extends Component {
   static displayName = App.name;
 
+  constructor(props){
+    super(props);
+    this.state = {
+      config: {}
+    }
+  }
+
+  componentDidMount() {
+    this.getConfig();
+  }
+
   render () {
     return (
       <Router>
         <NavMenu/>
         <Container>
           <Switch>
-            <Route exact path='/' component={Endpoints} />
-            <Route exact path='/endpoints' component={Endpoints} />
-            <Route exact path='/endpoint' component={Endpoint} />
+            <Route exact path='/'  render={() => <Endpoints config={this.state.config}/>}/>
+            <Route exact path='/endpoints'  render={() => <Endpoints config={this.state.config}/>}/>
+            <Route exact path='/endpoint'  render={() => <Endpoint config={this.state.config}/>}/>
             <Route exact path='/logs' component={Logs} />
             <Route component={NotFound} />
           </Switch>
         </Container>
       </Router>
     );
+  }
+
+  getConfig() {
+    fetch("ServerConfig")
+        .then((response)=> response.json())
+        .then((config)=> {this.setState({config: config})});
   }
 }

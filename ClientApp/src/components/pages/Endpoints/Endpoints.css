@@ -1,0 +1,10 @@
+.endpoint{
+    height: 50px;
+    margin: 10px 0;
+    padding: 5px;
+    border: gray 1px solid;
+}
+
+.endpoint span{
+    margin: 0 10px;
+}

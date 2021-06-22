@@ -29,7 +29,7 @@ export class Endpoint extends Component {
         <div>
             <input name="new-input-param-name" type="text"/>
             <input type="text"/>
-            <button className="button-default">Add new input parameter</button>
+            <button className="button-default">Add new required input parameter</button>
         </div>
 
     render () {

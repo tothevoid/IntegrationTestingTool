@@ -4,7 +4,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Routing;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -18,21 +20,44 @@ namespace IntegrationTestingTool
             _routeHandlerService = routeHandlerService;
         }
 
-        public override ValueTask<RouteValueDictionary> TransformAsync(HttpContext httpContext, RouteValueDictionary values)
+        public override async ValueTask<RouteValueDictionary> TransformAsync(HttpContext httpContext, RouteValueDictionary values)
         {
+            var output = new RouteValueDictionary()
+            {
+                { "controller", "Generic" }
+            };
+
             var parts = httpContext.Request.Path.Value.Split("/").Where(x => x != "test" && x != string.Empty);
             var path = string.Join("/", parts);
             var endpoint = _routeHandlerService.GetEndpointByPath(path);
 
-            if (endpoint != null)
+            string body = string.Empty;
+            if (httpContext.Request.ContentType == "application/json")
             {
-                values["controller"] = "Generic";
-                values["action"] = httpContext.Request.Method;
-                values["data"] = string.Empty;
-                values["endpoint"] = JsonConvert.SerializeObject(endpoint);
-                return new ValueTask<RouteValueDictionary>(values);
+                using (StreamReader stream = new StreamReader(httpContext.Request.Body))
+                {
+                    body = await stream.ReadToEndAsync();
+                }
             }
-            return default;
+
+            var errorMessage = (endpoint == null) ?
+                "There is no endpoint with the same url" :
+                !_routeHandlerService.ValidateInputData(body, endpoint.InputParameters) ?
+                    "Some of required parameters wasn't sent" :
+                    string.Empty;
+
+            if (string.IsNullOrEmpty(errorMessage))
+            {
+                output["action"] = "GET";
+                output["data"] = body;
+                output["endpoint"] = JsonConvert.SerializeObject(endpoint);
+            } 
+            else
+            {
+                output["action"] = "ERROR";
+                output["errorMessage"] = errorMessage;
+            }
+            return output;
         }
     }
 }

@@ -3,7 +3,7 @@ import { ComboBox } from '../controls/ComboBox/ComboBox';
 
 export const InputParameters = (props) => 
     <div>
-        <p>Input parameters</p>
+        <p>Required input parameters</p>
         <table className="input-parameter-container">
             <thead>
                 <tr>

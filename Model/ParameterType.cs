@@ -10,6 +10,23 @@ namespace IntegrationTestingTool.Model
         public string Id { get; set; }
         public string Name { get; set; }
 
+        public bool CheckValueType(string value)
+        {
+            switch (Name)
+            {
+                case nameof(String):
+                    return true;
+                case nameof(Boolean):
+                    return bool.TryParse(value, out bool _);
+                case "Integer":
+                    return int.TryParse(value, out int _);
+                case nameof(DateTime):
+                    return DateTime.TryParse(value, out DateTime _);
+                default:
+                    return false;
+            }
+        }
+
         public TypeCode GetTypeCode()
         {
             switch (Name)

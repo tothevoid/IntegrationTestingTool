@@ -40,5 +40,34 @@ namespace IntegrationTestingTool.Services
 
         private object GetValue(string value, ParameterType type) =>
             Convert.ChangeType(value, type.GetTypeCode());
+
+        private bool CheckIsCorrectProp(object value, ParameterType type)
+        {
+            if (type.CheckValueType(value.ToString()))
+            {
+                var convertedValue = Convert.ChangeType(value, type.GetTypeCode());
+                return convertedValue != default;
+            }
+            return false;
+        }
+         
+
+        public bool ValidateInputData(string inputData, IEnumerable<InputParameter> inputParameters)
+        {
+            List<string> ignoredParameters = new List<string>();
+            var values = JsonConvert.DeserializeObject<Dictionary<string, object>>(inputData);
+
+            foreach (var parameter in inputParameters)
+            { 
+                if (values.TryGetValue(parameter.Name, out object parameterValue) && 
+                    CheckIsCorrectProp(parameterValue, parameter.Type))
+                {
+                    continue;
+                }
+                ignoredParameters.Add(parameter.Name);
+            }
+
+            return !ignoredParameters.Any();
+        }
     }
 }

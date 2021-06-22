@@ -29,5 +29,11 @@ namespace IntegrationTestingTool.Controllers
             _loggingService.Create(new RequestLog { Path = endpoint.Path, Recieved = data, Returned = result});
             return result;
         }
+
+        public ActionResult Error([FromRoute(Name = "errorMessage")] string errorMessage)
+        {
+            return BadRequest(errorMessage);
+        }
+        
     }
 }

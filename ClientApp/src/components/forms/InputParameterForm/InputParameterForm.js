@@ -25,7 +25,7 @@ export class InputParameterForm extends Component {
                     <span></span>
             }
             
-            <Button onClick={this.addParameter} additionalClasses="input-parameter-element" caption={"Add input parameter"}></Button>
+            <Button onClick={this.addParameter} additionalClasses="input-parameter-element" caption={"Add required input parameter"}></Button>
         </div>
     }
 

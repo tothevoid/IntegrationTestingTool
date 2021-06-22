@@ -12,26 +12,25 @@ namespace IntegrationTestingTool.Services
 {
     public class EndpointService: IEndpointService
     {
-        private readonly IMongoDatabase _mongoDB;
+        private readonly IMongoCollection<Endpoint> _collection;
 
         public EndpointService(IMongoSettings settings)
         {
             var client = new MongoClient(settings.ConnectionString);
-            _mongoDB = client.GetDatabase(settings.DatabaseName);
+            _collection = client.GetDatabase(settings.DatabaseName).GetCollection<Endpoint>("Endpoints");
         }
 
         public IEnumerable<Endpoint> GetAll() =>
-            _mongoDB.GetCollection<Endpoint>("Endpoints").Find(new BsonDocument()).ToList();
+            _collection.Find(new BsonDocument()).ToList();
 
         public Endpoint Create(Endpoint endpoint)
         {
             endpoint.Id = Guid.NewGuid();
-            _mongoDB.GetCollection<Endpoint>("Endpoints").InsertOne(endpoint);
+            _collection.InsertOne(endpoint);
             return endpoint;
         }
 
         public IEnumerable<Endpoint> FindByParameter(string parameterName, string value) =>
-            _mongoDB.GetCollection<Endpoint>("Endpoints")
-                .Find(new BsonDocument(parameterName, value)).ToList();
+            _collection.Find(new BsonDocument(parameterName, value)).ToList();
     }
 }

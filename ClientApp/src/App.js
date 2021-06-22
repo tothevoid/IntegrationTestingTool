@@ -29,9 +29,9 @@ export default class App extends Component {
         <Container>
           <Switch>
             <Route exact path='/' render={(props) => <Endpoints {...props} config={this.state.config}/>}/>
-            <Route exact path='/endpoints'  render={(props) => <Endpoints {...props} config={this.state.config}/>}/>
-            <Route exact path='/endpoint'  render={(props) => <Endpoint  {...props} config={this.state.config}/>}/>
-            <Route exact path='/logs' component={Logs} />
+            <Route exact path='/endpoints' render={(props) => <Endpoints {...props} config={this.state.config}/>}/>
+            <Route exact path='/endpoint' render={(props) => <Endpoint  {...props} config={this.state.config}/>}/>
+            <Route exact path='/logs' render={(props) => <Logs  {...props} config={this.state.config}/>}/>
             <Route component={NotFound} />
           </Switch>
         </Container>

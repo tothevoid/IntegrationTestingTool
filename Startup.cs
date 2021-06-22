@@ -47,6 +47,7 @@ namespace IntegrationTestingTool
             services.AddSingleton<TestRequestsValueTransformer>();
             services.AddTransient<IRouteHandlerService, RouteHandlerService>();
             services.AddTransient<IEndpointService, EndpointService>();
+            services.AddTransient<ILoggingService, LoggingService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

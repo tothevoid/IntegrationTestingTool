@@ -1,5 +1,6 @@
 ﻿using IntegrationTestingTool.Model;
 using IntegrationTestingTool.Services.Inerfaces;
+using IntegrationTestingTool.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System;
@@ -14,15 +15,19 @@ namespace IntegrationTestingTool.Controllers
     public class GenericController: Controller
     {
         private readonly IRouteHandlerService _routeHandlerService;
-        public GenericController(IRouteHandlerService routeHandlerService)
+        private readonly ILoggingService _loggingService;
+        public GenericController(IRouteHandlerService routeHandlerService, ILoggingService loggingService)
         {
             _routeHandlerService = routeHandlerService;
+            _loggingService = loggingService;
         }
 
         public string Get([FromRoute(Name = "data")] string data, [FromRoute(Name = "endpoint")] string endpointRaw)
         {
             var endpoint = JsonConvert.DeserializeObject<Endpoint>(endpointRaw);
-            return _routeHandlerService.ProcessRequest(endpoint, data);
+            var result = _routeHandlerService.ProcessRequest(endpoint, data);
+            _loggingService.Create(new RequestLog { Path = endpoint.Path, Recieved = data, Returned = result});
+            return result;
         }
     }
 }

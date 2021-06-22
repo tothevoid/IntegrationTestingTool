@@ -10,6 +10,6 @@ namespace IntegrationTestingTool.Services.Inerfaces
     {
         Endpoint GetEndpointByPath(string path);
 
-        string FormatResponse(IEnumerable<OutputParameter> parameters);
+        string ProcessRequest(Endpoint endpoint, string data);
     }
 }

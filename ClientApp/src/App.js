@@ -28,9 +28,9 @@ export default class App extends Component {
         <NavMenu/>
         <Container>
           <Switch>
-            <Route exact path='/'  render={() => <Endpoints config={this.state.config}/>}/>
-            <Route exact path='/endpoints'  render={() => <Endpoints config={this.state.config}/>}/>
-            <Route exact path='/endpoint'  render={() => <Endpoint config={this.state.config}/>}/>
+            <Route exact path='/' render={(props) => <Endpoints {...props} config={this.state.config}/>}/>
+            <Route exact path='/endpoints'  render={(props) => <Endpoints {...props} config={this.state.config}/>}/>
+            <Route exact path='/endpoint'  render={(props) => <Endpoint  {...props} config={this.state.config}/>}/>
             <Route exact path='/logs' component={Logs} />
             <Route component={NotFound} />
           </Switch>

@@ -16,7 +16,8 @@ export class Endpoint extends Component {
             types: [],
             inputParameters: [{ name: "val", type: "Integer" }, { name: "day", type: "DateTime" }],
             outputParameters: [{ name: "isSuccessful", type: "Boolean", desiredValue: "true"}],
-            noOutput: false
+            noOutput: false,
+            anyInput: false
         };
     }
 
@@ -37,14 +38,21 @@ export class Endpoint extends Component {
                 <p>Server url: {this.props.config?.testUrl}
                     <input onChange={this.onPathChanged} value={this.state.path} type="text"/>
                 </p>
-                <InputParameters onParameterTypeUpdated={this.onParameterTypeUpdated}
-                    onParameterDeleted={this.onParameterDeleted}
-                    parameters={this.state.inputParameters} types={this.state.types}>    
-                </InputParameters>
-                <hr/>
-                <InputParameterForm onParameterAdded={this.onParameterAdded} types={this.state.types}></InputParameterForm>
-                <hr/>
-                <input onChange={this.noOutputChanged} checked={this.state.noOutput} type="checkbox"/>
+                <input name="anyInput" onChange={this.onBoolChanged} checked={this.state.anyInput} type="checkbox"/>
+                <span>Any input data</span>
+                {
+                    !this.state.anyInput ?
+                        <Fragment>
+                                <InputParameters onParameterTypeUpdated={this.onParameterTypeUpdated}
+                                    onParameterDeleted={this.onParameterDeleted}
+                                    parameters={this.state.inputParameters} types={this.state.types}>    
+                                </InputParameters>
+                            <hr/>
+                            <InputParameterForm onParameterAdded={this.onParameterAdded} types={this.state.types}></InputParameterForm>
+                        </Fragment> :
+                        <div></div>                   
+                }
+                <input name="noOutput" onChange={this.onBoolChanged} checked={this.state.noOutput} type="checkbox"/>
                 <span> Without output</span>
                 {
                     !this.state.noOutput ?
@@ -69,8 +77,8 @@ export class Endpoint extends Component {
         this.setState({path: event.target.value});
     }
 
-    noOutputChanged = (event) => {
-        this.setState({noOutput: event.target.checked});
+    onBoolChanged = (event) => {
+        this.setState({[event.target.name]: event.target.checked});
     }
 
     onOutputParameterTypeUpdated = (name, newType) => {
@@ -129,12 +137,13 @@ export class Endpoint extends Component {
 
     addEndpoint = () => {
         //temporary solution
-        const {inputParameters, outputParameters, noOutput, path} = this.state;
+        const {inputParameters, outputParameters, noOutput, anyInput, path} = this.state;
 
-        const updatedInputParameters = inputParameters.map((param) => {
-            const type = this.state.types.find((type) => type.name === param.type);
-            return {type: type, name: param.name};
-        })
+        const updatedInputParameters = (!anyInput) ? inputParameters.map((param) => {
+                const type = this.state.types.find((type) => type.name === param.type);
+                return {type: type, name: param.name};
+            }) :
+            []
 
         const updatedOutputParameters = (!noOutput) ? 
             outputParameters.map((param) => {
@@ -148,7 +157,6 @@ export class Endpoint extends Component {
             inputParameters: updatedInputParameters,
             outputParameters: updatedOutputParameters
         }
-
         fetch("Endpoint", {
             method: 'POST',
             body: JSON.stringify(data),

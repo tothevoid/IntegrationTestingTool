@@ -12,7 +12,7 @@ export class Endpoints extends Component {
     }
 
     renderEndpoint = (endpoint) =>
-        <div className="endpoint">
+        <div key={endpoint.id} className="endpoint">
             <span>URL: {this.props?.config?.testUrl}{endpoint.path}</span>
             <span>Input: {endpoint.inputParameters.length}</span>
             <span>Output: {endpoint.outputParameters.length}</span>

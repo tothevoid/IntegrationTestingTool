@@ -13,7 +13,7 @@ export class InputParameterForm extends Component {
     }
 
     render () {
-        const {name, type} = this.state;
+        const {name} = this.state;
 
         return <div className="input-parameter-form">
             <span className="input-parameter-element">Name</span>

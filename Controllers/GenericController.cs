@@ -22,14 +22,7 @@ namespace IntegrationTestingTool.Controllers
         public string Get([FromRoute(Name = "data")] string data, [FromRoute(Name = "endpoint")] string endpointRaw)
         {
             var endpoint = JsonConvert.DeserializeObject<Endpoint>(endpointRaw);
-            if (endpoint.AcceptJustSuccessfulStatusCode)
-            {
-                return string.Empty;
-            }
-            else
-            {
-                return _routeHandlerService.FormatResponse(endpoint.OutputParameters);
-            }
+            return _routeHandlerService.ProcessRequest(endpoint, data);
         }
     }
 }

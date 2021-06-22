@@ -19,7 +19,20 @@ namespace IntegrationTestingTool.Services
         public Endpoint GetEndpointByPath(string path) =>
             _endpointService.FindByParameter(nameof(Endpoint.Path), path).FirstOrDefault();
     
-        public string FormatResponse(IEnumerable<OutputParameter> parameters)
+
+        public string ProcessRequest(Endpoint endpoint, string data)
+        {
+            if (endpoint.NoInput)
+            {
+                return string.Empty;
+            }
+            else
+            {
+                return FormatResponse(endpoint.OutputParameters);
+            }
+        }
+
+        private string FormatResponse(IEnumerable<OutputParameter> parameters)
         {
             var values = parameters.ToDictionary(key => key.Name, value => GetValue(value.DesiredValue, value.Type));
             return JsonConvert.SerializeObject(values);

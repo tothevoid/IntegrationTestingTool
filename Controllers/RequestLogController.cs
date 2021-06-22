@@ -2,6 +2,7 @@
 using IntegrationTestingTool.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace IntegrationTestingTool.Controllers
 {
@@ -17,6 +18,6 @@ namespace IntegrationTestingTool.Controllers
 
         [HttpGet]
         public IEnumerable<RequestLog> Get() =>
-            _loggingService.GetAll();
+            _loggingService.GetAll().OrderByDescending(x => x.CreatedOn);
     }
 }

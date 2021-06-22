@@ -3,6 +3,7 @@ using IntegrationTestingTool.Services;
 using IntegrationTestingTool.Services.Inerfaces;
 using IntegrationTestingTool.Services.Interfaces;
 using IntegrationTestingTool.Settings;
+using IntegrationTestingTool.Socket;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -30,6 +31,7 @@ namespace IntegrationTestingTool
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSignalR();
             services.Configure<MongoSettings>(
                  Configuration.GetSection("AppDatabaseSettings"));
 
@@ -70,6 +72,7 @@ namespace IntegrationTestingTool
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapHub<LogsHub>("/hubs/logs");
                 endpoints.MapDynamicControllerRoute<TestRequestsValueTransformer>("test/{**data}");
                 endpoints.MapControllers();
             });

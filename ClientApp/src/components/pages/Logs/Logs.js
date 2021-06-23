@@ -18,8 +18,9 @@ export class Logs extends Component {
             .build();
 
         hubConnection.on("NewLog", data => {
+            const newElement = {isNew: true, ...data};
             this.setState(prevState => ({
-                logs: [data, ...prevState.logs]}))
+                logs: [newElement, ...prevState.logs]}))
         });
 
         this.setState({ hubConnection }, () => {
@@ -39,12 +40,30 @@ export class Logs extends Component {
             value; 
 
     renderLog = (log) =>
-        <div key={log.id} className="log">
+        <div onMouseEnter={() => this.onMouseEnter(log)} key={log.id} className="log">
             <span className="log-date">{this.formatDate(new Date(log.createdOn))}</span> 
             <div>{this.props?.config?.testUrl}{log.path}</div>
             <div>Got: {log.recieved}</div>
             <div>Sent: {log.returned}</div>
+            {
+                log.isNew ? 
+                    <span className="new-label">New</span> :
+                    <span></span>
+            }
         </div>
+
+    onMouseEnter = ({isNew, id}) => {
+        if (isNew){
+            this.setState((state) => {
+                const logs = state.logs.map((log) =>
+                    (log.id === id) ? 
+                        {...log, isNew: false}: 
+                        log
+                );
+                return {logs};
+            })
+        }
+    }
 
     render() {
         return <div>

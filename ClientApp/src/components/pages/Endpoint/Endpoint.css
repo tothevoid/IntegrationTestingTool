@@ -17,3 +17,18 @@
 .output-parameter-desired{
     width: 250px;
 }
+
+.url{
+    border: none;
+    border-bottom: 2px solid black;
+}
+
+.url:focus, .url:active{
+    border:none;
+    border-bottom: 2px solid rgb(146, 2, 2);
+    outline: none;
+}
+
+.url-validation-error{
+    color: rgb(146, 2, 2);
+}

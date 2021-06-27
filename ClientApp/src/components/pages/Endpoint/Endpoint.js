@@ -5,7 +5,7 @@ import { OutputParameterForm } from "../../forms/OutputParameterForm/OutputParam
 import { InputParameters } from '../../tables/InputParameters';
 import { OutputParameters } from '../../tables/OutputParameters';
 import { Button } from "../../controls/Button/Button"
-
+import { Checkbox } from "../../controls/Checkbox/Checkbox"
 export class Endpoint extends Component {
     static displayName = Endpoint.name;
 
@@ -16,8 +16,8 @@ export class Endpoint extends Component {
             types: [],
             inputParameters: [{ name: "val", type: "Integer" }, { name: "day", type: "DateTime" }],
             outputParameters: [{ name: "isSuccessful", type: "Boolean", desiredValue: "true"}],
-            noOutput: false,
-            anyInput: false
+            noOutput: true,
+            anyInput: true
         };
     }
 
@@ -36,10 +36,10 @@ export class Endpoint extends Component {
         return (
             <div>
                 <p>Server url: {this.props.config?.testUrl}
-                    <input onChange={this.onPathChanged} value={this.state.path} type="text"/>
+                    <input className="url" onBlur={() => this.validateUrl()} onChange={this.onPathChanged} value={this.state.path} type="text"/>
+                    <span className="url-validation-error">{this.state.urlPathValidationText}</span>
                 </p>
-                <input name="anyInput" onChange={this.onBoolChanged} checked={this.state.anyInput} type="checkbox"/>
-                <span>Any input data</span>
+                <Checkbox fieldName="anyInput" onSelect={this.onBoolChanged} value={this.state.anyInput} caption="Any input data"/>
                 {
                     !this.state.anyInput ?
                         <Fragment>
@@ -52,8 +52,7 @@ export class Endpoint extends Component {
                         </Fragment> :
                         <div></div>                   
                 }
-                <input name="noOutput" onChange={this.onBoolChanged} checked={this.state.noOutput} type="checkbox"/>
-                <span> Without output</span>
+                <Checkbox fieldName="noOutput" onSelect={this.onBoolChanged} value={this.state.noOutput} caption="Without output"/>
                 {
                     !this.state.noOutput ?
                         <Fragment>
@@ -73,12 +72,24 @@ export class Endpoint extends Component {
         );
     }
 
-    onPathChanged = (event) => {
-        this.setState({path: event.target.value});
+    validateUrl = () => 
+    {
+        if (this.state.path.trim() === "")
+        {
+            return;
+        }
+        
+        fetch(`Endpoint/ValidateUrl?path=${this.state.path}`)
+            .then(result => result.json())
+            .then(result => {this.setState({urlPathValidationText: result})});
     }
 
-    onBoolChanged = (event) => {
-        this.setState({[event.target.name]: event.target.checked});
+    onBoolChanged = (propName, value) => {
+        this.setState({[propName]: value});
+    }
+
+    onPathChanged = (event) => {
+        this.setState({path: event.target.value});
     }
 
     onOutputParameterTypeUpdated = (name, newType) => {
@@ -157,7 +168,7 @@ export class Endpoint extends Component {
             inputParameters: updatedInputParameters,
             outputParameters: updatedOutputParameters
         }
-        fetch("Endpoint", {
+        fetch("Endpoint/Add", {
             method: 'POST',
             body: JSON.stringify(data),
             headers: {

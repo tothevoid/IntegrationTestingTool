@@ -54,6 +54,10 @@ namespace IntegrationTestingTool.Services
 
         public bool ValidateInputData(string inputData, IEnumerable<InputParameter> inputParameters)
         {
+            if (string.IsNullOrEmpty(inputData))
+            {
+                return false;
+            }
             List<string> ignoredParameters = new List<string>();
             var values = JsonConvert.DeserializeObject<Dictionary<string, object>>(inputData);
 

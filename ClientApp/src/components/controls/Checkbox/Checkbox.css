@@ -1,0 +1,7 @@
+.checkbox input, .checkbox span{
+    cursor: pointer;
+}
+
+.checkbox span{
+    margin-left: 5px;
+}

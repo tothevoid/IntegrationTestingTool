@@ -32,5 +32,26 @@ namespace IntegrationTestingTool.Services
 
         public IEnumerable<Endpoint> FindByParameter(string parameterName, string value) =>
             _collection.Find(new BsonDocument(parameterName, value)).ToList();
+
+        public string ValidateUrl(string path)
+        {
+            var isValid = Uri.TryCreate("https://localhost:44314/test/" + path, UriKind.Absolute, out Uri uri);
+           
+            if (string.IsNullOrEmpty(path.Trim()))
+            {
+                return "URL cant be empty";
+            } 
+            else if (FindByParameter(nameof(Endpoint.Path), path.Trim()).Any())
+            {
+                return "Same URL already exists";
+            }
+            //extract into constant
+            else if (!isValid)
+            {
+                return "Incorrect format of URL";
+            }
+            return string.Empty;
+        }
+
     }
 }

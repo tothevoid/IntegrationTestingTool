@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace IntegrationTestingTool.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("[controller]/[action]")]
     [Produces("application/json")]
     public class EndpointController
     {
@@ -21,12 +21,15 @@ namespace IntegrationTestingTool.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<Endpoint> Get() =>
+        public IEnumerable<Endpoint> GetAll() =>
             _endpointService.GetAll();
 
         [HttpPost]
-        public void Post(Endpoint endpoint) =>
+        public void Add(Endpoint endpoint) =>
             _endpointService.Create(endpoint);
 
+        [HttpGet]
+        public string ValidateUrl(string path) =>
+            _endpointService.ValidateUrl(path);
     }
 }

@@ -13,5 +13,7 @@ namespace IntegrationTestingTool.Services.Interfaces
         Endpoint Create(Endpoint endpoint);
 
         IEnumerable<Endpoint> FindByParameter(string parameterName, string value);
+
+        string ValidateUrl(string path);
     }
 }

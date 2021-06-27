@@ -25,7 +25,7 @@ export class Endpoints extends Component {
     }
 
     getEndpoints() {
-        fetch("Endpoint")
+        fetch("Endpoint/GetAll")
             .then((response)=> response.json())
             .then((endpoints)=> {this.setState({endpoints: endpoints})});
     }

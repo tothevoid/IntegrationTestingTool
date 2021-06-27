@@ -1,5 +1,6 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { ComboBox } from '../controls/ComboBox/ComboBox';
+import { Button } from '../controls/Button/Button'
 
 export const OutputParameters = (props) => 
     <table className="output-parameter-container">
@@ -11,18 +12,21 @@ export const OutputParameters = (props) =>
             </tr>
         </thead>
         <tbody>
-            {
-                props.parameters.map((parameter, ix) => <tr key={ix}>
+        {
+            props.parameters.map((parameter, ix) => 
+                <tr key={ix}>
                     <td className="output-parameter-name">{parameter.name}</td>
-                    {
-                        (props.types) ?
-                            <ComboBox onSelect={(selectedType) => props.onParameterTypeUpdated(parameter.name, selectedType)}  
-                                values={props.types} selectedValue={parameter.type}></ComboBox> :
-                            <span></span>
-                    }
+                    <td className="output-parameter-type">
+                        <ComboBox onSelect={(selectedType) => props.onParameterTypeUpdated(parameter.name, selectedType)}  
+                            values={props.types} selectedValue={parameter.type}>
+                        </ComboBox>
+                    </td>
                     <td className="output-parameter-desired">{parameter.desiredValue}</td>
-                    <td><button onClick={() => props.onParameterDeleted(parameter)}>X</button></td>
-                </tr>)
-            }
+                    <td>
+                        <Button mode="danger" caption="Delete" onClick={() => props.onParameterDeleted(parameter)}/> 
+                    </td>
+                </tr>
+            )
+        }
         </tbody>
     </table>

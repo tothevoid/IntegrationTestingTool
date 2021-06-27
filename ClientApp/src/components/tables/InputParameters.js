@@ -1,5 +1,6 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { ComboBox } from '../controls/ComboBox/ComboBox';
+import { Button } from '../controls/Button/Button'
 
 export const InputParameters = (props) => 
     <div>
@@ -14,16 +15,17 @@ export const InputParameters = (props) =>
             <tbody>
             {
                 props.parameters.map((parameter, ix) => 
-                {
-                    return <tr key={ix}>
+                    <tr key={ix}>
                         <td className="input-parameter-name">{parameter.name}</td>
                         <td className="input-parameter-type">
                             <ComboBox onSelect={(selectedType) => props.onParameterTypeUpdated(parameter.name, selectedType)}  
                                 values={props.types} selectedValue={parameter.type}></ComboBox>
                         </td>
-                        <td><button onClick={() => props.onParameterDeleted(parameter)}>X</button></td>
+                        <td>
+                            <Button mode="danger" caption="Delete" onClick={() => props.onParameterDeleted(parameter)}/>
+                        </td>
                     </tr>
-                }) 
+                ) 
             }
             </tbody>
          </table>

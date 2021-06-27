@@ -1,10 +1,20 @@
-import React, { Component } from 'react';
+import React from 'react';
 import "./Button.css"
 
-export class Button extends Component {
-    render() {
-        return <button onClick={(e) => {e.preventDefault(); this.props.onClick()}} className={this.getClasses()}>{this.props.caption}</button>
-    }
+export const Button = (props) => 
+    <button onClick={(e) => {e.preventDefault(); props.onClick()}} className={getClasses(props.mode, props.additionalClasses)}>
+        {props.caption}
+    </button>
 
-    getClasses = () => ["button-default", this.props.additionalClasses].join(" ")
+const getClasses = (mode, additionalClasses) => ["button-common", getCoreClass(mode), additionalClasses].join(" ")
+
+const getCoreClass = (mode) => {
+    switch (mode){
+        case "main":
+            return "button-default";
+        case "danger":
+            return "button-danger";
+        default:
+            return "button-default";
+    }
 }

@@ -28,7 +28,8 @@ namespace IntegrationTestingTool.Services
             }
             else
             {
-                return FormatResponse(endpoint.OutputParameters);
+                //return FormatResponse(endpoint.OutputParameters);
+                return endpoint.OutputData;
             }
         }
 
@@ -50,14 +51,20 @@ namespace IntegrationTestingTool.Services
             }
             return false;
         }
-         
+
 
         public bool ValidateInputData(string inputData, IEnumerable<InputParameter> inputParameters)
         {
+            if (string.IsNullOrEmpty(inputData) && !inputParameters.Any())
+            {
+                return true;
+            }
+
             if (string.IsNullOrEmpty(inputData))
             {
                 return false;
             }
+
             List<string> ignoredParameters = new List<string>();
             var values = JsonConvert.DeserializeObject<Dictionary<string, object>>(inputData);
 

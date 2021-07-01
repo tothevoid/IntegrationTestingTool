@@ -6,6 +6,7 @@ using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace IntegrationTestingTool.Services
@@ -26,6 +27,8 @@ namespace IntegrationTestingTool.Services
         public Endpoint Create(Endpoint endpoint)
         {
             endpoint.Id = Guid.NewGuid();
+            endpoint.OutputData = Regex.Replace(endpoint.OutputData, @"\""", @"""");
+
             _collection.InsertOne(endpoint);
             return endpoint;
         }

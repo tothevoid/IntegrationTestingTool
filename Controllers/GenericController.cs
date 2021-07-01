@@ -3,10 +3,6 @@ using IntegrationTestingTool.Services.Inerfaces;
 using IntegrationTestingTool.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace IntegrationTestingTool.Controllers
 {
@@ -22,15 +18,15 @@ namespace IntegrationTestingTool.Controllers
             _loggingService = loggingService;
         }
 
-        public string Get([FromRoute(Name = "data")] string data, [FromRoute(Name = "endpoint")] string endpointRaw)
+        public IActionResult Get([FromRoute(Name = "data")] string data, [FromRoute(Name = "endpoint")] string endpointRaw)
         {
             var endpoint = JsonConvert.DeserializeObject<Endpoint>(endpointRaw);
             var result = _routeHandlerService.ProcessRequest(endpoint, data);
             _loggingService.Create(new RequestLog { Path = endpoint.Path, Recieved = data, Returned = result});
-            return result;
+            return Json(result);
         }
 
-        public ActionResult Error([FromRoute(Name = "errorMessage")] string errorMessage)
+        public IActionResult Error([FromRoute(Name = "errorMessage")] string errorMessage)
         {
             return BadRequest(errorMessage);
         }

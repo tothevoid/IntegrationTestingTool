@@ -15,7 +15,8 @@ export class Endpoint extends Component {
             path: "",
             types: [],
             inputParameters: [{ name: "val", type: "Integer" }, { name: "day", type: "DateTime" }],
-            outputParameters: [{ name: "isSuccessful", type: "Boolean", desiredValue: "true"}],
+            // outputParameters: [{ name: "isSuccessful", type: "Boolean", desiredValue: "true"}],
+            outputData: "",
             noOutput: true,
             anyInput: true
         };
@@ -35,7 +36,9 @@ export class Endpoint extends Component {
     render () {
         return (
             <div>
-                <p>Server url: {this.props.config?.testUrl}
+                <h1>Add new endpoint</h1>
+                <p>
+                    {this.props.config?.testUrl}
                     <input className="url" onBlur={() => this.validateUrl()} onChange={this.onPathChanged} value={this.state.path} type="text"/>
                     <span className="url-validation-error">{this.state.urlPathValidationText}</span>
                 </p>
@@ -53,23 +56,31 @@ export class Endpoint extends Component {
                         <div></div>                   
                 }
                 <Checkbox fieldName="noOutput" onSelect={this.onBoolChanged} value={this.state.noOutput} caption="Without output"/>
+               
                 {
                     !this.state.noOutput ?
                         <Fragment>
-                            <OutputParameters onParameterTypeUpdated={this.onOutputParameterTypeUpdated}
-                                onParameterDeleted={this.onOutputParameterTypeDeleted}
-                                parameters={this.state.outputParameters} types={this.state.types}>
-                            </OutputParameters>
-                            <hr/>
-                            <OutputParameterForm onParameterAdded={this.onOutputParameterAdded} types={this.state.types}></OutputParameterForm>
+                            <div>Output data:</div>
+                            <input className="output" onChange={this.onOutputChanged} value={this.state.outputData} type="text"/>
                         </Fragment> :
+                        // <Fragment>
+                        //     <OutputParameters onParameterTypeUpdated={this.onOutputParameterTypeUpdated}
+                        //         onParameterDeleted={this.onOutputParameterTypeDeleted}
+                        //         parameters={this.state.outputParameters} types={this.state.types}>
+                        //     </OutputParameters>
+                        //     <hr/>
+                        //     <OutputParameterForm onParameterAdded={this.onOutputParameterAdded} types={this.state.types}></OutputParameterForm>
+                        // </Fragment> :
                         <div></div>                   
                 }
-                
                 <hr/>
                 <Button onClick={this.addEndpoint} caption={"Add endpoint"}></Button>
             </div>
         );
+    }
+
+    onOutputChanged = (event) => {
+        this.setState({outputData: event.target.value});
     }
 
     validateUrl = () => 
@@ -92,22 +103,22 @@ export class Endpoint extends Component {
         this.setState({path: event.target.value});
     }
 
-    onOutputParameterTypeUpdated = (name, newType) => {
-        this.setState((state) => {
-            const outputParameters = state.outputParameters.map((storedParameter) =>
-                (name === storedParameter.name) ? 
-                    {...storedParameter, type: newType}: 
-                    storedParameter
-            );
-            return {outputParameters};
-        })
-    }
+    // onOutputParameterTypeUpdated = (name, newType) => {
+    //     this.setState((state) => {
+    //         const outputParameters = state.outputParameters.map((storedParameter) =>
+    //             (name === storedParameter.name) ? 
+    //                 {...storedParameter, type: newType}: 
+    //                 storedParameter
+    //         );
+    //         return {outputParameters};
+    //     })
+    // }
 
-    onOutputParameterTypeDeleted = (selectedParameter) => {
-        const filteredParameters = this.state.outputParameters.filter((parameter) =>
-            parameter.name !== selectedParameter.name)
-        this.setState({outputParameters: filteredParameters});
-    }
+    // onOutputParameterTypeDeleted = (selectedParameter) => {
+    //     const filteredParameters = this.state.outputParameters.filter((parameter) =>
+    //         parameter.name !== selectedParameter.name)
+    //     this.setState({outputParameters: filteredParameters});
+    // }
 
     onParameterDeleted = (selectedParameter) => {
         const filteredParameters = this.state.inputParameters.filter((parameter) =>
@@ -136,19 +147,19 @@ export class Endpoint extends Component {
         }
     }
 
-    onOutputParameterAdded = (name, type, desiredValue) => {
-        if (this.state.outputParameters.some((param) => param.name === name)){
-            console.log(`parameter with name {name} already exists`);
-        } else {
-            this.setState(prevState => ({
-                outputParameters: [...prevState.outputParameters, {name: name, type: type, desiredValue: desiredValue}]
-            }))
-        }
-    }
+    // onOutputParameterAdded = (name, type, desiredValue) => {
+    //     if (this.state.outputParameters.some((param) => param.name === name)){
+    //         console.log(`parameter with name {name} already exists`);
+    //     } else {
+    //         this.setState(prevState => ({
+    //             outputParameters: [...prevState.outputParameters, {name: name, type: type, desiredValue: desiredValue}]
+    //         }))
+    //     }
+    // }
 
     addEndpoint = () => {
         //temporary solution
-        const {inputParameters, outputParameters, noOutput, anyInput, path} = this.state;
+        const {inputParameters, outputData, anyInput, path} = this.state;
 
         const updatedInputParameters = (!anyInput) ? inputParameters.map((param) => {
                 const type = this.state.types.find((type) => type.name === param.type);
@@ -156,17 +167,18 @@ export class Endpoint extends Component {
             }) :
             []
 
-        const updatedOutputParameters = (!noOutput) ? 
-            outputParameters.map((param) => {
-                const type = this.state.types.find((type) => type.name === param.type);
-                return {type: type, name: param.name, desiredValue: param.desiredValue};
-            }) :
-            [];
+        // const updatedOutputParameters = (!noOutput) ? 
+        //     outputParameters.map((param) => {
+        //         const type = this.state.types.find((type) => type.name === param.type);
+        //         return {type: type, name: param.name, desiredValue: param.desiredValue};
+        //     }) :
+        //     [];
 
         const data = {
             path: path,
             inputParameters: updatedInputParameters,
-            outputParameters: updatedOutputParameters
+            outputData: outputData
+            // outputParameters: updatedOutputParameters
         }
         fetch("Endpoint/Add", {
             method: 'POST',

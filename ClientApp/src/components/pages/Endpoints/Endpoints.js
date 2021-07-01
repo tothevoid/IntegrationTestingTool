@@ -15,7 +15,7 @@ export class Endpoints extends Component {
         <div key={endpoint.id} className="endpoint">
             <span>URL: {this.props?.config?.testUrl}{endpoint.path}</span>
             <span>Input: {endpoint.inputParameters.length}</span>
-            <span>Output: {endpoint.outputParameters.length}</span>
+            <span>Output: {endpoint.outputData}</span>
         </div>
 
     render() {

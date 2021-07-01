@@ -19,6 +19,8 @@ namespace IntegrationTestingTool.Model
 
         public bool NoOutput { get; set; }
 
-        public IEnumerable<OutputParameter> OutputParameters { get; set; }
+        public string OutputData { get; set; }
+
+        //public IEnumerable<OutputParameter> OutputParameters { get; set; }
     }
 }

@@ -15,3 +15,8 @@
     background-color: #e01c1c;
     color: white;
 }
+
+.button-common:disabled{
+    opacity: 50%;
+    color: white;
+}

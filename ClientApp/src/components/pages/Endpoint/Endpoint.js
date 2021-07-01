@@ -74,7 +74,7 @@ export class Endpoint extends Component {
                         <div></div>                   
                 }
                 <hr/>
-                <Button onClick={this.addEndpoint} caption={"Add endpoint"}></Button>
+                <Button disabled={(this.state.urlPathValidationText && this.state.urlPathValidationText.length !== 0 )} onClick={this.addEndpoint} caption={"Add endpoint"}></Button>
             </div>
         );
     }
@@ -158,6 +158,11 @@ export class Endpoint extends Component {
     // }
 
     addEndpoint = () => {
+        const validationResult = this.validateEndpoint();
+        if (validationResult){
+            console.log(validationResult);
+            return;
+        }
         //temporary solution
         const {inputParameters, outputData, anyInput, path} = this.state;
 
@@ -188,6 +193,22 @@ export class Endpoint extends Component {
             }
         }).then(response => response.status)
             .then(status => { if (status === 200) this.props.history.push("/endpoints")});
+    }
+
+    validateEndpoint = () => {
+        const {inputParameters, outputData, anyInput, noOutput, urlPathValidationText, path} = this.state;
+
+        //move it to modal or smth else
+        if (!path || path.trim() === ""){
+            return "Path can't be empty";
+        } else if (urlPathValidationText){
+            return "Url already created";
+        } else if (anyInput && inputParameters.length === 0){
+            return "There is no input parameters";
+        } else if (!noOutput && !outputData){
+            return "There is not output data";
+        }
+        return null;
     }
 
     getTypes() {

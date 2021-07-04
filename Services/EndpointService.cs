@@ -28,9 +28,15 @@ namespace IntegrationTestingTool.Services
         {
             endpoint.Id = Guid.NewGuid();
             endpoint.OutputData = Regex.Replace(endpoint.OutputData, @"\""", @"""");
-
             _collection.InsertOne(endpoint);
             return endpoint;
+        }
+
+        public bool Delete(Guid id)
+        {
+            var deletionFilter = Builders<Endpoint>.Filter.Eq(nameof(Endpoint.Id), id);
+            var result = _collection.DeleteOne(deletionFilter);
+            return result.DeletedCount != 0;
         }
 
         public IEnumerable<Endpoint> FindByParameter(string parameterName, string value) =>

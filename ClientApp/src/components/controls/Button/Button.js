@@ -4,7 +4,6 @@ import "./Button.css"
 export const Button = (props) =>
 {   
     const {disabled, additionalClasses, caption, mode, onClick} = props;
-    debugger;
     return <button disabled={disabled === true} onClick={(e) => {onButtonClick(e, onClick)}} className={getClasses(mode, additionalClasses)}>
         {caption}
     </button>

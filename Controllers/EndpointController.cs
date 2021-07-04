@@ -29,6 +29,10 @@ namespace IntegrationTestingTool.Controllers
             _endpointService.Create(endpoint);
 
         [HttpGet]
+        public bool Delete (Guid id) =>
+           _endpointService.Delete(id);
+
+        [HttpGet]
         public string ValidateUrl(string path) =>
             _endpointService.ValidateUrl(path);
     }

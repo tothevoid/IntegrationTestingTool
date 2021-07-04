@@ -12,6 +12,8 @@ namespace IntegrationTestingTool.Services.Interfaces
 
         Endpoint Create(Endpoint endpoint);
 
+        bool Delete(Guid id);
+
         IEnumerable<Endpoint> FindByParameter(string parameterName, string value);
 
         string ValidateUrl(string path);

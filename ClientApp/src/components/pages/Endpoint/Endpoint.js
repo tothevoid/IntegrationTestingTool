@@ -164,7 +164,7 @@ export class Endpoint extends Component {
             return;
         }
         //temporary solution
-        const {inputParameters, outputData, anyInput, path} = this.state;
+        const {inputParameters, outputData, anyInput, path, noOutput} = this.state;
 
         const updatedInputParameters = (!anyInput) ? inputParameters.map((param) => {
                 const type = this.state.types.find((type) => type.name === param.type);
@@ -182,7 +182,9 @@ export class Endpoint extends Component {
         const data = {
             path: path,
             inputParameters: updatedInputParameters,
-            outputData: outputData
+            outputData: outputData,
+            noInput: anyInput,
+            noOutput: noOutput
             // outputParameters: updatedOutputParameters
         }
         fetch("Endpoint/Add", {

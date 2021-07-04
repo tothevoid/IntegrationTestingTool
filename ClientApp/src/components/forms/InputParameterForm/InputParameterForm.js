@@ -12,7 +12,7 @@ export class InputParameterForm extends Component {
         }
     }
 
-    render () {
+    render = () => {
         const {name} = this.state;
 
         return <div className="input-parameter-form">
@@ -24,7 +24,6 @@ export class InputParameterForm extends Component {
                     <ComboBox onSelect={this.onSelect} values={this.props.types} selectedValue={this.props.types[0].name}></ComboBox>:
                     <span></span>
             }
-            
             <Button onClick={this.addParameter} additionalClasses="input-parameter-element" caption={"Add required input parameter"}></Button>
         </div>
     }

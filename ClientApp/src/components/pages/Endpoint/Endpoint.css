@@ -24,7 +24,7 @@
 }
 
 .url:focus, .url:active{
-    border:none;
+    border: none;
     border-bottom: 2px solid rgb(146, 2, 2);
     outline: none;
 }

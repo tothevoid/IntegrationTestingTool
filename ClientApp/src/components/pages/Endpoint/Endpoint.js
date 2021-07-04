@@ -22,7 +22,7 @@ export class Endpoint extends Component {
         };
     }
 
-    componentDidMount() {
+    componentDidMount = () => {
         this.getTypes();
     }    
 
@@ -33,51 +33,48 @@ export class Endpoint extends Component {
             <button className="button-default">Add new required input parameter</button>
         </div>
 
-    render () {
-        return (
-            <div>
-                <h1>Add new endpoint</h1>
-                <p>
-                    {this.props.config?.testUrl}
-                    <input className="url" onBlur={() => this.validateUrl()} onChange={this.onPathChanged} value={this.state.path} type="text"/>
-                    <span className="url-validation-error">{this.state.urlPathValidationText}</span>
-                </p>
-                <Checkbox fieldName="anyInput" onSelect={this.onBoolChanged} value={this.state.anyInput} caption="Any input data"/>
-                {
-                    !this.state.anyInput ?
-                        <Fragment>
-                                <InputParameters onParameterTypeUpdated={this.onParameterTypeUpdated}
-                                    onParameterDeleted={this.onParameterDeleted}
-                                    parameters={this.state.inputParameters} types={this.state.types}>    
-                                </InputParameters>
-                            <hr/>
-                            <InputParameterForm onParameterAdded={this.onParameterAdded} types={this.state.types}></InputParameterForm>
-                        </Fragment> :
-                        <div></div>                   
-                }
-                <Checkbox fieldName="noOutput" onSelect={this.onBoolChanged} value={this.state.noOutput} caption="Without output"/>
-               
-                {
-                    !this.state.noOutput ?
-                        <Fragment>
-                            <div>Output data:</div>
-                            <input className="output" onChange={this.onOutputChanged} value={this.state.outputData} type="text"/>
-                        </Fragment> :
-                        // <Fragment>
-                        //     <OutputParameters onParameterTypeUpdated={this.onOutputParameterTypeUpdated}
-                        //         onParameterDeleted={this.onOutputParameterTypeDeleted}
-                        //         parameters={this.state.outputParameters} types={this.state.types}>
-                        //     </OutputParameters>
-                        //     <hr/>
-                        //     <OutputParameterForm onParameterAdded={this.onOutputParameterAdded} types={this.state.types}></OutputParameterForm>
-                        // </Fragment> :
-                        <div></div>                   
-                }
-                <hr/>
-                <Button disabled={(this.state.urlPathValidationText && this.state.urlPathValidationText.length !== 0 )} onClick={this.addEndpoint} caption={"Add endpoint"}></Button>
-            </div>
-        );
-    }
+    render = () => 
+        <div>
+            <h1>Add new endpoint</h1>
+            <p>
+                {this.props.config?.testUrl}
+                <input className="url" onBlur={() => this.validateUrl()} onChange={this.onPathChanged} value={this.state.path} type="text"/>
+                <span className="url-validation-error">{this.state.urlPathValidationText}</span>
+            </p>
+            <Checkbox fieldName="anyInput" onSelect={this.onBoolChanged} value={this.state.anyInput} caption="Any input data"/>
+            {
+                !this.state.anyInput ?
+                    <Fragment>
+                            <InputParameters onParameterTypeUpdated={this.onParameterTypeUpdated}
+                                onParameterDeleted={this.onParameterDeleted}
+                                parameters={this.state.inputParameters} types={this.state.types}>    
+                            </InputParameters>
+                        <hr/>
+                        <InputParameterForm onParameterAdded={this.onParameterAdded} types={this.state.types}></InputParameterForm>
+                    </Fragment> :
+                    <div></div>                   
+            }
+            <Checkbox fieldName="noOutput" onSelect={this.onBoolChanged} value={this.state.noOutput} caption="Without output"/>
+            
+            {
+                !this.state.noOutput ?
+                    <Fragment>
+                        <div>Output data:</div>
+                        <input className="output" onChange={this.onOutputChanged} value={this.state.outputData} type="text"/>
+                    </Fragment> :
+                    // <Fragment>
+                    //     <OutputParameters onParameterTypeUpdated={this.onOutputParameterTypeUpdated}
+                    //         onParameterDeleted={this.onOutputParameterTypeDeleted}
+                    //         parameters={this.state.outputParameters} types={this.state.types}>
+                    //     </OutputParameters>
+                    //     <hr/>
+                    //     <OutputParameterForm onParameterAdded={this.onOutputParameterAdded} types={this.state.types}></OutputParameterForm>
+                    // </Fragment> :
+                    <div></div>                   
+            }
+            <hr/>
+            <Button disabled={(this.state.urlPathValidationText && this.state.urlPathValidationText.length !== 0 )} onClick={this.addEndpoint} caption={"Add endpoint"}></Button>
+        </div>
 
     onOutputChanged = (event) => {
         this.setState({outputData: event.target.value});
@@ -213,7 +210,7 @@ export class Endpoint extends Component {
         return null;
     }
 
-    getTypes() {
+    getTypes = () => {
         fetch("ParameterType")
             .then((response)=> response.json())
             .then((types)=> {this.setState({types: types})});

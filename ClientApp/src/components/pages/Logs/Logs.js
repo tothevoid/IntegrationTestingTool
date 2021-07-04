@@ -65,15 +65,13 @@ export class Logs extends Component {
         }
     }
 
-    render() {
-        return <div>
+    render = () => 
+        <div>
             {this.state.logs.map((log) => this.renderLog(log))}
         </div>
-    }
 
-    logs() {
+    logs = () => 
         fetch("RequestLog")
             .then((response)=> response.json())
             .then((logs)=> {this.setState({logs: logs})});
-    }
 }

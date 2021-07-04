@@ -13,7 +13,7 @@ export class OutputParameterForm extends Component {
         }
     }
 
-    render () {
+    render = () => {
         const {name, desiredValue} = this.state;
 
         return <div className="output-parameter-form">

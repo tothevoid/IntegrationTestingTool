@@ -24,9 +24,16 @@ namespace IntegrationTestingTool.Services
             _hubContext = hubContext;
         }
 
-        public IEnumerable<RequestLog> GetAll() =>
-            _collection.Find(new BsonDocument()).ToList();
-
+        public IEnumerable<RequestLog> GetAll(DateTime date)
+        {
+            var filter = new BsonDocument("$and", new BsonArray 
+            { 
+                new BsonDocument(nameof(RequestLog.CreatedOn), new BsonDocument("$gte", date.Date)),
+                new BsonDocument(nameof(RequestLog.CreatedOn), new BsonDocument("$lt", date.Date.AddDays(1)))
+            });
+            return _collection.Find(filter).ToList();
+        }
+        
         public RequestLog Create(RequestLog log)
         {
             _collection.InsertOne(log);

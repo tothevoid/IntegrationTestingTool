@@ -1,14 +1,18 @@
 import React, { Component } from 'react';
 import "./Logs.css"
 import { HubConnectionBuilder } from '@microsoft/signalr';
+import { Button } from "../../controls/Button/Button"
 
 export class Logs extends Component {
     constructor(props) {
         super(props);
+        const date = this.getCurrentDate();
         this.state = {
-            logs: []
+            logs: [],
+            dateFilter: date,
+            newLogs: []
         }
-        this.logs();
+        this.fetchLogs(date);
     }
 
     componentDidMount = () => {
@@ -19,14 +23,18 @@ export class Logs extends Component {
 
         hubConnection.on("NewLog", data => {
             const newElement = {isNew: true, ...data};
+            const isCurrentDate = this.getCurrentDate() === this.state.dateFilter;
+
             this.setState(prevState => ({
-                logs: [newElement, ...prevState.logs]}))
+                newLogs: [...prevState.newLogs, newElement.id],
+                logs: (isCurrentDate) ? [newElement, ...prevState.logs] : prevState.logs
+            }))
         });
 
         this.setState({ hubConnection }, () => {
             this.state.hubConnection.start()
-                .then(()=>console.log("connected"))
-                .catch(()=>console.log("not connected"));
+                .then(() => console.log("connected"))
+                .catch(() => console.log("not connected"));
         });
     }
 
@@ -55,23 +63,59 @@ export class Logs extends Component {
     onMouseEnter = ({isNew, id}) => {
         if (isNew){
             this.setState((state) => {
+                const selected = state.logs.find((log) => log.id === id);
                 const logs = state.logs.map((log) =>
                     (log.id === id) ? 
                         {...log, isNew: false}: 
                         log
                 );
-                return {logs};
+                const newLogs = (selected.isNew) ? 
+                    this.state.newLogs.filter((log) => log !== id) : 
+                    this.state.newLogs
+
+                return {logs, newLogs};
             })
         }
     }
 
-    render = () => 
-        <div>
+    onDateFilterChanghed = (event) => {
+        const date = event.target.value;
+        this.setState({dateFilter: date});
+        this.fetchLogs(date);
+    }
+
+    getCurrentDate = () => {
+        const date = new Date();
+        return new Date(date.getTime() - (date.getTimezoneOffset() * 60000))
+            .toISOString().substr(0, 10);
+    }
+
+    onNewRequestsClick = () => {
+        const date = this.getCurrentDate();
+        this.setState({dateFilter: date});
+        this.fetchLogs(date);
+    }
+
+    render = () => {
+        return <div>
+            <span>
+                Date: 
+                <input value={this.state.dateFilter} onChange={this.onDateFilterChanghed} type="date"/>
+                {
+                    (this.state.newLogs.length) ?
+                        <Button onClick={this.onNewRequestsClick} mode="danger" caption={`New requests: ${this.state.newLogs.length}`}/> :
+                        <span></span>
+                }
+            </span>
             {this.state.logs.map((log) => this.renderLog(log))}
         </div>
+    }
+        
 
-    logs = () => 
-        fetch("RequestLog")
+    fetchLogs = (date) => 
+        fetch(`RequestLog?date=${date}`)
             .then((response)=> response.json())
-            .then((logs)=> {this.setState({logs: logs})});
+            .then((logs) => {this.setState({
+                logs: logs.map(log => {return {...log, isNew: this.state.newLogs.find(newLog => newLog === log.id)}})
+            })});
 }

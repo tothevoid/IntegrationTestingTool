@@ -1,6 +1,7 @@
 ﻿using IntegrationTestingTool.Model;
 using IntegrationTestingTool.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -17,7 +18,7 @@ namespace IntegrationTestingTool.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<RequestLog> Get() =>
-            _loggingService.GetAll().OrderByDescending(x => x.CreatedOn);
+        public IEnumerable<RequestLog> Get(DateTime date) =>
+            _loggingService.GetAll(date).OrderByDescending(x => x.CreatedOn);
     }
 }

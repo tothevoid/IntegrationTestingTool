@@ -50,7 +50,7 @@ export class Logs extends Component {
     renderLog = (log) =>
         <div onMouseEnter={() => this.onMouseEnter(log)} key={log.id} className="log">
             <span className="log-date">{this.formatDate(new Date(log.createdOn))}</span> 
-            <div>{this.props?.config?.testUrl}{log.path}</div>
+            <div className="log-url">{this.props?.config?.testUrl}{log.path}</div>
             <div>Got: {log.recieved}</div>
             <div>Sent: {log.returned}</div>
             {
@@ -99,13 +99,15 @@ export class Logs extends Component {
     render = () => {
         return <div>
             <span>
-                Date: 
-                <input value={this.state.dateFilter} onChange={this.onDateFilterChanghed} type="date"/>
-                {
-                    (this.state.newLogs.length) ?
-                        <Button onClick={this.onNewRequestsClick} mode="danger" caption={`New requests: ${this.state.newLogs.length}`}/> :
-                        <span></span>
-                }
+                <div className="date-container">
+                    <span>Date: </span>
+                    <input className="input-date" value={this.state.dateFilter} onChange={this.onDateFilterChanghed} type="date"/>
+                    {
+                        (this.state.newLogs.length) ?
+                            <Button onClick={this.onNewRequestsClick} mode="danger" caption={`New requests: ${this.state.newLogs.length}`}/> :
+                            <span></span>
+                    }
+                </div>
             </span>
             {this.state.logs.map((log) => this.renderLog(log))}
         </div>

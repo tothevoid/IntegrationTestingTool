@@ -20,19 +20,12 @@ namespace IntegrationTestingTool.Services
             _endpointService.FindByParameter(nameof(Endpoint.Path), path).FirstOrDefault();
     
 
-        public string ProcessRequest(Endpoint endpoint, string data)
-        {
-            if (endpoint.NoInput)
-            {
-                return string.Empty;
-            }
-            else
-            {
-                //return FormatResponse(endpoint.OutputParameters);
-                return endpoint.OutputData;
-            }
-        }
-
+        public string ProcessRequest(Endpoint endpoint, string data) =>
+            (!endpoint.NoOutput) ?
+                //FormatResponse(endpoint.OutputParameters);
+                endpoint.OutputData :
+                string.Empty;
+     
         private string FormatResponse(IEnumerable<OutputParameter> parameters)
         {
             var values = parameters.ToDictionary(key => key.Name, value => GetValue(value.DesiredValue, value.Type));

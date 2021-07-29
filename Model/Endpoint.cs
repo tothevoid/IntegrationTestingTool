@@ -13,14 +13,6 @@ namespace IntegrationTestingTool.Model
 
         public string Path { get; set; }
 
-        public IEnumerable<InputParameter> InputParameters { get; set; }
-
-        public bool NoInput { get; set; }
-
-        public bool NoOutput { get; set; }
-
-        public string OutputData { get; set; }
-
-        //public IEnumerable<OutputParameter> OutputParameters { get; set; }
+        public string OutputData { get; set; } 
     }
 }

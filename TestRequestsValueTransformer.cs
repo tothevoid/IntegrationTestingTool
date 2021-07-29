@@ -42,9 +42,7 @@ namespace IntegrationTestingTool
 
             var errorMessage = (endpoint == null) ?
                 "There is no endpoint with the same url" :
-                !_routeHandlerService.ValidateInputData(body, endpoint.InputParameters) ?
-                    "Some of required parameters wasn't sent" :
-                    string.Empty;
+                string.Empty;
 
             if (string.IsNullOrEmpty(errorMessage))
             {

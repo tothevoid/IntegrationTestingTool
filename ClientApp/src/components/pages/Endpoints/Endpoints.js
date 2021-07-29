@@ -14,12 +14,11 @@ export class Endpoints extends Component {
 
     renderEndpoint = (endpoint) =>
     {
-        const {path, noInput, noOutput, outputData, inputParameters} = endpoint;
+        const {path, outputData} = endpoint;
         return <div key={endpoint.id} className="endpoint">
             <div>
                 <div className="path">{this.props?.config?.testUrl}{path}</div>
-                <div>{this.formatInput(noInput, inputParameters)}</div>
-                <div>{this.formatOutput(noOutput, outputData)}</div>
+                <div>{this.formatOutput(outputData)}</div>
             </div>
             {
                 <Button onClick={() => this.deleteEndpoint(endpoint.id)} additionalClasses="endpoint-delete" mode="danger" caption={"Delete"}></Button>
@@ -36,17 +35,11 @@ export class Endpoints extends Component {
             endpoint.id !== endpointId)
         this.setState({endpoints: filteredEndpoints});
     }
-    
-    formatInput = (noInput, inputData) => {
-        return (noInput) ?
-            "Accepts everyting" :
-            `Accepts only: ${inputData.length}`;
-    }
 
-    formatOutput = (noOutput, outputData) => {
-        return (noOutput) ?
-            "Returns nothing" :
-            `Returns: ${outputData}`;
+    formatOutput = (outputData) => {
+        return (outputData && outputData.trim()) ?
+            `Returns: ${outputData}`:
+            "Returns nothing";
     }
 
     render = () => {

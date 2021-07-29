@@ -1,11 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import "./Endpoint.css"
-import { InputParameterForm } from "../../forms/InputParameterForm/InputParameterForm"
-import { OutputParameterForm } from "../../forms/OutputParameterForm/OutputParameterForm"
-import { InputParameters } from '../../tables/InputParameters';
-import { OutputParameters } from '../../tables/OutputParameters';
 import { Button } from "../../controls/Button/Button"
-import { Checkbox } from "../../controls/Checkbox/Checkbox"
 export class Endpoint extends Component {
     static displayName = Endpoint.name;
 
@@ -13,25 +8,13 @@ export class Endpoint extends Component {
         super(props);
         this.state = {
             path: "",
-            types: [],
-            inputParameters: [{ name: "val", type: "Integer" }, { name: "day", type: "DateTime" }],
-            // outputParameters: [{ name: "isSuccessful", type: "Boolean", desiredValue: "true"}],
-            outputData: "",
-            noOutput: true,
-            anyInput: true
+            outputData: ""
         };
     }
 
     componentDidMount = () => {
         this.getTypes();
     }    
-
-    renderNewInputParameter = () => 
-        <div>
-            <input name="new-input-param-name" type="text"/>
-            <input type="text"/>
-            <button className="button-default">Add new required input parameter</button>
-        </div>
 
     render = () => 
         <div>
@@ -40,38 +23,11 @@ export class Endpoint extends Component {
                 {this.props.config?.testUrl}
                 <input className="url" onBlur={() => this.validateUrl()} onChange={this.onPathChanged} value={this.state.path} type="text"/>
                 <span className="url-validation-error">{this.state.urlPathValidationText}</span>
-            </p>
-            <Checkbox fieldName="anyInput" onSelect={this.onBoolChanged} value={this.state.anyInput} caption="Any input data"/>
-            {
-                !this.state.anyInput ?
-                    <Fragment>
-                            <InputParameters onParameterTypeUpdated={this.onParameterTypeUpdated}
-                                onParameterDeleted={this.onParameterDeleted}
-                                parameters={this.state.inputParameters} types={this.state.types}>    
-                            </InputParameters>
-                        <hr/>
-                        <InputParameterForm onParameterAdded={this.onParameterAdded} types={this.state.types}></InputParameterForm>
-                    </Fragment> :
-                    <div></div>                   
-            }
-            <Checkbox fieldName="noOutput" onSelect={this.onBoolChanged} value={this.state.noOutput} caption="Without output"/>
-            
-            {
-                !this.state.noOutput ?
-                    <Fragment>
-                        <div>Output data:</div>
-                        <input className="output" onChange={this.onOutputChanged} value={this.state.outputData} type="text"/>
-                    </Fragment> :
-                    // <Fragment>
-                    //     <OutputParameters onParameterTypeUpdated={this.onOutputParameterTypeUpdated}
-                    //         onParameterDeleted={this.onOutputParameterTypeDeleted}
-                    //         parameters={this.state.outputParameters} types={this.state.types}>
-                    //     </OutputParameters>
-                    //     <hr/>
-                    //     <OutputParameterForm onParameterAdded={this.onOutputParameterAdded} types={this.state.types}></OutputParameterForm>
-                    // </Fragment> :
-                    <div></div>                   
-            }
+            </p>               
+            <Fragment>
+                <div>Output data:</div>
+                <textarea className="output" onChange={this.onOutputChanged} value={this.state.outputData} type="text"/>
+            </Fragment> 
             <hr/>
             <Button disabled={(this.state.urlPathValidationText && this.state.urlPathValidationText.length !== 0 )} onClick={this.addEndpoint} caption={"Add endpoint"}></Button>
         </div>
@@ -82,7 +38,7 @@ export class Endpoint extends Component {
 
     validateUrl = () => 
     {
-        if (this.state.path.trim() === "")
+        if (!this.state.path?.trim())
         {
             return;
         }
@@ -92,67 +48,10 @@ export class Endpoint extends Component {
             .then(result => {this.setState({urlPathValidationText: result})});
     }
 
-    onBoolChanged = (propName, value) => {
-        this.setState({[propName]: value});
-    }
 
     onPathChanged = (event) => {
         this.setState({path: event.target.value});
     }
-
-    // onOutputParameterTypeUpdated = (name, newType) => {
-    //     this.setState((state) => {
-    //         const outputParameters = state.outputParameters.map((storedParameter) =>
-    //             (name === storedParameter.name) ? 
-    //                 {...storedParameter, type: newType}: 
-    //                 storedParameter
-    //         );
-    //         return {outputParameters};
-    //     })
-    // }
-
-    // onOutputParameterTypeDeleted = (selectedParameter) => {
-    //     const filteredParameters = this.state.outputParameters.filter((parameter) =>
-    //         parameter.name !== selectedParameter.name)
-    //     this.setState({outputParameters: filteredParameters});
-    // }
-
-    onParameterDeleted = (selectedParameter) => {
-        const filteredParameters = this.state.inputParameters.filter((parameter) =>
-            parameter.name !== selectedParameter.name)
-        this.setState({inputParameters: filteredParameters});
-    }
-
-    onParameterTypeUpdated = (name, newType) => {
-        this.setState((state) => {
-            const inputParameters = state.inputParameters.map((storedParameter) =>
-                (name === storedParameter.name) ? 
-                    {...storedParameter, type: newType}: 
-                    storedParameter
-            );
-            return {inputParameters};
-        })
-    }
-
-    onParameterAdded = (name, type) => {
-        if (this.state.inputParameters.some((param) => param.name === name)){
-            console.log(`parameter with name {name} already exists`);
-        } else {
-            this.setState(prevState => ({
-                inputParameters: [...prevState.inputParameters, {name: name, type: type}]
-              }))
-        }
-    }
-
-    // onOutputParameterAdded = (name, type, desiredValue) => {
-    //     if (this.state.outputParameters.some((param) => param.name === name)){
-    //         console.log(`parameter with name {name} already exists`);
-    //     } else {
-    //         this.setState(prevState => ({
-    //             outputParameters: [...prevState.outputParameters, {name: name, type: type, desiredValue: desiredValue}]
-    //         }))
-    //     }
-    // }
 
     addEndpoint = () => {
         const validationResult = this.validateEndpoint();
@@ -160,29 +59,11 @@ export class Endpoint extends Component {
             console.log(validationResult);
             return;
         }
-        //temporary solution
-        const {inputParameters, outputData, anyInput, path, noOutput} = this.state;
-
-        const updatedInputParameters = (!anyInput) ? inputParameters.map((param) => {
-                const type = this.state.types.find((type) => type.name === param.type);
-                return {type: type, name: param.name};
-            }) :
-            []
-
-        // const updatedOutputParameters = (!noOutput) ? 
-        //     outputParameters.map((param) => {
-        //         const type = this.state.types.find((type) => type.name === param.type);
-        //         return {type: type, name: param.name, desiredValue: param.desiredValue};
-        //     }) :
-        //     [];
+        const {path, outputData} = this.state;
 
         const data = {
             path: path,
-            inputParameters: updatedInputParameters,
-            outputData: outputData,
-            noInput: anyInput,
-            noOutput: noOutput
-            // outputParameters: updatedOutputParameters
+            outputData: outputData
         }
         fetch("Endpoint/Add", {
             method: 'POST',
@@ -195,17 +76,13 @@ export class Endpoint extends Component {
     }
 
     validateEndpoint = () => {
-        const {inputParameters, outputData, anyInput, noOutput, urlPathValidationText, path} = this.state;
+        const {urlPathValidationText, path} = this.state;
 
         //move it to modal or smth else
         if (!path || path.trim() === ""){
             return "Path can't be empty";
         } else if (urlPathValidationText){
             return "Url already created";
-        } else if (anyInput && inputParameters.length === 0){
-            return "There is no input parameters";
-        } else if (!noOutput && !outputData){
-            return "There is not output data";
         }
         return null;
     }

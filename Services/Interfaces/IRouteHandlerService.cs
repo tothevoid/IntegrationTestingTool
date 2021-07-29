@@ -11,7 +11,5 @@ namespace IntegrationTestingTool.Services.Inerfaces
         Endpoint GetEndpointByPath(string path);
 
         string ProcessRequest(Endpoint endpoint, string data);
-
-        bool ValidateInputData(string inputData, IEnumerable<InputParameter> inputParameters);
     }
 }

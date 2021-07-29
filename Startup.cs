@@ -3,6 +3,7 @@ using IntegrationTestingTool.Services;
 using IntegrationTestingTool.Services.Inerfaces;
 using IntegrationTestingTool.Services.Interfaces;
 using IntegrationTestingTool.Settings;
+using IntegrationTestingTool.Settings.Interfaces;
 using IntegrationTestingTool.Socket;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -28,28 +29,34 @@ namespace IntegrationTestingTool
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSignalR();
             services.Configure<MongoSettings>(
                  Configuration.GetSection("AppDatabaseSettings"));
 
+            services.Configure<ServerSettings>(
+               Configuration.GetSection(nameof(ServerSettings)));
+
             services.AddSingleton<IMongoSettings>(sp =>
                 sp.GetRequiredService<IOptions<MongoSettings>>().Value);
 
+            services.AddSingleton<IServerSettings>(sp =>
+                sp.GetRequiredService<IOptions<ServerSettings>>().Value);
+
             services.AddControllersWithViews();
 
-            // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
             {
                 configuration.RootPath = "ClientApp/build";
             });
 
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton<TestRequestsValueTransformer>();
             services.AddTransient<IRouteHandlerService, RouteHandlerService>();
             services.AddTransient<IEndpointService, EndpointService>();
             services.AddTransient<ILoggingService, LoggingService>();
+            services.AddTransient<IConfigService, ConfigService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

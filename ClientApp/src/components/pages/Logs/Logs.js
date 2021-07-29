@@ -50,7 +50,7 @@ export class Logs extends Component {
     renderLog = (log) =>
         <div onMouseEnter={() => this.onMouseEnter(log)} key={log.id} className="log">
             <span className="log-date">{this.formatDate(new Date(log.createdOn))}</span> 
-            <div className="log-url">{this.props?.config?.testUrl}{log.path}</div>
+            <div className="log-url">{this.props?.config?.testAPIUrl}/{log.path}</div>
             <div>Got: {log.recieved}</div>
             <div>Sent: {log.returned}</div>
             {

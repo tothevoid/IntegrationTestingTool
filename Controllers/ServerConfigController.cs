@@ -1,9 +1,6 @@
 ﻿using IntegrationTestingTool.Model;
+using IntegrationTestingTool.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace IntegrationTestingTool.Controllers
 {
@@ -11,13 +8,14 @@ namespace IntegrationTestingTool.Controllers
     [Route("[controller]")]
     public class ServerConfigController
     {
+        private IConfigService ConfigService { get; }
+        public ServerConfigController(IConfigService configService)
+        {
+            ConfigService = configService;
+        }
+
         [HttpGet]
         public ServerConfig Get() =>
-            new ServerConfig
-            {
-                //TODO: Load it from env
-                TestUrl = "https://localhost:44314/test/"
-            };
-        
+            ConfigService.GetServerConfig();
     }
 }

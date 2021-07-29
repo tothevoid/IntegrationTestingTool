@@ -7,6 +7,6 @@ namespace IntegrationTestingTool.Model
 {
     public class ServerConfig
     {
-        public string TestUrl { get; set; }
+        public string TestAPIUrl { get; set; }
     }
 }

@@ -17,7 +17,7 @@ export class Endpoints extends Component {
         const {path, outputData} = endpoint;
         return <div key={endpoint.id} className="endpoint">
             <div>
-                <div className="path">{this.props?.config?.testUrl}{path}</div>
+                <div className="path">{this.props?.config?.testAPIUrl}/{path}</div>
                 <div>{this.formatOutput(outputData)}</div>
             </div>
             {

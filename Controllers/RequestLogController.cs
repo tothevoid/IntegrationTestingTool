@@ -11,14 +11,14 @@ namespace IntegrationTestingTool.Controllers
     [Route("[controller]")]
     public class RequestLogController
     {
-        private readonly ILoggingService _loggingService;
+        private ILoggingService LoggingService { get; }
         public RequestLogController(ILoggingService loggingService)
         {
-            _loggingService = loggingService;
+            LoggingService = loggingService;
         }
 
         [HttpGet]
         public IEnumerable<RequestLog> Get(DateTime date) =>
-            _loggingService.GetAll(date).OrderByDescending(x => x.CreatedOn);
+            LoggingService.GetAll(date).OrderByDescending(x => x.CreatedOn);
     }
 }

@@ -3,8 +3,6 @@ using IntegrationTestingTool.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace IntegrationTestingTool.Controllers
 {
@@ -13,27 +11,27 @@ namespace IntegrationTestingTool.Controllers
     [Produces("application/json")]
     public class EndpointController
     {
-        private readonly IEndpointService _endpointService;
+        private IEndpointService EndpointService { get; }
 
         public EndpointController(IEndpointService endpointService)
         {
-            _endpointService = endpointService;
+            EndpointService = endpointService;
         }
 
         [HttpGet]
         public IEnumerable<Endpoint> GetAll() =>
-            _endpointService.GetAll();
+            EndpointService.GetAll();
 
         [HttpPost]
         public void Add(Endpoint endpoint) =>
-            _endpointService.Create(endpoint);
+            EndpointService.Create(endpoint);
 
         [HttpGet]
         public bool Delete (Guid id) =>
-           _endpointService.Delete(id);
+            EndpointService.Delete(id);
 
         [HttpGet]
         public string ValidateUrl(string path) =>
-            _endpointService.ValidateUrl(path);
+            EndpointService.ValidateUrl(path);
     }
 }

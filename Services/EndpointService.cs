@@ -14,11 +14,13 @@ namespace IntegrationTestingTool.Services
     public class EndpointService: IEndpointService
     {
         private readonly IMongoCollection<Endpoint> _collection;
+        private IConfigService ConfigService { get; }
 
-        public EndpointService(IMongoSettings settings)
+        public EndpointService(IMongoSettings settings, IConfigService configService)
         {
             var client = new MongoClient(settings.ConnectionString);
             _collection = client.GetDatabase(settings.DatabaseName).GetCollection<Endpoint>("Endpoints");
+            ConfigService = configService;
         }
 
         public IEnumerable<Endpoint> GetAll() =>
@@ -44,7 +46,8 @@ namespace IntegrationTestingTool.Services
 
         public string ValidateUrl(string path)
         {
-            var isValid = Uri.TryCreate("https://localhost:44314/test/" + path, UriKind.Absolute, out Uri uri);
+            var fullPath = $"{ConfigService.GetServerConfig().TestAPIUrl}/{path}";
+            var isValid = Uri.TryCreate(fullPath, UriKind.Absolute, out Uri test2);
            
             if (string.IsNullOrEmpty(path.Trim()))
             {

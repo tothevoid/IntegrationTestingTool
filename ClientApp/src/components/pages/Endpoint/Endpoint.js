@@ -20,7 +20,7 @@ export class Endpoint extends Component {
         <div>
             <h1>Add new endpoint</h1>
             <p>
-                {this.props.config?.testUrl}
+                {this.props.config?.testAPIUrl}/
                 <input className="url" onBlur={() => this.validateUrl()} onChange={this.onPathChanged} value={this.state.path} type="text"/>
                 <span className="url-validation-error">{this.state.urlPathValidationText}</span>
             </p>               

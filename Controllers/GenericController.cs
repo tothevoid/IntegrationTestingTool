@@ -8,6 +8,7 @@ namespace IntegrationTestingTool.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [Produces("application/json")]
     public class GenericController: Controller
     {
         private IRouteHandlerService RouteHandlerService { get; }
@@ -22,8 +23,17 @@ namespace IntegrationTestingTool.Controllers
         {
             var endpoint = JsonConvert.DeserializeObject<Endpoint>(endpointRaw);
             var result = RouteHandlerService.ProcessRequest(endpoint, data);
-            LoggingService.Create(new RequestLog { Path = endpoint.Path, Recieved = data, Returned = result});
-            return Json(result);
+            
+            //TODO: get rid of try/catch
+            try
+            {
+                var json = JsonConvert.DeserializeObject(result);
+                HttpContext.Response.Headers["Content-Type"] = "application/json; charset=utf-8";
+            }
+            catch { }
+
+            LoggingService.Create(new RequestLog { Path = endpoint.Path, Recieved = data, Returned = result });
+            return Content(result); 
         }
 
         public IActionResult Error([FromRoute(Name = "errorMessage")] string errorMessage)

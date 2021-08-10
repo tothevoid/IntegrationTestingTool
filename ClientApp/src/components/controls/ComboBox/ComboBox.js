@@ -13,7 +13,7 @@ export class ComboBox extends Component {
         this.props.onSelect(selectedValue);
     }
 
-    render() {
+    render = () => {
         const {selectedValue} = this.state;
         const {values} = this.props;
         return <select onChange={this.handleChange} value={selectedValue}>

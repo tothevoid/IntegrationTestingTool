@@ -17,7 +17,7 @@ export class Logs extends Component {
 
     componentDidMount = () => {
         const hubConnection = new HubConnectionBuilder()
-            .withUrl('https://localhost:5001/hubs/logs')
+            .withUrl('https://localhost:44314/hubs/logs')
             .withAutomaticReconnect()
             .build();
 

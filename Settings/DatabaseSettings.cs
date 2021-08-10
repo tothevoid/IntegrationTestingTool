@@ -1,6 +1,6 @@
 ﻿namespace IntegrationTestingTool.Settings
 {
-    public class MongoSettings : IMongoSettings
+    public class DatabaseSettings : IDatabaseSettings
     {
         public string ConnectionString { get; set; }
         public string DatabaseName { get; set; }

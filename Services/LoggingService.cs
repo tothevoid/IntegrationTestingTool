@@ -8,7 +8,6 @@ using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace IntegrationTestingTool.Services
 {
@@ -17,7 +16,7 @@ namespace IntegrationTestingTool.Services
         private readonly IMongoCollection<RequestLog> _collection;
         protected readonly IHubContext<LogsHub> _hubContext;
 
-        public LoggingService(IMongoSettings settings, IHubContext<LogsHub> hubContext)
+        public LoggingService(IDatabaseSettings settings, IHubContext<LogsHub> hubContext)
         {
             var client = new MongoClient(settings.ConnectionString);
             _collection = client.GetDatabase(settings.DatabaseName).GetCollection<RequestLog>("RequestLogs");

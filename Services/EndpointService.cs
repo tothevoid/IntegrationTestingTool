@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace IntegrationTestingTool.Services
 {
@@ -16,7 +15,7 @@ namespace IntegrationTestingTool.Services
         private readonly IMongoCollection<Endpoint> _collection;
         private IConfigService ConfigService { get; }
 
-        public EndpointService(IMongoSettings settings, IConfigService configService)
+        public EndpointService(IDatabaseSettings settings, IConfigService configService)
         {
             var client = new MongoClient(settings.ConnectionString);
             _collection = client.GetDatabase(settings.DatabaseName).GetCollection<Endpoint>("Endpoints");

@@ -12,10 +12,10 @@ using System.Threading.Tasks;
 
 namespace IntegrationTestingTool
 {
-    public class TestRequestsValueTransformer: DynamicRouteValueTransformer
+    public class DynamicRouter: DynamicRouteValueTransformer
     {
         private readonly IRouteHandlerService _routeHandlerService;
-        public TestRequestsValueTransformer(IRouteHandlerService routeHandlerService)
+        public DynamicRouter(IRouteHandlerService routeHandlerService)
         {
             _routeHandlerService = routeHandlerService;
         }

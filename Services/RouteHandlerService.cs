@@ -1,9 +1,6 @@
 ﻿using IntegrationTestingTool.Model;
 using IntegrationTestingTool.Services.Inerfaces;
 using IntegrationTestingTool.Services.Interfaces;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace IntegrationTestingTool.Services

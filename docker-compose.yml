@@ -1,0 +1,43 @@
+version: '3.1'
+
+services:
+
+  mongo:
+    image: mongo
+    command: mongod --port 27018
+    restart: always
+    ports:
+      - 27018:27018
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongo
+      - ME_CONFIG_MONGODB_PORT=27018
+    ports:
+      - 8081:8081
+    depends_on:
+      - mongo
+
+  server:
+    build: ./ServerApp
+    restart: always
+    ports:
+      - 44314:80
+    environment:
+      DatabaseSettings__Host: mongo
+      DatabaseSettings__Port: 27018
+      ClientSettings__Port: http://localhost:3000
+    depends_on:
+      - mongo
+  
+  client:
+      build: 
+        context: ./ClientApp
+        args:
+          REACT_APP_SERVER_URL: http://localhost:44314
+      command: npm start
+      stdin_open: true
+      ports:
+        - "3000:3000"  

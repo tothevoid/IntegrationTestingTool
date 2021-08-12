@@ -13,8 +13,19 @@ export default class App extends Component {
 
   constructor(props){
     super(props);
+    let apiURL = process?.env?.REACT_APP_SERVER_URL;
+    let wsURL = "https://localhost:44315"
+    if (!apiURL){
+      apiURL = "http://localhost:44314";
+    } else {
+      wsURL = apiURL;
+    }
+
     this.state = {
-      config: {}
+      config: {
+        apiURL: apiURL,
+        wsURL: wsURL
+      }
     }
   }
 
@@ -40,8 +51,12 @@ export default class App extends Component {
   }
 
   getConfig() {
-    fetch("ServerConfig")
-        .then((response)=> response.json())
-        .then((config)=> {this.setState({config: config})});
+    fetch(`${this.state.config.apiURL}/ServerConfig`)
+        .then((response) => response.json())
+        .then((serverConfig) => {
+          this.setState(currentState => ({
+            config: {...currentState.config, ...serverConfig},
+          }))
+        });
   }
 }

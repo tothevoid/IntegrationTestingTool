@@ -15,7 +15,7 @@ namespace IntegrationTestingTool.Controllers
         }
 
         [HttpGet]
-        public ServerConfig Get() =>
+        public ServerConfig Get() => 
             ConfigService.GetServerConfig();
     }
 }

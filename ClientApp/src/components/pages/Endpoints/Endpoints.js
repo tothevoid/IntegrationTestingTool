@@ -27,7 +27,7 @@ export class Endpoints extends Component {
     }
 
     deleteEndpoint = (endpointId) => 
-        fetch(`Endpoint/Delete?id=${endpointId}`)
+        fetch(`${this.props.config.apiURL}/Endpoint/Delete?id=${endpointId}`)
             .then((response) => {if (response.text()) this.deleteEndpoints(endpointId)})
  
     deleteEndpoints = (endpointId) => {
@@ -49,7 +49,7 @@ export class Endpoints extends Component {
     }
 
     getEndpoints = () => 
-        fetch("Endpoint/GetAll")
+        fetch(`${this.props.config.apiURL}/Endpoint/GetAll`)
             .then((response)=> response.json())
             .then((endpoints)=> {this.setState({endpoints: endpoints})});
 }    

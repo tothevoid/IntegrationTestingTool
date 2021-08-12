@@ -17,7 +17,7 @@ export class Logs extends Component {
 
     componentDidMount = () => {
         const hubConnection = new HubConnectionBuilder()
-            .withUrl('https://localhost:44314/hubs/logs')
+            .withUrl(`${this.props.config.wsURL}/hubs/logs`)
             .withAutomaticReconnect()
             .build();
 
@@ -115,7 +115,7 @@ export class Logs extends Component {
         
 
     fetchLogs = (date) => 
-        fetch(`RequestLog?date=${date}`)
+        fetch(`${this.props.config.apiURL}/RequestLog?date=${date}`)
             .then((response)=> response.json())
             .then((logs) => {this.setState({
                 logs: logs.map(log => {return {...log, isNew: this.state.newLogs.find(newLog => newLog === log.id)}})

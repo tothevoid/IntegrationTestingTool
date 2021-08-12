@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import "./Endpoint.css"
 import { Button } from "../../controls/Button/Button"
+
 export class Endpoint extends Component {
     static displayName = Endpoint.name;
 
@@ -11,10 +12,6 @@ export class Endpoint extends Component {
             outputData: ""
         };
     }
-
-    componentDidMount = () => {
-        this.getTypes();
-    }    
 
     render = () => 
         <div>
@@ -43,7 +40,7 @@ export class Endpoint extends Component {
             return;
         }
         
-        fetch(`Endpoint/ValidateUrl?path=${this.state.path}`)
+        fetch(`${this.props.config.apiURL}/Endpoint/ValidateUrl?path=${this.state.path}`)
             .then(result => result.json())
             .then(result => {this.setState({urlPathValidationText: result})});
     }
@@ -65,7 +62,7 @@ export class Endpoint extends Component {
             path: path,
             outputData: outputData
         }
-        fetch("Endpoint/Add", {
+        fetch(`${this.props.config.apiURL}/Endpoint/Add`, {
             method: 'POST',
             body: JSON.stringify(data),
             headers: {
@@ -85,11 +82,5 @@ export class Endpoint extends Component {
             return "Url already created";
         }
         return null;
-    }
-
-    getTypes = () => {
-        fetch("ParameterType")
-            .then((response)=> response.json())
-            .then((types)=> {this.setState({types: types})});
     }
 }

@@ -2,8 +2,12 @@
 {
     public interface IDatabaseSettings
     {
-        string ConnectionString { get; set; }
+        public string DatabaseName { get; set; }
 
-        string DatabaseName { get; set; }
+        public string Host { get; set; }
+
+        public string Port { get; set; }
+
+        public string ConnectionString { get; }
     }
 }

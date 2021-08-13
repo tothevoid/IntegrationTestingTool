@@ -1,6 +1,7 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import "./Endpoints.css"
 import { Button } from "../../controls/Button/Button"
+import { Search } from "../../controls/Search/Search"
 
 export class Endpoints extends Component {
     
@@ -9,7 +10,7 @@ export class Endpoints extends Component {
         this.state = {
             endpoints: []
         }
-        this.getEndpoints();
+        this.getEndpoints("");
     }
 
     renderEndpoint = (endpoint) =>
@@ -44,13 +45,17 @@ export class Endpoints extends Component {
     }
 
     render = () => {
-        return <div className="endpoints-list">
-            {this.state.endpoints.map((endpoint)=>this.renderEndpoint(endpoint))}
-        </div>
+        const {theme} = this.props;
+        return <Fragment>
+            <Search theme={theme} onTextChanged={this.getEndpoints}/>
+            <div className="endpoints-list">
+                {this.state.endpoints.map((endpoint)=>this.renderEndpoint(endpoint))}
+            </div>
+        </Fragment> 
     }
 
-    getEndpoints = () => 
-        fetch(`${this.props.config.apiURL}/Endpoint/GetAll`)
+    getEndpoints = (path) => 
+        fetch(`${this.props.config.apiURL}/Endpoint/GetAll?path=${path}`)
             .then((response)=> response.json())
             .then((endpoints)=> {this.setState({endpoints: endpoints})});
 }    

@@ -25,6 +25,16 @@ namespace IntegrationTestingTool.Services
         public IEnumerable<Endpoint> GetAll() =>
             MongoCollection.Find(new BsonDocument()).ToList();
 
+        public IEnumerable<Endpoint> GetAllByPath(string path)
+        {
+            if (string.IsNullOrEmpty(path)) 
+            {
+                return GetAll();
+            }
+            var filter = new BsonDocument {{nameof(Endpoint.Path), new BsonDocument {{ "$regex", path }, { "$options", "i" }}}};
+            return MongoCollection.Find(filter).ToList();
+        }
+
         public Endpoint Create(Endpoint endpoint)
         {
             endpoint.Id = Guid.NewGuid();

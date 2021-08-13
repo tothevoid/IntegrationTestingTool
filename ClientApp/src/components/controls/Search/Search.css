@@ -1,0 +1,18 @@
+.search-input{
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 20px;
+    border-bottom: 2px solid black;
+    margin: 0 10px;
+}
+.search-input.dark{
+    border-radius: 5px 5px 0 0;
+    background: #444444;
+    color: white;
+    border-bottom-color: #D17F2F;
+}
+
+.search-label.dark{
+    color:white;
+}

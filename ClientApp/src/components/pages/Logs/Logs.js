@@ -2,12 +2,12 @@ import React, { Component } from 'react';
 import "./Logs.css"
 import { HubConnectionBuilder } from '@microsoft/signalr';
 import { Button } from "../../controls/Button/Button"
-import {formatDate} from "../../../utils/dateExtensions"
+import { formatDate, getCurrentDate } from "../../../utils/dateExtensions"
 
 export class Logs extends Component {
     constructor(props) {
         super(props);
-        const date = this.getCurrentDate();
+        const date = getCurrentDate();
         this.state = {
             logs: [],
             dateFilter: date,
@@ -24,7 +24,7 @@ export class Logs extends Component {
 
         hubConnection.on("NewLog", data => {
             const newElement = {isNew: true, ...data};
-            const isCurrentDate = this.getCurrentDate() === this.state.dateFilter;
+            const isCurrentDate = getCurrentDate() === this.state.dateFilter;
 
             this.setState(prevState => ({
                 newLogs: [...prevState.newLogs, newElement.id],
@@ -76,14 +76,8 @@ export class Logs extends Component {
         this.fetchLogs(date);
     }
 
-    getCurrentDate = () => {
-        const date = new Date();
-        return new Date(date.getTime() - (date.getTimezoneOffset() * 60000))
-            .toISOString().substr(0, 10);
-    }
-
     onNewRequestsClick = () => {
-        const date = this.getCurrentDate();
+        const date = getCurrentDate();
         this.setState({dateFilter: date});
         this.fetchLogs(date);
     }
@@ -109,7 +103,7 @@ export class Logs extends Component {
 
     fetchLogs = (date) => 
         fetch(`${this.props.config.apiURL}/RequestLog?date=${date}`)
-            .then((response)=> response.json())
+            .then((response) => response.json())
             .then((logs) => {this.setState({
                 logs: logs.map(log => {return {...log, isNew: this.state.newLogs.find(newLog => newLog === log.id)}})
             })});

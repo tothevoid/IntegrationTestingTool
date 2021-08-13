@@ -19,8 +19,8 @@ namespace IntegrationTestingTool.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<Endpoint> GetAll() =>
-            EndpointService.GetAll();
+        public IEnumerable<Endpoint> GetAll(string path) =>
+             EndpointService.GetAllByPath(path);
 
         [HttpPost]
         public void Add(Endpoint endpoint) =>

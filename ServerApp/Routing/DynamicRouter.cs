@@ -14,10 +14,10 @@ namespace IntegrationTestingTool
 {
     public class DynamicRouter: DynamicRouteValueTransformer
     {
-        private readonly IRouteHandlerService _routeHandlerService;
+        private IRouteHandlerService RouteHandlerService { get; }
         public DynamicRouter(IRouteHandlerService routeHandlerService)
         {
-            _routeHandlerService = routeHandlerService;
+            RouteHandlerService = routeHandlerService;
         }
 
         public override async ValueTask<RouteValueDictionary> TransformAsync(HttpContext httpContext, RouteValueDictionary values)
@@ -27,9 +27,11 @@ namespace IntegrationTestingTool
                 { "controller", "Generic" }
             };
 
-            var parts = httpContext.Request.Path.Value.Split("/").Where(x => x != "test" && x != string.Empty);
-            var path = string.Join("/", parts);
-            var endpoint = _routeHandlerService.GetEndpointByPath(path);
+            var urlParts = httpContext.Request.Path.Value.Split("/")
+                .Where(x => x != string.Empty)
+                .Skip(1);
+            string path = string.Join("/", urlParts);
+            var endpoint = RouteHandlerService.GetEndpointByPath(path);
 
             string body = string.Empty;
             if (httpContext.Request.ContentType == "application/json")

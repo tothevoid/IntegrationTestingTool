@@ -18,7 +18,7 @@ export class Endpoints extends Component {
         const {path, outputData} = endpoint;
         return <div key={endpoint.id} className={`endpoint ${theme}`}>
             <div>
-                <div className="path">{this.props?.config?.testAPIUrl}/{path}</div>
+                <div className="path">{this.props?.config?.mockURL}/{path}</div>
                 <div>{this.formatOutput(outputData)}</div>
             </div>
             {

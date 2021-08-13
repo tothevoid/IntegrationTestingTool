@@ -27,7 +27,7 @@ namespace IntegrationTestingTool.Controllers
             EndpointService.Create(endpoint);
 
         [HttpGet]
-        public bool Delete (Guid id) =>
+        public bool Delete(Guid id) =>
             EndpointService.Delete(id);
 
         [HttpGet]

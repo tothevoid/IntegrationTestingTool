@@ -20,7 +20,7 @@ namespace IntegrationTestingTool.Services
         public ServerConfig GetServerConfig() =>
             new ServerConfig
             {
-                TestAPIUrl = $"{RequestContext.Scheme}://{RequestContext.Host.Value}/{ServerSettings.APIName}"
+                MockURL = $"{RequestContext.Scheme}://{RequestContext.Host.Value}/{ServerSettings.APIName}"
             };
     }
 }

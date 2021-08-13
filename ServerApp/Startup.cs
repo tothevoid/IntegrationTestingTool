@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using IntegrationTestingTool.Extensions;
 using IntegrationTestingTool.Settings;
+using System;
 
 namespace IntegrationTestingTool
 {
@@ -42,7 +43,8 @@ namespace IntegrationTestingTool
         {
             if (env.IsDevelopment())
             {
-                app.UseCors(builder => builder.WithOrigins("null", "https://localhost:44315").AllowAnyHeader().AllowAnyMethod().AllowCredentials());
+                app.UseCors(builder => builder.WithOrigins("null", "https://localhost:44315")
+                    .AllowAnyHeader().AllowAnyMethod().AllowCredentials());
                 app.UseDeveloperExceptionPage();
             }
             else
@@ -67,7 +69,17 @@ namespace IntegrationTestingTool
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapHub<LogsHub>("/hubs/logs");
-                endpoints.MapDynamicControllerRoute<DynamicRouter>("test/{**data}");
+                var serverConfig = Configuration.GetSection(nameof(ServerSettings)).Get<ServerSettings>();
+                if (serverConfig != null && !string.IsNullOrEmpty(serverConfig.APIName))
+                {
+                    string dataPart = "{**data}";
+                    endpoints.MapDynamicControllerRoute<DynamicRouter>($"{serverConfig.APIName}/{dataPart}");
+                }
+                else
+                {
+                    throw new Exception("There is no APIName parameter at the appsetings 'ServerSettings' section");
+                }
+                
                 endpoints.MapControllers();
             });
 

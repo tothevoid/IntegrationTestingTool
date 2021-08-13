@@ -7,16 +7,15 @@ namespace IntegrationTestingTool.Services
 {
     public class RouteHandlerService: IRouteHandlerService
     {
-        private readonly IEndpointService _endpointService;
+        private IEndpointService EndpointService { get; }
         public RouteHandlerService(IEndpointService endpointService)
         {
-            _endpointService = endpointService;
+            EndpointService = endpointService;
         }
 
         public Endpoint GetEndpointByPath(string path) =>
-            _endpointService.FindByParameter(nameof(Endpoint.Path), path).FirstOrDefault();
+            EndpointService.FindByParameter(nameof(Endpoint.Path), path).FirstOrDefault();
     
-
         public string ProcessRequest(Endpoint endpoint, string data) =>
             endpoint.OutputData;
     }

@@ -12,41 +12,41 @@ namespace IntegrationTestingTool.Services
 {
     public class EndpointService: IEndpointService
     {
-        private readonly IMongoCollection<Endpoint> _collection;
+        private IMongoCollection<Endpoint> MongoCollection { get; }
         private IConfigService ConfigService { get; }
 
         public EndpointService(IDatabaseSettings settings, IConfigService configService)
         {
             var client = new MongoClient(settings.ConnectionString);
-            _collection = client.GetDatabase(settings.DatabaseName).GetCollection<Endpoint>("Endpoints");
+            MongoCollection = client.GetDatabase(settings.DatabaseName).GetCollection<Endpoint>("Endpoints");
             ConfigService = configService;
         }
 
         public IEnumerable<Endpoint> GetAll() =>
-            _collection.Find(new BsonDocument()).ToList();
+            MongoCollection.Find(new BsonDocument()).ToList();
 
         public Endpoint Create(Endpoint endpoint)
         {
             endpoint.Id = Guid.NewGuid();
             endpoint.OutputData = Regex.Replace(endpoint.OutputData, @"\""", @"""");
-            _collection.InsertOne(endpoint);
+            MongoCollection.InsertOne(endpoint);
             return endpoint;
         }
 
         public bool Delete(Guid id)
         {
             var deletionFilter = Builders<Endpoint>.Filter.Eq(nameof(Endpoint.Id), id);
-            var result = _collection.DeleteOne(deletionFilter);
+            var result = MongoCollection.DeleteOne(deletionFilter);
             return result.DeletedCount != 0;
         }
 
         public IEnumerable<Endpoint> FindByParameter(string parameterName, string value) =>
-            _collection.Find(new BsonDocument(parameterName, value)).ToList();
+            MongoCollection.Find(new BsonDocument(parameterName, value)).ToList();
 
         public string ValidateUrl(string path)
         {
-            var fullPath = $"{ConfigService.GetServerConfig().TestAPIUrl}/{path}";
-            var isValid = Uri.TryCreate(fullPath, UriKind.Absolute, out Uri test2);
+            var fullPath = $"{ConfigService.GetServerConfig().MockURL}/{path}";
+            var isValid = Uri.TryCreate(fullPath, UriKind.Absolute, out _);
            
             if (string.IsNullOrEmpty(path.Trim()))
             {

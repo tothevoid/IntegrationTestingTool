@@ -18,7 +18,7 @@ export class Endpoint extends Component {
         return <div className={`new-endpoint ${theme}`}>
             <h1>Add new endpoint</h1>
             <p className={`url ${theme}`}>
-                <span>{this.props.config?.testAPIUrl}/</span>
+                <span>{this.props.config?.mockURL}/</span>
                 <input className={`dynamic-url ${theme}`} onBlur={() => this.validateUrl()} onChange={this.onPathChanged}
                     value={this.state.path} type="text"/>
                 <span className="url-validation-error">{this.state.urlPathValidationText}</span>

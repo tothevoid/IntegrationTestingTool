@@ -13,14 +13,14 @@ namespace IntegrationTestingTool.Services
 {
     public class LoggingService: ILoggingService
     {
-        private readonly IMongoCollection<RequestLog> _collection;
-        protected readonly IHubContext<LogsHub> _hubContext;
+        private IMongoCollection<RequestLog> MongoCollection { get; }
+        protected IHubContext<LogsHub> HubContext { get; }
 
         public LoggingService(IDatabaseSettings settings, IHubContext<LogsHub> hubContext)
         {
             var client = new MongoClient(settings.ConnectionString);
-            _collection = client.GetDatabase(settings.DatabaseName).GetCollection<RequestLog>("RequestLogs");
-            _hubContext = hubContext;
+            MongoCollection = client.GetDatabase(settings.DatabaseName).GetCollection<RequestLog>("RequestLogs");
+            HubContext = hubContext;
         }
 
         public IEnumerable<RequestLog> GetAll(DateTime date)
@@ -30,13 +30,13 @@ namespace IntegrationTestingTool.Services
                 new BsonDocument(nameof(RequestLog.CreatedOn), new BsonDocument("$gte", date.Date)),
                 new BsonDocument(nameof(RequestLog.CreatedOn), new BsonDocument("$lt", date.Date.AddDays(1)))
             });
-            return _collection.Find(filter).ToList();
+            return MongoCollection.Find(filter).ToList();
         }
         
         public RequestLog Create(RequestLog log)
         {
-            _collection.InsertOne(log);
-            _hubContext.Clients.All.SendAsync("NewLog", log).GetAwaiter().GetResult();
+            MongoCollection.InsertOne(log);
+            HubContext.Clients.All.SendAsync("NewLog", log).GetAwaiter().GetResult();
             return log;
         }
     }

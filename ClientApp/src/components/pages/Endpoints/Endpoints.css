@@ -3,9 +3,18 @@
     border-radius: 10px;
     position: relative;
     padding: 10px;
-    background-color: #FFD285;
     box-shadow: 0px 2px 2px 0 rgba(0, 0, 0, 0.301);
     font-family: 'Roboto', sans-serif;
+}
+
+.endpoint.light{
+    background-color: #FFD285;
+    color: black;
+}
+
+.endpoint.dark{
+    background-color: #444444;
+    color:white;
 }
 
 .endpoint .path{
@@ -14,10 +23,6 @@
 }
 
 .endpoint-delete{
-    background-color: red;
-    font-size: 15;
-    color: white;
-    border-radius: 5px;
     position: absolute;
     right: 10px;
     top: 10px;

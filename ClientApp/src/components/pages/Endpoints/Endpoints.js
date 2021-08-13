@@ -14,8 +14,9 @@ export class Endpoints extends Component {
 
     renderEndpoint = (endpoint) =>
     {
+        const {theme} = this.props;
         const {path, outputData} = endpoint;
-        return <div key={endpoint.id} className="endpoint">
+        return <div key={endpoint.id} className={`endpoint ${theme}`}>
             <div>
                 <div className="path">{this.props?.config?.testAPIUrl}/{path}</div>
                 <div>{this.formatOutput(outputData)}</div>

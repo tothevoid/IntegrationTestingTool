@@ -7,12 +7,18 @@
     border: solid 5px transparent;
 }
 
-.button-default{
+.button-default.light{
     background-color: #f0b90b;
+    color: black
+}
+
+.button-default.dark{
+    background-color: #D17F2F;
+    color: white;
 }
 
 .button-danger{
-    background-color: #e01c1c;
+    background-color: #bd2130;
     color: white;
 }
 

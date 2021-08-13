@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import "./Logs.css"
 import { HubConnectionBuilder } from '@microsoft/signalr';
 import { Button } from "../../controls/Button/Button"
+import {formatDate} from "../../../utils/dateExtensions"
 
 export class Logs extends Component {
     constructor(props) {
@@ -36,20 +37,11 @@ export class Logs extends Component {
                 .then(() => console.log("connected"))
                 .catch(() => console.log("not connected"));
         });
-    }
+    } 
 
-    formatDate = (date) => 
-        this.addZeroes(date.getDate()) + "/" + this.addZeroes((date.getMonth() + 1)) + "/" + date.getFullYear() 
-        + " " + this.addZeroes(date.getHours()) + ":" + this.addZeroes(date.getMinutes());
-
-    addZeroes = (value) => 
-        (value <= 9) ?
-            "0" + value :
-            value; 
-
-    renderLog = (log) =>
-        <div onMouseEnter={() => this.onMouseEnter(log)} key={log.id} className="log">
-            <span className="log-date">{this.formatDate(new Date(log.createdOn))}</span> 
+    renderLog = (log, theme) =>
+        <div onMouseEnter={() => this.onMouseEnter(log)} key={log.id} className={`log ${theme}`}>
+            <span className="log-date">{formatDate(new Date(log.createdOn))}</span> 
             <div className="log-url">{this.props?.config?.testAPIUrl}/{log.path}</div>
             <div>Got: {log.recieved}</div>
             <div>Sent: {log.returned}</div>
@@ -97,11 +89,12 @@ export class Logs extends Component {
     }
 
     render = () => {
+        const {theme} = this.props;
         return <div>
             <span>
-                <div className="date-container">
-                    <span>Date: </span>
-                    <input className="input-date" value={this.state.dateFilter} onChange={this.onDateFilterChanghed} type="date"/>
+                <div className={`datepicker ${theme}`}>
+                    <span className="datepicker-label">Date:  </span>
+                    <input className="datepicker-value" value={this.state.dateFilter} onChange={this.onDateFilterChanghed} type="date"/>
                     {
                         (this.state.newLogs.length) ?
                             <Button onClick={this.onNewRequestsClick} mode="danger" caption={`New requests: ${this.state.newLogs.length}`}/> :
@@ -109,7 +102,7 @@ export class Logs extends Component {
                     }
                 </div>
             </span>
-            {this.state.logs.map((log) => this.renderLog(log))}
+            {this.state.logs.map((log) => this.renderLog(log, theme))}
         </div>
     }
         

@@ -6,6 +6,7 @@ import { Logs } from './components/pages/Logs/Logs';
 import { NotFound } from './components/pages/NotFound/NotFound';
 import { NavMenu } from "./components/controls/NavMenu/NavMenu"
 import { Container } from 'reactstrap';
+import { endpoint, theme } from "./constants/constants"
 import './custom.css'
 
 export default class App extends Component {
@@ -14,43 +15,54 @@ export default class App extends Component {
   constructor(props){
     super(props);
     let apiURL = process?.env?.REACT_APP_SERVER_URL;
-    let wsURL = "https://localhost:44315"
-    if (!apiURL){
-      apiURL = "http://localhost:44314";
-    } else {
+    let wsURL = endpoint.defaultWS
+    if (apiURL){
       wsURL = apiURL;
+    } else {
+      apiURL = endpoint.defaultServer;
     }
-
     this.state = {
       config: {
         apiURL: apiURL,
-        wsURL: wsURL
-      }
+        wsURL: wsURL,
+      },
+      theme: theme.dark
     }
+
+    document.body.classList.add(this.state.theme);
   }
 
-  componentDidMount() {
+  componentDidMount = () =>
     this.getConfig();
+
+  applyThemeOnBody = (oldTheme, newTheme) => {
+    document.body.classList.replace(oldTheme, newTheme)
   }
 
-  render () {
-    return (
-      <Router>
-        <NavMenu/>
-        <Container>
-          <Switch>
-            <Route exact path='/' render={(props) => <Endpoints {...props} config={this.state.config}/>}/>
-            <Route exact path='/endpoints' render={(props) => <Endpoints {...props} config={this.state.config}/>}/>
-            <Route exact path='/endpoint' render={(props) => <Endpoint  {...props} config={this.state.config}/>}/>
-            <Route exact path='/logs' render={(props) => <Logs {...props} config={this.state.config}/>}/>
-            <Route component={NotFound} />
-          </Switch>
-        </Container>
-      </Router>
-    );
+  render = () => 
+    <Router>
+      <NavMenu onThemeSwitched={this.onThemeSwitched} theme={this.state.theme}/>
+      <Container>
+        <Switch>
+          <Route exact path='/' render={(props) => <Endpoints {...props} {...this.state}/>}/>
+          <Route exact path='/endpoints' render={(props) => <Endpoints {...props} {...this.state}/>}/>
+          <Route exact path='/endpoint' render={(props) => <Endpoint  {...props} {...this.state}/>}/>
+          <Route exact path='/logs' render={(props) => <Logs {...props} {...this.state}/>}/>
+          <Route component={NotFound} />
+        </Switch>
+      </Container>
+    </Router>
+
+  onThemeSwitched = () => {
+    const currentTheme = this.state.theme;
+    const newTheme = (currentTheme === theme.dark) ? 
+      theme.light:
+      theme.dark;
+    this.applyThemeOnBody(currentTheme, newTheme);
+    this.setState({theme: newTheme});
   }
 
-  getConfig() {
+  getConfig = () => 
     fetch(`${this.state.config.apiURL}/ServerConfig`)
         .then((response) => response.json())
         .then((serverConfig) => {
@@ -58,5 +70,5 @@ export default class App extends Component {
             config: {...currentState.config, ...serverConfig},
           }))
         });
-  }
+  
 }

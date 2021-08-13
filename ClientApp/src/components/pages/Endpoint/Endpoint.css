@@ -1,35 +1,33 @@
-﻿.input-parameter-name{
-    width: 200px;
+﻿.url{
+    font-size: 16px;
 }
 
-.input-parameter-type {
-    width: 200px;
-}
-
-.output-parameter-name{
-    width: 250px;
-}
-
-.output-parameter-type{
-    width: 250px;
-}
-
-.output-parameter-desired{
-    width: 250px;
-}
-
-.url{
+.dynamic-url{
     border: none;
+    background: transparent;
+}
+.dynamic-url.light{
     border-bottom: 2px solid black;
+    color: black;
 }
 
-.url:focus, .url:active{
-    border: none;
-    border-bottom: 2px solid rgb(146, 2, 2);
+.dynamic-url.dark{
+    border-bottom: 2px solid white;
+    color:white;
+}
+
+.dynamic-url:focus, .dynamic-url:active{
     outline: none;
 }
 
-.url-validation-error{
+.dynamic-url.light:focus, .dynamic-url.light:active{
+    border-bottom: 2px solid rgb(146, 2, 2);
+}
+.dynamic-url.dark:focus, .dynamic-url.dark:active{
+    border-bottom: 2px solid #D17F2F;
+}
+
+.dynamic-url-validation-error{
     color: rgb(146, 2, 2);
 }
 
@@ -38,4 +36,23 @@
     width: 100%;
     min-height: 150px;
     vertical-align: top;
+    margin-bottom: 10px;
+    background-color: transparent;
+}
+
+.output:focus{
+    outline: none;
+}
+
+.output.dark{
+    background: #444444;
+    color: white;
+}
+
+.output-light{
+    color: black;
+}
+
+.new-endpoint.dark{
+    color: white;
 }

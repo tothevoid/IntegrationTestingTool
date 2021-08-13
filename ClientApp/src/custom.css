@@ -1,14 +1,12 @@
-/* Provide sufficient contrast against white background */
-a {
-  color: #0366d6;
+html, body, #root{
+  height: 100%;
 }
 
-code {
-  color: #E01A76;
+body.light{
+  background-color: white;
 }
 
-.btn-primary {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+body.dark{
+  /* background-color: #212529; */
+  background-color: #333333;
 }

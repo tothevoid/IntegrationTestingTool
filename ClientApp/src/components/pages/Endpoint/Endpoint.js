@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import "./Endpoint.css"
 import { Button } from "../../controls/Button/Button"
 
@@ -13,21 +13,22 @@ export class Endpoint extends Component {
         };
     }
 
-    render = () => 
-        <div>
+    render = () => {
+        const {theme} = this.props;
+        return <div className={`new-endpoint ${theme}`}>
             <h1>Add new endpoint</h1>
-            <p>
-                {this.props.config?.testAPIUrl}/
-                <input className="url" onBlur={() => this.validateUrl()} onChange={this.onPathChanged} value={this.state.path} type="text"/>
+            <p className={`url ${theme}`}>
+                <span>{this.props.config?.testAPIUrl}/</span>
+                <input className={`dynamic-url ${theme}`} onBlur={() => this.validateUrl()} onChange={this.onPathChanged}
+                    value={this.state.path} type="text"/>
                 <span className="url-validation-error">{this.state.urlPathValidationText}</span>
             </p>               
-            <Fragment>
-                <div>Output data:</div>
-                <textarea className="output" onChange={this.onOutputChanged} value={this.state.outputData} type="text"/>
-            </Fragment> 
-            <hr/>
-            <Button disabled={(this.state.urlPathValidationText && this.state.urlPathValidationText.length !== 0 )} onClick={this.addEndpoint} caption={"Add endpoint"}></Button>
+            <div>Output data:</div>
+            <textarea className={`output ${theme}`} onChange={this.onOutputChanged} 
+                value={this.state.outputData}/>
+            <Button theme={theme} disabled={(this.state.urlPathValidationText && this.state.urlPathValidationText.length !== 0 )} onClick={this.addEndpoint} caption={"Add endpoint"}></Button>
         </div>
+    }
 
     onOutputChanged = (event) => {
         this.setState({outputData: event.target.value});

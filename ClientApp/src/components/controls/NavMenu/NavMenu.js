@@ -2,7 +2,9 @@ import React from 'react';
 import { Container, Navbar, NavbarBrand, NavItem, NavLink } from 'reactstrap';
 import { Link } from 'react-router-dom';
 import './NavMenu.scss';
-import {Button} from "../Button/Button"
+
+import {ReactComponent as DarkTheme} from "./images/dark_mode.svg";
+import {ReactComponent as LightTheme} from "./images/light_mode.svg";
 
 export const NavMenu = (props) => {
   const {theme, onThemeSwitched} = props;
@@ -21,11 +23,17 @@ export const NavMenu = (props) => {
             <NavItem>
               <NavLink tag={Link} className={theme} to="/logs">Logs</NavLink>
             </NavItem>
-            <Button onClick={() => onThemeSwitched()} mode="custom" theme={theme} 
-              additionalClasses="theme-switch"></Button>
+            <span onClick={() => onThemeSwitched()} className={`image-container ${theme}`}>
+              {getThemeSwitchButton(theme)}
+            </span>
           </ul>
         </Container>
       </Navbar>
     </header>
   );
 }
+
+const getThemeSwitchButton = (theme) => 
+  (theme === "dark") ?
+    <LightTheme fill={"white"} className="theme-switch"/>:
+    <DarkTheme fill={"white"} className="theme-switch"/>

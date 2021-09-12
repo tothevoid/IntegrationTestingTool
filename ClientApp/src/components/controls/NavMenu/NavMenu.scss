@@ -28,15 +28,23 @@ nav.dark{
 	color: black;
 }
 
-.theme-switch{
-	background-size: contain;
+.image-container{
+	display: flex;
 	cursor: pointer;
-	display: inline-block;
-	width: 50px;
+	justify-content: center;
+	align-items: center;
+	border: solid transparent 5px;
+	border-radius: 5px;
+	box-shadow: rgba(0, 0, 0, 0.3) 0px 2px 2px 0px;
 	&.dark{
-		background: url(/images/light_mode.svg) no-repeat center center;
+		// background-color: $button-background-dark;
+		background-color: #333;
 	}
 	&.light{
-		background: url(/images/dark_mode.svg) no-repeat center center;
+		background-color: $button-background-light;
 	}
+}
+
+.theme-switch{
+	width: 50px;
 }

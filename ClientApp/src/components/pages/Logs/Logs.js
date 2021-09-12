@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import "./Logs.css"
 import { HubConnectionBuilder } from '@microsoft/signalr';
 import { Button } from "../../controls/Button/Button"
@@ -41,14 +41,27 @@ export class Logs extends Component {
 
     renderLog = (log, theme) =>
         <div onMouseEnter={() => this.onMouseEnter(log)} key={log.id} className={`log ${theme}`}>
-            <span className="log-date">{formatDate(new Date(log.createdOn))}</span> 
-            <div className="log-url">{this.props?.config?.mockURL}/{log.path}</div>
-            <div>Got: {log.recieved}</div>
-            <div>Sent: {log.returned}</div>
+            <span className="log-date">{formatDate(new Date(log.createdOn))}</span>
             {
-                log.isNew ? 
-                    <span className="new-label">New</span> :
-                    <span></span>
+                (log.isError) ? 
+                    <div>{`An error during request process: ${log.returned}`}</div> : 
+                    <Fragment/>
+            }
+            <div className="log-url">[{log.endpoint.method}] {this.props?.config?.mockURL}/{log.endpoint.path}</div>
+            <div>Got data: {log.recieved}</div>
+            {
+                (!log.isError) ?
+                    <Fragment>
+                        <b>Returned:</b>
+                        <div>Code: {log.endpoint.outputStatusCode}</div>
+                        <div>Data: {log.returned}</div>
+                        {
+                            log.isNew ? 
+                                <span className="new-label">New</span> :
+                                <span></span>
+                        }
+                    </Fragment>:
+                    <Fragment/>
             }
         </div>
 

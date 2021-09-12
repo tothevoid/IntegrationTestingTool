@@ -6,6 +6,8 @@ using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Text.RegularExpressions;
 
 namespace IntegrationTestingTool.Services
@@ -50,6 +52,14 @@ namespace IntegrationTestingTool.Services
             return result.DeletedCount != 0;
         }
 
+        public IEnumerable<Endpoint> FindByPathAndMethod(string path, string method)
+        {
+            var pathFilter = Builders<Endpoint>.Filter.Eq(nameof(Endpoint.Path), path);
+            var methodFilter = Builders<Endpoint>.Filter.Eq(nameof(Endpoint.Method), method);
+            var filters = Builders<Endpoint>.Filter.And(pathFilter, methodFilter);
+            return MongoCollection.Find(filters).ToList();
+        }
+
         public IEnumerable<Endpoint> FindByParameter(string parameterName, string value) =>
             MongoCollection.Find(new BsonDocument(parameterName, value)).ToList();
 
@@ -74,5 +84,13 @@ namespace IntegrationTestingTool.Services
             return string.Empty;
         }
 
+        public IEnumerable<int> GetStatusCodes() =>
+            Enum.GetValues(typeof(HttpStatusCode)).Cast<int>();
+
+        public IEnumerable<string> GetRESTMethods()
+        {
+            var props = typeof(HttpMethod).GetProperties();
+            return props.Where(prop => prop.GetMethod.IsStatic).Select(x => x.Name.ToUpper());
+        }
     }
 }

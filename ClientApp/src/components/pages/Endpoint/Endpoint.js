@@ -1,6 +1,7 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import "./Endpoint.css"
 import { Button } from "../../controls/Button/Button"
+import { ComboBox } from "../../controls/ComboBox/ComboBox"
 
 export class Endpoint extends Component {
     static displayName = Endpoint.name;
@@ -9,12 +10,21 @@ export class Endpoint extends Component {
         super(props);
         this.state = {
             path: "",
-            outputData: ""
+            outputData: "",
+            statusCodes: [],
+            statusCode: 200,
+            method: "POST"
         };
+    }
+
+    componentDidMount = () => {
+        this.getStatusCodes();
+        this.getRESTMethods();
     }
 
     render = () => {
         const {theme} = this.props;
+        const {statusCode, statusCodes, method, methods} = this.state;
         return <div className={`new-endpoint ${theme}`}>
             <h1>Add new endpoint</h1>
             <p className={`url ${theme}`}>
@@ -22,12 +32,36 @@ export class Endpoint extends Component {
                 <input className={`dynamic-url ${theme}`} onBlur={() => this.validateUrl()} onChange={this.onPathChanged}
                     value={this.state.path} type="text"/>
                 <span className="url-validation-error">{this.state.urlPathValidationText}</span>
-            </p>               
+            </p>
+            {
+                (statusCodes && statusCodes.length !== 0) ?
+                    <Fragment>
+                        <div>Status code: </div>
+                        <ComboBox theme={theme} selectedValue={statusCode} values={statusCodes} onSelect={this.onStatusCodeSelected}></ComboBox>
+                    </Fragment>:
+                    <div>Loading statuses...</div>
+            }
+            {
+                (methods && methods.length !== 0) ?
+                    <Fragment>
+                        <div>REST method: </div>
+                        <ComboBox theme={theme} selectedValue={method} values={methods} onSelect={this.onMethodSelected}></ComboBox>
+                    </Fragment>:
+                    <div>Loading methods...</div>
+            }
             <div>Output data:</div>
             <textarea className={`output ${theme}`} onChange={this.onOutputChanged} 
                 value={this.state.outputData}/>
             <Button theme={theme} disabled={(this.state.urlPathValidationText && this.state.urlPathValidationText.length !== 0 )} onClick={this.addEndpoint} caption={"Add endpoint"}></Button>
         </div>
+    }
+
+    onStatusCodeSelected = (statusCode) => {
+        this.setState({statusCode})
+    }
+
+    onMethodSelected = (method) => {
+        this.setState({method})
     }
 
     onOutputChanged = (event) => {
@@ -52,16 +86,19 @@ export class Endpoint extends Component {
     }
 
     addEndpoint = () => {
+        debugger;
         const validationResult = this.validateEndpoint();
         if (validationResult){
             console.log(validationResult);
             return;
         }
-        const {path, outputData} = this.state;
+        const {path, outputData, statusCode, method} = this.state;
 
         const data = {
             path: path,
-            outputData: outputData
+            outputData: outputData,
+            outputStatusCode: parseInt(statusCode),
+            method: method
         }
         fetch(`${this.props.config.apiURL}/Endpoint/Add`, {
             method: 'POST',
@@ -71,6 +108,26 @@ export class Endpoint extends Component {
             }
         }).then(response => response.status)
             .then(status => { if (status === 200) this.props.history.push("/endpoints")});
+    }
+
+    getStatusCodes = () => {
+        fetch(`${this.props.config.apiURL}/Endpoint/GetStatusCodes`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then((response) => response.json())
+        .then((statusCodes) => this.setState({statusCodes}));
+    }
+
+    getRESTMethods = () => {
+        fetch(`${this.props.config.apiURL}/Endpoint/GetRESTMethods`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then((response) => response.json())
+        .then((methods) => this.setState({methods}));
     }
 
     validateEndpoint = () => {

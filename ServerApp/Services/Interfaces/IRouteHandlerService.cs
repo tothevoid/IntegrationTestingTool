@@ -6,6 +6,8 @@ namespace IntegrationTestingTool.Services.Inerfaces
     {
         Endpoint GetEndpointByPath(string path);
 
+        Endpoint GetEndpointByPathAndMethod(string path, string method);
+
         string ProcessRequest(Endpoint endpoint, string data);
     }
 }

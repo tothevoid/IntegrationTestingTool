@@ -16,6 +16,12 @@ namespace IntegrationTestingTool.Services.Interfaces
 
         IEnumerable<Endpoint> FindByParameter(string parameterName, string value);
 
+        IEnumerable<Endpoint> FindByPathAndMethod(string path, string method);
+
         string ValidateUrl(string path);
+
+        IEnumerable<int> GetStatusCodes();
+
+        IEnumerable<string> GetRESTMethods();
     }
 }

@@ -31,13 +31,27 @@ namespace IntegrationTestingTool.Controllers
                 HttpContext.Response.Headers["Content-Type"] = "application/json; charset=utf-8";
             }
             catch { }
-
-            LoggingService.Create(new RequestLog { Path = endpoint.Path, Recieved = data, Returned = result });
-            return Content(result); 
+            HttpContext.Response.StatusCode = endpoint.OutputStatusCode;
+            LoggingService.Create(new RequestLog 
+            {
+                Recieved = data, 
+                Returned = result, 
+                Endpoint = endpoint
+            });
+            return Content(result);
         }
 
-        public IActionResult Error([FromRoute(Name = "errorMessage")] string errorMessage)
+        public IActionResult Error([FromRoute(Name = "data")] string data, [FromRoute(Name = "endpoint")] string endpointRaw, 
+            [FromRoute(Name = "errorMessage")] string errorMessage)
         {
+            var endpoint = JsonConvert.DeserializeObject<Endpoint>(endpointRaw);
+            LoggingService.Create(new RequestLog
+            {
+                Recieved = data,
+                Returned = errorMessage,
+                Endpoint = endpoint,
+                IsError = true
+            });
             return BadRequest(errorMessage);
         }
         

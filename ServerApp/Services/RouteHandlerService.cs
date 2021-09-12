@@ -15,6 +15,9 @@ namespace IntegrationTestingTool.Services
 
         public Endpoint GetEndpointByPath(string path) =>
             EndpointService.FindByParameter(nameof(Endpoint.Path), path).FirstOrDefault();
+
+        public Endpoint GetEndpointByPathAndMethod(string path, string method) =>
+            EndpointService.FindByPathAndMethod(path, method).FirstOrDefault();
     
         public string ProcessRequest(Endpoint endpoint, string data) =>
             endpoint.OutputData;

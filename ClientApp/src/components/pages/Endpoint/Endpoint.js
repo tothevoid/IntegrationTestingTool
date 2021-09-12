@@ -24,7 +24,7 @@ export class Endpoint extends Component {
 
     render = () => {
         const {theme} = this.props;
-        const {statusCode, statusCodes, method, methods} = this.state;
+        const {statusCode, statusCodes, method, methods, urlPathValidationText} = this.state;
         return <div className={`new-endpoint ${theme}`}>
             <h1>Add new endpoint</h1>
             <p className={`url ${theme}`}>
@@ -52,7 +52,7 @@ export class Endpoint extends Component {
             <div>Output data:</div>
             <textarea className={`output ${theme}`} onChange={this.onOutputChanged} 
                 value={this.state.outputData}/>
-            <Button theme={theme} disabled={(this.state.urlPathValidationText && this.state.urlPathValidationText.length !== 0 )} onClick={this.addEndpoint} caption={"Add endpoint"}></Button>
+            <Button theme={theme} disabled={(urlPathValidationText && urlPathValidationText.length !== 0 )} onClick={this.addEndpoint} caption={"Add endpoint"}></Button>
         </div>
     }
 

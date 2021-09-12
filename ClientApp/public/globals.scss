@@ -1,5 +1,5 @@
 /*light theme*/
-$app-background-light: #333333;
+$app-background-light: white;
 $border-light: #767676;
 $text-light: black;
 $control-background-light: white;
@@ -20,3 +20,30 @@ $button-background-dark: #D17F2F;
 $highlithing-dark: #D17F2F;
 $button-foreground-dark: white;
 $block-background-dark:#444444;
+
+/*mixins*/
+@mixin control-base{
+    &.dark{
+        background: $control-background-dark;
+        color: $control-foreground-dark;
+    }
+    &.light{
+        background: $control-background-light;
+        color: $control-foreground-light;
+    }
+}
+@mixin list-item-base{
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0px 2px 2px 0 rgba(0, 0, 0, 0.301);
+    font-family: 'Roboto', sans-serif;
+    position: relative;
+    &.dark{
+        background-color: $block-background-dark;
+        color: $control-foreground-dark;
+    }
+    &.light{
+        background-color: $block-background-light;
+        color: $control-foreground-light;
+    }
+}

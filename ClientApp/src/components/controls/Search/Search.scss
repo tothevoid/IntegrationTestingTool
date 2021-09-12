@@ -1,17 +1,19 @@
 @import "./globals.scss";
 
 .search-input{
+    @include control-base;
     background: transparent;
     border: none;
     outline: none;
     font-size: 20px;
     border-bottom: 2px solid black;
     margin: 0 10px;
+    border-radius: 5px 5px 0 0;
     &.dark{
-        border-radius: 5px 5px 0 0;
-        background: $control-background-dark;
-        color: $control-foreground-dark;
         border-bottom-color: $highlithing-dark;
+    }
+    &.light{
+        border-bottom-color: $highlithing-light;
     }
 }
 

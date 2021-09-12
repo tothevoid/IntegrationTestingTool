@@ -34,21 +34,13 @@
 }
 
 .output{
+    @include control-base;
     border-radius: 5px;
     padding: 5px;
     width: 100%;
     min-height: 150px;
     vertical-align: top;
     margin-bottom: 10px;
-    background-color: transparent;
-    &.dark{
-        background: $control-background-dark;
-        color: $control-foreground-dark;
-    }
-    &.light{
-        background: $control-background-light;
-        color: $control-foreground-light;
-    }
     &:focus{
         outline: none;
     }

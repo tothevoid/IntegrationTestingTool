@@ -42,25 +42,14 @@
 }
 
 .log{
+    @include list-item-base;
     margin: 20px 0;
-    padding: 10px;
-    border-radius: 10px;
-    position: relative;
-    box-shadow: 0px 2px 2px 0 rgba(0, 0, 0, 0.301);
-    font-family: 'Roboto', sans-serif;
-    &.dark{
-        background-color: $control-background-dark;
-        color: $control-foreground-dark;
-        .log-date{
-            background-color:$highlithing-dark;
-        }
+    &.dark .log-date{
+        background-color:$highlithing-dark;
     }
-    &.light{
-        background-color: $control-background-light;
-        color: $control-foreground-light;
-        .log-date{
-            background-color:$highlithing-light;
-        }
+    &.light .log-date{
+        background-color:$highlithing-light;
+        color: white;
     }
 }
 

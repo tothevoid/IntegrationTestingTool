@@ -41,8 +41,17 @@ namespace IntegrationTestingTool.Controllers
             return Content(result);
         }
 
-        public IActionResult Error([FromRoute(Name = "errorMessage")] string errorMessage)
+        public IActionResult Error([FromRoute(Name = "data")] string data, [FromRoute(Name = "endpoint")] string endpointRaw, 
+            [FromRoute(Name = "errorMessage")] string errorMessage)
         {
+            var endpoint = JsonConvert.DeserializeObject<Endpoint>(endpointRaw);
+            LoggingService.Create(new RequestLog
+            {
+                Recieved = data,
+                Returned = errorMessage,
+                Endpoint = endpoint,
+                IsError = true
+            });
             return BadRequest(errorMessage);
         }
         

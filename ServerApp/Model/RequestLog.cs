@@ -10,6 +10,8 @@ namespace IntegrationTestingTool.Model
 
         public DateTime CreatedOn { get; set; } = DateTime.Now;
 
+        public bool IsError { get; set; } = false;
+
         public string Recieved { get; set; }
 
         public string Returned { get; set; }

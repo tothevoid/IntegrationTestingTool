@@ -1,11 +1,9 @@
-﻿using IntegrationTestingTool.Model;
-using IntegrationTestingTool.Services.Inerfaces;
+﻿using IntegrationTestingTool.Services.Inerfaces;
+using IntegrationTestingTool.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Routing;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,6 +13,7 @@ namespace IntegrationTestingTool
     public class DynamicRouter: DynamicRouteValueTransformer
     {
         private IRouteHandlerService RouteHandlerService { get; }
+   
         public DynamicRouter(IRouteHandlerService routeHandlerService)
         {
             RouteHandlerService = routeHandlerService;
@@ -54,8 +53,11 @@ namespace IntegrationTestingTool
             } 
             else
             {
+                var customEndpoint = new Model.Endpoint { Method = httpContext.Request.Method, Path = path, OutputStatusCode = 400};
                 output["action"] = "ERROR";
+                output["data"] = body;
                 output["errorMessage"] = errorMessage;
+                output["endpoint"] = JsonConvert.SerializeObject(customEndpoint);
             }
             return output;
         }

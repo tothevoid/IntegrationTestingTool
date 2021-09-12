@@ -31,7 +31,7 @@ namespace IntegrationTestingTool
                 .Where(x => x != string.Empty)
                 .Skip(1);
             string path = string.Join("/", urlParts);
-            var endpoint = RouteHandlerService.GetEndpointByPath(path);
+            var endpoint = RouteHandlerService.GetEndpointByPathAndMethod(path, httpContext.Request.Method.ToUpper());
 
             string body = string.Empty;
             if (httpContext.Request.ContentType == "application/json")
@@ -43,7 +43,7 @@ namespace IntegrationTestingTool
             }
 
             var errorMessage = (endpoint == null) ?
-                "There is no endpoint with the same url" :
+                "There is no endpoint with the same url and method" :
                 string.Empty;
 
             if (string.IsNullOrEmpty(errorMessage))

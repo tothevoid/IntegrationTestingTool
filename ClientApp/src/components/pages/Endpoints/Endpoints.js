@@ -16,10 +16,11 @@ export class Endpoints extends Component {
     renderEndpoint = (endpoint) =>
     {
         const {theme} = this.props;
-        const {path, outputData, outputStatusCode} = endpoint;
+        const {path, outputData, outputStatusCode, method} = endpoint;
         return <div key={endpoint.id} className={`endpoint ${theme}`}>
             <div>
                 <div className="path">{this.props?.config?.mockURL}/{path}</div>
+                <div>Method: <b>{method}</b></div>
                 <div>Returns</div>
                 <div>Status code: <b>{outputStatusCode}</b></div>
                 <div>Data: {this.formatOutput(outputData)}</div>

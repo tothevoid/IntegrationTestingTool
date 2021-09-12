@@ -12,16 +12,19 @@ export class Endpoint extends Component {
             path: "",
             outputData: "",
             statusCodes: [],
-            statusCode: 200
+            statusCode: 200,
+            method: "POST"
         };
     }
 
-    componentDidMount = () =>
+    componentDidMount = () => {
         this.getStatusCodes();
+        this.getRESTMethods();
+    }
 
     render = () => {
         const {theme} = this.props;
-        const {statusCode, statusCodes} = this.state;
+        const {statusCode, statusCodes, method, methods} = this.state;
         return <div className={`new-endpoint ${theme}`}>
             <h1>Add new endpoint</h1>
             <p className={`url ${theme}`}>
@@ -38,6 +41,14 @@ export class Endpoint extends Component {
                     </Fragment>:
                     <div>Loading statuses...</div>
             }
+            {
+                (methods && methods.length !== 0) ?
+                    <Fragment>
+                        <div>REST method: </div>
+                        <ComboBox theme={theme} selectedValue={method} values={methods} onSelect={this.onMethodSelected}></ComboBox>
+                    </Fragment>:
+                    <div>Loading methods...</div>
+            }
             <div>Output data:</div>
             <textarea className={`output ${theme}`} onChange={this.onOutputChanged} 
                 value={this.state.outputData}/>
@@ -45,8 +56,12 @@ export class Endpoint extends Component {
         </div>
     }
 
-    onStatusCodeSelected = (selectedValue) => {
-        this.setState({statusCode: selectedValue})
+    onStatusCodeSelected = (statusCode) => {
+        this.setState({statusCode})
+    }
+
+    onMethodSelected = (method) => {
+        this.setState({method})
     }
 
     onOutputChanged = (event) => {
@@ -71,18 +86,19 @@ export class Endpoint extends Component {
     }
 
     addEndpoint = () => {
+        debugger;
         const validationResult = this.validateEndpoint();
         if (validationResult){
             console.log(validationResult);
             return;
         }
-        const {path, outputData, statusCode} = this.state;
+        const {path, outputData, statusCode, method} = this.state;
 
         const data = {
             path: path,
             outputData: outputData,
-            outputStatusCode: parseInt(statusCode)
-
+            outputStatusCode: parseInt(statusCode),
+            method: method
         }
         fetch(`${this.props.config.apiURL}/Endpoint/Add`, {
             method: 'POST',
@@ -102,6 +118,16 @@ export class Endpoint extends Component {
             }
         }).then((response) => response.json())
         .then((statusCodes) => this.setState({statusCodes}));
+    }
+
+    getRESTMethods = () => {
+        fetch(`${this.props.config.apiURL}/Endpoint/GetRESTMethods`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then((response) => response.json())
+        .then((methods) => this.setState({methods}));
     }
 
     validateEndpoint = () => {

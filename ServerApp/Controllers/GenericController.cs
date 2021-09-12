@@ -32,7 +32,12 @@ namespace IntegrationTestingTool.Controllers
             }
             catch { }
             HttpContext.Response.StatusCode = endpoint.OutputStatusCode;
-            LoggingService.Create(new RequestLog { Path = endpoint.Path, Recieved = data, Returned = result });
+            LoggingService.Create(new RequestLog 
+            {
+                Recieved = data, 
+                Returned = result, 
+                Endpoint = endpoint
+            });
             return Content(result);
         }
 

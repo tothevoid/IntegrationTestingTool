@@ -38,5 +38,9 @@ namespace IntegrationTestingTool.Controllers
         [HttpGet]
         public IEnumerable<int> GetStatusCodes() =>
             EndpointService.GetStatusCodes();
+
+        [HttpGet]
+        public IEnumerable<string> GetRESTMethods() =>
+            EndpointService.GetRESTMethods();
     }
 }

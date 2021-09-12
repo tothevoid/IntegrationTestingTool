@@ -10,11 +10,10 @@ namespace IntegrationTestingTool.Model
 
         public DateTime CreatedOn { get; set; } = DateTime.Now;
 
-        public string Path { get; set; } 
-
         public string Recieved { get; set; }
 
         public string Returned { get; set; }
 
+        public Endpoint Endpoint { get; set; }
     }
 }

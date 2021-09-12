@@ -1,3 +1,5 @@
+import './App.scss'
+
 import React, { Component } from 'react';
 import { Route, Switch, HashRouter as Router } from 'react-router-dom';
 import { Endpoints } from './components/pages/Endpoints/Endpoints';
@@ -7,7 +9,6 @@ import { NotFound } from './components/pages/NotFound/NotFound';
 import { NavMenu } from "./components/controls/NavMenu/NavMenu"
 import { Container } from 'reactstrap';
 import { endpoint, theme } from "./constants/constants"
-import './custom.css'
 
 export default class App extends Component {
   static displayName = App.name;

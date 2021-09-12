@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import "./ComboBox.css"
+import "./ComboBox.scss"
 
 export class ComboBox extends Component {
     

@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { Button } from '../Button/Button';
-import "./Search.css"
+import "./Search.scss"
 
 export class Search extends Component {
     constructor(props) {

@@ -1,0 +1,27 @@
+@import "./globals.scss";
+
+.button-common{
+    font-family: 'Roboto', sans-serif;
+    height: 40px;
+    padding: 5px;
+    box-shadow: 0px 2px 2px 0 rgba(0, 0, 0, 0.301);
+    border-radius: 10px;
+    border: solid 5px transparent;
+    &.light{
+        background-color: $button-background-light;
+        color: $button-foreground-dark;
+    }
+    &.dark{
+        background-color: $button-background-dark;
+        color: $button-foreground-dark;
+    }
+    &:disabled{
+        opacity: 50%;
+        color: white;
+    }
+}
+
+.button-danger{
+    background-color: #bd2130;
+    color: white;
+}

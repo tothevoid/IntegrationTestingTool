@@ -1,0 +1,42 @@
+﻿@import "./globals.scss";
+
+.navbar{
+	box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+}
+
+.navbar-brand {
+	white-space: normal;
+	text-align: center;
+	word-break: break-all;
+}
+
+nav.light{
+	background-color: white;
+}
+
+nav.dark{
+	background-color: #D17F2F;
+	box-shadow: none;
+	border: none !important;
+}
+
+.navbar-brand.dark, a.nav-link.dark{
+	color: white;
+}
+
+.navbar-brand.light, a.nav-link.light{
+	color: black;
+}
+
+.theme-switch{
+	background-size: contain;
+	cursor: pointer;
+	display: inline-block;
+	width: 50px;
+	&.dark{
+		background: url(/images/light_mode.svg) no-repeat center center;
+	}
+	&.light{
+		background: url(/images/dark_mode.svg) no-repeat center center;
+	}
+}

@@ -1,0 +1,55 @@
+﻿@import "./globals.scss";
+
+.url{
+    font-size: 16px;
+}
+
+.new-endpoint.dark{
+    color: $text-dark;
+}
+
+.dynamic-url-validation-error{
+    color: rgb(146, 2, 2);
+}
+
+.dynamic-url{
+    border: none;
+    background: transparent;
+    border-bottom: 2px solid;
+    &.light{
+        color: $control-foreground-light;
+        &:focus, &:active{
+            border-color: $highlithing-light;
+        }
+    }
+    &.dark{
+        color: $control-foreground-dark;
+        &:focus, &:active{
+            border-color: $highlithing-dark;
+        }
+    }
+    &:focus, &:active{
+        outline: none;
+    }
+}
+
+.output{
+    border-radius: 5px;
+    padding: 5px;
+    width: 100%;
+    min-height: 150px;
+    vertical-align: top;
+    margin-bottom: 10px;
+    background-color: transparent;
+    &.dark{
+        background: $control-background-dark;
+        color: $control-foreground-dark;
+    }
+    &.light{
+        background: $control-background-light;
+        color: $control-foreground-light;
+    }
+    &:focus{
+        outline: none;
+    }
+}

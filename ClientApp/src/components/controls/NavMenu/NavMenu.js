@@ -1,14 +1,14 @@
 import React from 'react';
 import { Container, Navbar, NavbarBrand, NavItem, NavLink } from 'reactstrap';
 import { Link } from 'react-router-dom';
-import './NavMenu.css';
+import './NavMenu.scss';
 import {Button} from "../Button/Button"
 
 export const NavMenu = (props) => {
   const {theme, onThemeSwitched} = props;
   return (
     <header>
-      <Navbar className={`navbar navbar-expand-sm navbar-toggleable-sm border-bottom box-shadow mb-3 ${theme}`}>
+      <Navbar className={`navbar navbar-expand-sm navbar-toggleable-sm border-bottom mb-3 ${theme}`}>
         <Container>
           <NavbarBrand className={theme} tag={Link} to="/">IntegrationTestingTool</NavbarBrand>
           <ul className="navbar-nav flex-grow">

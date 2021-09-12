@@ -6,6 +6,7 @@ using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text.RegularExpressions;
 
 namespace IntegrationTestingTool.Services
@@ -74,5 +75,7 @@ namespace IntegrationTestingTool.Services
             return string.Empty;
         }
 
+        public IEnumerable<int> GetStatusCodes() =>
+            Enum.GetValues(typeof(HttpStatusCode)).Cast<int>();
     }
 }

@@ -33,5 +33,10 @@ namespace IntegrationTestingTool.Controllers
         [HttpGet]
         public string ValidateUrl(string path) =>
             EndpointService.ValidateUrl(path);
+
+
+        [HttpGet]
+        public IEnumerable<int> GetStatusCodes() =>
+            EndpointService.GetStatusCodes();
     }
 }

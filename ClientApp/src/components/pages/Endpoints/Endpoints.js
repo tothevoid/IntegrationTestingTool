@@ -16,11 +16,13 @@ export class Endpoints extends Component {
     renderEndpoint = (endpoint) =>
     {
         const {theme} = this.props;
-        const {path, outputData} = endpoint;
+        const {path, outputData, outputStatusCode} = endpoint;
         return <div key={endpoint.id} className={`endpoint ${theme}`}>
             <div>
                 <div className="path">{this.props?.config?.mockURL}/{path}</div>
-                <div>{this.formatOutput(outputData)}</div>
+                <div>Returns</div>
+                <div>Status code: <b>{outputStatusCode}</b></div>
+                <div>Data: {this.formatOutput(outputData)}</div>
             </div>
             {
                 <Button onClick={() => this.deleteEndpoint(endpoint.id)} additionalClasses="endpoint-delete" mode="danger" caption={"Delete"}></Button>
@@ -40,8 +42,8 @@ export class Endpoints extends Component {
 
     formatOutput = (outputData) => {
         return (outputData && outputData.trim()) ?
-            `Returns: ${outputData}`:
-            "Returns nothing";
+            `${outputData}`:
+            "nothing";
     }
 
     render = () => {

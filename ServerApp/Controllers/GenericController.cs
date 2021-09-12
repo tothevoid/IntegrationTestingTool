@@ -31,9 +31,9 @@ namespace IntegrationTestingTool.Controllers
                 HttpContext.Response.Headers["Content-Type"] = "application/json; charset=utf-8";
             }
             catch { }
-
+            HttpContext.Response.StatusCode = endpoint.OutputStatusCode;
             LoggingService.Create(new RequestLog { Path = endpoint.Path, Recieved = data, Returned = result });
-            return Content(result); 
+            return Content(result);
         }
 
         public IActionResult Error([FromRoute(Name = "errorMessage")] string errorMessage)

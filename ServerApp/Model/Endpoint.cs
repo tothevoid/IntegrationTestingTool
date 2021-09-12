@@ -13,6 +13,8 @@ namespace IntegrationTestingTool.Model
 
         public string Path { get; set; }
 
-        public string OutputData { get; set; } 
+        public string OutputData { get; set; }
+
+        public int OutputStatusCode { get; set; } = 200;
     }
 }

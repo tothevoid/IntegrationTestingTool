@@ -1,0 +1,26 @@
+.combobox {
+    /* margin: 50px; */
+    min-width: 75px;
+    padding: 5px 35px 5px 5px;
+    font-size: 16px;
+    border: 1px solid #CCC;
+    height: 34px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border-radius: 5px;
+    outline: none;
+}
+
+.combobox.dark{
+    background-color: #444444;
+    color: white;
+    border-color: rgb(133, 133, 133);
+}
+.combobox.dark:focus, .combobox.dark:active{
+    border: solid 2px #D17F2F !important;
+}
+
+.combobox.light{
+    border-color: rgb(118, 118, 118);
+}

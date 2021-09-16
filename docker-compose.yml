@@ -24,20 +24,21 @@ services:
     build: ./ServerApp
     restart: always
     ports:
-      - 44314:80
+      - 44400:80
     environment:
       DatabaseSettings__Host: mongo
       DatabaseSettings__Port: 27018
-      ClientSettings__Port: http://localhost:3000
+      ClientSettings__ClientUrl: http://localhost:3500
     depends_on:
       - mongo
   
   client:
-      build: 
-        context: ./ClientApp
-        args:
-          REACT_APP_SERVER_URL: http://localhost:44314
-      command: npm start
-      stdin_open: true
-      ports:
-        - "3000:3000"  
+    build: 
+      context: ./ClientApp
+      args:
+        REACT_APP_SERVER_URL: http://localhost:44400
+    stdin_open: true
+    ports:
+      - "3500:80"
+    stdin_open: true
+    tty: true

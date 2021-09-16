@@ -9,17 +9,19 @@ $button-background-light: #f0b90b;
 $highlithing-light: rgb(146, 2, 2);
 $button-foreground-light: black;
 $block-background-light:#f0b90b;
+$nav-light: white;
 /*dark theme*/
 $app-background-dark: #333333;
 $border-dark: rgb(133, 133, 133);
 $text-dark: white;
 $control-background-dark: #444444;
 $control-foreground-dark: white;
-$control-focus-border-dark: #D17F2F;
-$button-background-dark: #D17F2F;
-$highlithing-dark: #D17F2F;
+$control-focus-border-dark: #00917C;
+$button-background-dark: #00917C;
+$highlithing-dark: #00917C;
 $button-foreground-dark: white;
 $block-background-dark:#444444;
+$nav-dark: #00917C;
 
 /*mixins*/
 @mixin control-base{

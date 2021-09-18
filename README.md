@@ -2,6 +2,8 @@
 
 Web application that allows you to imitate endpoints of server when you have no access.
 
+![use case](./Info/UseCase.gif)
+
 ## Getting started
 
 1. Setup application config at `.env` file (or keep it the same)

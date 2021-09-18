@@ -8,8 +8,6 @@ services:
     environment: 
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
-    ports:
-      - ${MONGO_PORT}:${MONGO_PORT}
 
   mongo-express:
     image: mongo-express

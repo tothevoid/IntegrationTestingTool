@@ -1,5 +1,5 @@
+import "./Endpoints.scss"
 import React, { Component, Fragment } from 'react';
-import "./Endpoints.css"
 import { Button } from "../../controls/Button/Button"
 import { Search } from "../../controls/Search/Search"
 

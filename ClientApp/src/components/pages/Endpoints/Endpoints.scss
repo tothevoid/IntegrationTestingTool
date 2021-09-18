@@ -1,0 +1,17 @@
+@import "./globals.scss";
+
+.endpoint{
+    @include list-item-base;
+    margin: 10px 0;
+    &.path{
+        font-size: 20px;
+        font-weight: 700;
+    }
+}
+
+.endpoint-delete{
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    padding: 10px;
+}

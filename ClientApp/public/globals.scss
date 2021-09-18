@@ -1,0 +1,51 @@
+/*light theme*/
+$app-background-light: white;
+$border-light: #767676;
+$text-light: black;
+$control-background-light: white;
+$control-foreground-light: black;
+$control-focus-border-light: transparent;
+$button-background-light: #f0b90b;
+$highlithing-light: rgb(146, 2, 2);
+$button-foreground-light: black;
+$block-background-light:#f0b90b;
+$nav-light: white;
+/*dark theme*/
+$app-background-dark: #333333;
+$border-dark: rgb(133, 133, 133);
+$text-dark: white;
+$control-background-dark: #444444;
+$control-foreground-dark: white;
+$control-focus-border-dark: #00917C;
+$button-background-dark: #00917C;
+$highlithing-dark: #00917C;
+$button-foreground-dark: white;
+$block-background-dark:#444444;
+$nav-dark: #00917C;
+
+/*mixins*/
+@mixin control-base{
+    &.dark{
+        background: $control-background-dark;
+        color: $control-foreground-dark;
+    }
+    &.light{
+        background: $control-background-light;
+        color: $control-foreground-light;
+    }
+}
+@mixin list-item-base{
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0px 2px 2px 0 rgba(0, 0, 0, 0.301);
+    font-family: 'Roboto', sans-serif;
+    position: relative;
+    &.dark{
+        background-color: $block-background-dark;
+        color: $control-foreground-dark;
+    }
+    &.light{
+        background-color: $block-background-light;
+        color: $control-foreground-light;
+    }
+}

@@ -1,0 +1,75 @@
+@import "./globals.scss";
+
+.datepicker{
+    display: flex;
+    align-items: center;
+    .input-date{
+        margin-left: 5px;
+        margin-right: 5px;
+    }
+    &.dark, &.dark input{
+        color:$control-foreground-dark;
+    }
+    &.light, &.light input{
+        color:$control-foreground-light;
+    }
+}
+
+.datepicker-label{
+    font-size: 20px;
+    padding-right: 10px;
+}
+
+.datepicker-value{
+    margin: 0 10px;
+    font-size: 20px;
+    background-color: transparent;
+    border-radius: 5px;
+}
+
+.datepicker.dark>.datepicker-value{
+    border: solid 1px $highlithing-dark;
+    &::-webkit-calendar-picker-indicator{
+        cursor: pointer;
+        border-radius: 4px;
+        margin-right: 2px;
+        opacity: 0.8;
+        filter: invert(1);
+    }
+    &:hover{
+        opacity: 1
+    }
+}
+
+.log{
+    @include list-item-base;
+    margin: 20px 0;
+    &.dark .log-date{
+        background-color:$highlithing-dark;
+    }
+    &.light .log-date{
+        background-color:$highlithing-light;
+        color: white;
+    }
+}
+
+.log-date{
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.new-label{
+    font-size: 15;
+    color: white;
+    border-radius: 5px;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    padding: 10px;
+    background-color:#bd2130;
+}
+
+.log-url{
+    font-weight: 600;
+    font-size: 20px;
+}

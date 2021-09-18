@@ -1,5 +1,5 @@
+import "./Logs.scss"
 import React, { Component, Fragment } from 'react';
-import "./Logs.css"
 import { HubConnectionBuilder } from '@microsoft/signalr';
 import { Button } from "../../controls/Button/Button"
 import { formatDate, getCurrentDate } from "../../../utils/dateExtensions"

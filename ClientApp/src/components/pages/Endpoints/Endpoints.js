@@ -16,7 +16,8 @@ export class Endpoints extends Component {
     renderEndpoint = (endpoint) =>
     {
         const {theme} = this.props;
-        const {path, outputData, outputStatusCode, method} = endpoint;
+        const {path, outputData, outputStatusCode, method, callbackType, 
+            callbackURL, callbackMethod, callbackData} = endpoint;
         return <div key={endpoint.id} className={`endpoint ${theme}`}>
             <div>
                 <div className="path">{this.props?.config?.mockURL}/{path}</div>
@@ -26,6 +27,18 @@ export class Endpoints extends Component {
                     <div>Status code: <b>{outputStatusCode}</b></div>
                     <div>Data: {this.formatOutput(outputData)}</div>
                 </div>
+                {
+                    (callbackType === 1) ?
+                        <Fragment>
+                            <div className="returns">Then call</div>
+                            <div className="returns-values">
+                                <div>URL: {callbackURL}</div>
+                                <div>Method: <b>{callbackMethod}</b></div>
+                                <div>Data: {callbackData}</div>
+                            </div>
+                        </Fragment>:
+                        <Fragment/>
+                }
             </div>
             {
                 <Button onClick={() => this.deleteEndpoint(endpoint.id)} additionalClasses="endpoint-delete" mode="danger" caption={"Delete"}></Button>

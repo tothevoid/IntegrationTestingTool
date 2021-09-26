@@ -117,13 +117,17 @@ export class Endpoint extends Component {
             console.log(validationResult);
             return;
         }
-        const {path, outputData, statusCode, method, interactionType} = this.state;
+        const {path, outputData, statusCode, method, interactionType, 
+            callbackData, callbackMethod, callbackUrl} = this.state;
 
         const data = {
             path: path,
             outputData: outputData,
             outputStatusCode: parseInt(statusCode),
             method: method,
+            callbackData: callbackData,
+            callbackMethod: callbackMethod,
+            callbackUrl: callbackUrl,
             //TODO: simplify
             callbackType: this.getInteractions().indexOf(interactionType)
         }

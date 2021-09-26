@@ -12,6 +12,34 @@ namespace IntegrationTestingTool.Services
 {
     public class AsyncRequestService : IAsyncRequestService
     {
+        private ILoggingService LoggingService { get; }
+        public AsyncRequestService(ILoggingService loggingService)
+        {
+            LoggingService = loggingService;
+        }
+
+        public async Task Call(Endpoint endpoint)
+        {
+            using var client = new HttpClient();
+
+            var message = new HttpRequestMessage(new HttpMethod(endpoint.CallbackMethod), endpoint.CallbackData);
+
+            if (!string.IsNullOrEmpty(endpoint.CallbackData))
+            {
+                message.Content = new StringContent(endpoint.CallbackData, Encoding.UTF8, "application/json");
+            }
+            try
+            {
+                var result = await client.SendAsync(message);
+                LoggingService.Create(new RequestLog { Endpoint = endpoint, Returned = await result.Content.ReadAsStringAsync() });
+            }
+            catch (Exception ex)
+            {
+                LoggingService.Create(new RequestLog { Endpoint = endpoint, IsError = true, Returned = ex.Message });
+            }
+            
+        }
+
         public async Task Authorize(Endpoint endpoint, Auth auth)
         {
             var authResult = await CallAuthRequest(auth);
@@ -79,7 +107,6 @@ namespace IntegrationTestingTool.Services
             }
 
             return await client.SendAsync(message);
-           
         }
     }
 }

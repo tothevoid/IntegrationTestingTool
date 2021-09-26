@@ -1,8 +1,10 @@
 ﻿using IntegrationTestingTool.Model;
+using IntegrationTestingTool.Model.Enums;
 using IntegrationTestingTool.Services.Inerfaces;
 using IntegrationTestingTool.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System.Threading.Tasks;
 
 namespace IntegrationTestingTool.Controllers
 {
@@ -13,17 +15,21 @@ namespace IntegrationTestingTool.Controllers
     {
         private IRouteHandlerService RouteHandlerService { get; }
         private ILoggingService LoggingService { get; }
-        public GenericController(IRouteHandlerService routeHandlerService, ILoggingService loggingService)
+        private IAsyncRequestService AsyncRequestService { get; }
+
+        public GenericController(IRouteHandlerService routeHandlerService, ILoggingService loggingService, 
+            IAsyncRequestService asyncRequestService)
         {
             RouteHandlerService = routeHandlerService;
             LoggingService = loggingService;
+            AsyncRequestService = asyncRequestService;
         }
 
         public IActionResult Get([FromRoute(Name = "data")] string data, [FromRoute(Name = "endpoint")] string endpointRaw)
         {
             var endpoint = JsonConvert.DeserializeObject<Endpoint>(endpointRaw);
             var result = RouteHandlerService.ProcessRequest(endpoint, data);
-            
+
             //TODO: get rid of try/catch
             try
             {
@@ -38,6 +44,12 @@ namespace IntegrationTestingTool.Controllers
                 Returned = result, 
                 Endpoint = endpoint
             });
+
+            if (endpoint.CallbackType == CallbackType.Asynchronous)
+            {
+                Task.Run(() => AsyncRequestService.Call(endpoint));
+            }
+
             return Content(result);
         }
 
@@ -54,6 +66,5 @@ namespace IntegrationTestingTool.Controllers
             });
             return BadRequest(errorMessage);
         }
-        
     }
 }

@@ -2,6 +2,7 @@ import "./Endpoint.scss"
 import React, { Component, Fragment } from 'react';
 import { Button } from "../../controls/Button/Button"
 import { ComboBox } from "../../controls/ComboBox/ComboBox"
+import { Field } from "../../controls/Field/Field";
 
 export class Endpoint extends Component {
     static displayName = Endpoint.name;
@@ -13,7 +14,11 @@ export class Endpoint extends Component {
             outputData: "",
             statusCodes: [],
             statusCode: 200,
-            method: "POST"
+            interactionType: 0,
+            method: "POST",
+            callbackMethod: "POST",
+            callbackData: "",
+            callbackUrl: ""
         };
     }
 
@@ -24,48 +29,69 @@ export class Endpoint extends Component {
 
     render = () => {
         const {theme} = this.props;
-        const {statusCode, statusCodes, method, methods, urlPathValidationText} = this.state;
+        const {statusCode, outputData, statusCodes, method, methods, urlPathValidationText, interactionType} = this.state;
         return <div className={`new-endpoint ${theme}`}>
-            <h1>Add new endpoint</h1>
+            <h1>New endpoint</h1>
             <p className={`url ${theme}`}>
                 <span>{this.props.config?.mockURL}/</span>
                 <input className={`dynamic-url ${theme}`} onBlur={() => this.validateUrl()} onChange={this.onPathChanged}
                     value={this.state.path} type="text"/>
                 <span className="url-validation-error">{this.state.urlPathValidationText}</span>
             </p>
+            <div className="form-part-row">
+                {this.formatRowField(method, methods, "REST method", "method")}
+                {this.formatRowField(statusCode, statusCodes, "Status code", "statusCode")}
+                {this.formatRowField(interactionType, this.getInteractions(), "Interaction", "interactionType")}
+            </div>
+            <Field isTextarea theme={theme} name="outputData" value={outputData} label="Response data:" onInput={this.onValueUpdated}/>
             {
-                (statusCodes && statusCodes.length !== 0) ?
+                //TODO: simplify condition
+                (this.getInteractions().indexOf(interactionType) === 1) ?
                     <Fragment>
-                        <div>Status code: </div>
-                        <ComboBox theme={theme} selectedValue={statusCode} values={statusCodes} onSelect={this.onStatusCodeSelected}></ComboBox>
-                    </Fragment>:
-                    <div>Loading statuses...</div>
+                        <div className={`callback-title ${theme}`}>Callback</div>
+                        {this.renderAsyncCallbackSettings()}
+                    </Fragment>: 
+                    <Fragment/> 
+                   
             }
-            {
-                (methods && methods.length !== 0) ?
-                    <Fragment>
-                        <div>REST method: </div>
-                        <ComboBox theme={theme} selectedValue={method} values={methods} onSelect={this.onMethodSelected}></ComboBox>
-                    </Fragment>:
-                    <div>Loading methods...</div>
-            }
-            <div>Output data:</div>
-            <textarea className={`output ${theme}`} onChange={this.onOutputChanged} 
-                value={this.state.outputData}/>
-            <Button theme={theme} disabled={(urlPathValidationText && urlPathValidationText.length !== 0 )} onClick={this.addEndpoint} caption={"Add endpoint"}></Button>
+            <Button theme={theme} disabled={(urlPathValidationText && urlPathValidationText.length !== 0 )} onClick={this.addEndpoint} caption={"Create"}/>
         </div>
     }
 
-    onStatusCodeSelected = (statusCode) => {
-        this.setState({statusCode})
+    renderAsyncCallbackSettings = () => {
+        const { theme } = this.props;
+        const { methods, callbackMethod, callbackData, callbackUrl } = this.state;
+        return <Fragment>
+            <div className="form-part-row">
+                {this.formatRowField(callbackMethod, methods, "Method", "callbackMethod")}
+                <Field theme={theme} name="callbackUrl" value={callbackUrl} label="URL:" onInput={this.onValueUpdated} placeholder="https://test.com/api"/>
+            </div>
+            <Field isTextarea theme={theme} name="callbackData" value={callbackData} label="Data:" onInput={this.onValueUpdated}/>
+        </Fragment>
     }
 
-    onMethodSelected = (method) => {
-        this.setState({method})
+    formatRowField = (value, values, title, name) => {
+        const {theme} = this.props;
+        return (values && values.length !== 0) ?
+            <div>
+                <div>{title}</div>
+                <ComboBox theme={theme} selectedValue={value} values={values} onSelect={(value) => this.onValueUpdated(name, value)}></ComboBox>
+            </div>:
+            <Fragment/>
     }
 
-    onOutputChanged = (event) => {
-        this.setState({outputData: event.target.value});
+
+    onInteractionSelected = (data) => {
+        this.setState({interactionType: data})
+    }
+
+    getInteractions = () => [
+        "Synchronous",
+        "Asynchronous"
+    ]
+
+    onValueUpdated = (propName, value) => {
+        this.setState({[propName]: value})
     }
 
     validateUrl = () => 
@@ -86,19 +112,20 @@ export class Endpoint extends Component {
     }
 
     addEndpoint = () => {
-        debugger;
         const validationResult = this.validateEndpoint();
         if (validationResult){
             console.log(validationResult);
             return;
         }
-        const {path, outputData, statusCode, method} = this.state;
+        const {path, outputData, statusCode, method, interactionType} = this.state;
 
         const data = {
             path: path,
             outputData: outputData,
             outputStatusCode: parseInt(statusCode),
-            method: method
+            method: method,
+            //TODO: simplify
+            callbackType: this.getInteractions().indexOf(interactionType)
         }
         fetch(`${this.props.config.apiURL}/Endpoint/Add`, {
             method: 'POST',

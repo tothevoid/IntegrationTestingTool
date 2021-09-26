@@ -1,4 +1,5 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
+﻿using IntegrationTestingTool.Model.Enums;
+using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +17,14 @@ namespace IntegrationTestingTool.Model
         public string Method { get; set; } = "POST";
 
         public string OutputData { get; set; }
+
+        public CallbackType CallbackType { get; set; } = CallbackType.Synchronous;
+
+        public string CallbackURL { get; set; }
+
+        public string CallbackMethod { get; set; } = "POST";
+
+        public string CallbackData { get; set; }
 
         public int OutputStatusCode { get; set; } = 200;
     }

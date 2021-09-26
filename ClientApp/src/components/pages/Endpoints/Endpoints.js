@@ -21,9 +21,11 @@ export class Endpoints extends Component {
             <div>
                 <div className="path">{this.props?.config?.mockURL}/{path}</div>
                 <div>Method: <b>{method}</b></div>
-                <div>Returns</div>
-                <div>Status code: <b>{outputStatusCode}</b></div>
-                <div>Data: {this.formatOutput(outputData)}</div>
+                <div className="returns">Returns</div>
+                <div className="returns-values"> 
+                    <div>Status code: <b>{outputStatusCode}</b></div>
+                    <div>Data: {this.formatOutput(outputData)}</div>
+                </div>
             </div>
             {
                 <Button onClick={() => this.deleteEndpoint(endpoint.id)} additionalClasses="endpoint-delete" mode="danger" caption={"Delete"}></Button>

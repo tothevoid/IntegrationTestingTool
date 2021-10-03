@@ -1,17 +1,11 @@
 ﻿using IntegrationTestingTool.Model.Enums;
 using MongoDB.Bson.Serialization.Attributes;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace IntegrationTestingTool.Model
+namespace IntegrationTestingTool.Model.Entities
 {
-    public class Endpoint
+    public class Endpoint: BaseEntity
     {
-        [BsonId]
-        public Guid Id { get; set; }
-
         public string Path { get; set; }
 
         public string Method { get; set; } = "POST";
@@ -28,9 +22,9 @@ namespace IntegrationTestingTool.Model
 
         public int OutputStatusCode { get; set; } = 200;
 
+        public Guid? AuthId { get; set; }
+
         [BsonIgnore]
         public Auth Auth { get; set; }
-
-        public Guid? AuthId { get; set; }
     }
 }

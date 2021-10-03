@@ -1,4 +1,5 @@
 ﻿using IntegrationTestingTool.Model;
+using IntegrationTestingTool.Model.Entities;
 using IntegrationTestingTool.Services.Interfaces;
 using IntegrationTestingTool.Settings;
 using MongoDB.Bson;
@@ -29,8 +30,12 @@ namespace IntegrationTestingTool.Services
             throw new NotImplementedException();
         }
 
-        public Auth GetById(Guid id) =>
-            MongoCollection.Find(new BsonDocument("_id", id)).FirstOrDefault();
+        public Auth GetById(Guid id)
+        {
+            BsonBinaryData binaryId = new BsonBinaryData(id, GuidRepresentation.Standard);
+            return MongoCollection.Find(new BsonDocument("_id", binaryId)).FirstOrDefault();
+        }
+           
 
         public IEnumerable<Auth> GetAll() =>
             MongoCollection.Find(new BsonDocument()).ToList();

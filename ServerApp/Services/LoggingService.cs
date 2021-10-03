@@ -1,4 +1,4 @@
-﻿using IntegrationTestingTool.Model;
+﻿using IntegrationTestingTool.Model.Entities;
 using IntegrationTestingTool.Services.Interfaces;
 using IntegrationTestingTool.Settings;
 using IntegrationTestingTool.Socket;

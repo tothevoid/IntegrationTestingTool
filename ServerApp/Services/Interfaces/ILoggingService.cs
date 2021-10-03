@@ -1,4 +1,4 @@
-﻿using IntegrationTestingTool.Model;
+﻿using IntegrationTestingTool.Model.Entities;
 using System;
 using System.Collections.Generic;
 

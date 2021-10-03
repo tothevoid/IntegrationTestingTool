@@ -1,5 +1,5 @@
-﻿using IntegrationTestingTool.Services.Inerfaces;
-using IntegrationTestingTool.Services.Interfaces;
+﻿using IntegrationTestingTool.Model.Entities;
+using IntegrationTestingTool.Services.Inerfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Routing;
@@ -53,7 +53,12 @@ namespace IntegrationTestingTool
             } 
             else
             {
-                var customEndpoint = new Model.Endpoint { Method = httpContext.Request.Method, Path = path, OutputStatusCode = 400};
+                var customEndpoint = new Model.Entities.Endpoint 
+                { 
+                    Method = httpContext.Request.Method, 
+                    Path = path, 
+                    OutputStatusCode = 400
+                };
                 output["action"] = "ERROR";
                 output["data"] = body;
                 output["errorMessage"] = errorMessage;

@@ -1,7 +1,4 @@
-﻿using IntegrationTestingTool.Model;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using IntegrationTestingTool.Model.Entities;
 using System.Threading.Tasks;
 
 namespace IntegrationTestingTool.Services.Interfaces

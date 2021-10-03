@@ -124,6 +124,7 @@ export class Endpoint extends Component {
         const {path, outputData, statusCode, method, interactionType, 
             callbackData, callbackMethod, callbackUrl, auth, auths} = this.state;
 
+        debugger;
         const data = {
             path: path,
             outputData: outputData,
@@ -133,7 +134,7 @@ export class Endpoint extends Component {
             callbackMethod: callbackMethod,
             callbackUrl: callbackUrl,
             //TODO: simplify
-            authId: auths.find(element => element.name === auth).id,
+            authId: auths.find(element => element.name === auth)?.id,
             callbackType: this.getInteractions().indexOf(interactionType)
         }
         fetch(`${this.props.config.apiURL}/Endpoint/Add`, {

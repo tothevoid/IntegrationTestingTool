@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace IntegrationTestingTool.Model
+namespace IntegrationTestingTool.Model.Entities
 {
     public class Auth
     {

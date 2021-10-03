@@ -1,4 +1,5 @@
 ﻿using IntegrationTestingTool.Model;
+using IntegrationTestingTool.Model.Entities;
 using IntegrationTestingTool.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System;

@@ -1,4 +1,5 @@
 ﻿using IntegrationTestingTool.Model;
+using IntegrationTestingTool.Model.Entities;
 
 namespace IntegrationTestingTool.Services.Inerfaces
 {

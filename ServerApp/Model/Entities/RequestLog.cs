@@ -1,15 +1,10 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
 using System;
 
-namespace IntegrationTestingTool.Model
+namespace IntegrationTestingTool.Model.Entities
 {
-    public class RequestLog
+    public class RequestLog: BaseEntity
     {
-        [BsonId]
-        public Guid Id { get; set; } = Guid.NewGuid();
-
-        public DateTime CreatedOn { get; set; } = DateTime.Now;
-
         public bool IsError { get; set; } = false;
 
         public string Recieved { get; set; }

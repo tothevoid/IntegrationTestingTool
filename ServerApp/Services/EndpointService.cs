@@ -1,4 +1,5 @@
 ﻿using IntegrationTestingTool.Model;
+using IntegrationTestingTool.Model.Entities;
 using IntegrationTestingTool.Services.Interfaces;
 using IntegrationTestingTool.Settings;
 using MongoDB.Bson;
@@ -25,7 +26,7 @@ namespace IntegrationTestingTool.Services
         }
 
         public IEnumerable<Endpoint> GetAll() =>
-            MongoCollection.Find(new BsonDocument()).ToList();
+            MongoCollection.Find(new BsonDocument()).SortByDescending(bson => bson.CreatedOn).ToList();
 
         public IEnumerable<Endpoint> GetAllByPath(string path)
         {
@@ -34,7 +35,7 @@ namespace IntegrationTestingTool.Services
                 return GetAll();
             }
             var filter = new BsonDocument {{nameof(Endpoint.Path), new BsonDocument {{ "$regex", path }, { "$options", "i" }}}};
-            return MongoCollection.Find(filter).ToList();
+            return MongoCollection.Find(filter).SortByDescending(bson => bson.CreatedOn).ToList();
         }
 
         public Endpoint Create(Endpoint endpoint)

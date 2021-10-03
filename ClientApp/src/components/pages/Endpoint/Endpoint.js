@@ -18,13 +18,16 @@ export class Endpoint extends Component {
             method: "POST",
             callbackMethod: "POST",
             callbackData: "",
-            callbackUrl: ""
+            callbackUrl: "",
+            auths:[],
+            auth: ""
         };
     }
 
     componentDidMount = () => {
         this.getStatusCodes();
         this.getRESTMethods();
+        this.getAuths();
     }
 
     render = () => {
@@ -60,11 +63,12 @@ export class Endpoint extends Component {
 
     renderAsyncCallbackSettings = () => {
         const { theme } = this.props;
-        const { methods, callbackMethod, callbackData, callbackUrl } = this.state;
+        const { methods, callbackMethod, callbackData, callbackUrl, auth, auths } = this.state;
         return <Fragment>
             <div className="form-part-row">
+                {this.formatRowField(auth, auths, "Auth", "auth")}
                 {this.formatRowField(callbackMethod, methods, "Method", "callbackMethod")}
-                <Field theme={theme} name="callbackUrl" value={callbackUrl} label="URL:" onInput={this.onValueUpdated} placeholder="https://test.com/api"/>
+                <Field theme={theme} name="callbackUrl" value={callbackUrl} label="URL" onInput={this.onValueUpdated} placeholder="https://test.com/api"/>
             </div>
             <Field isTextarea theme={theme} name="callbackData" value={callbackData} label="Data:" onInput={this.onValueUpdated}/>
         </Fragment>
@@ -118,7 +122,7 @@ export class Endpoint extends Component {
             return;
         }
         const {path, outputData, statusCode, method, interactionType, 
-            callbackData, callbackMethod, callbackUrl} = this.state;
+            callbackData, callbackMethod, callbackUrl, auth, auths} = this.state;
 
         const data = {
             path: path,
@@ -129,6 +133,7 @@ export class Endpoint extends Component {
             callbackMethod: callbackMethod,
             callbackUrl: callbackUrl,
             //TODO: simplify
+            authId: auths.find(element => element.name === auth).id,
             callbackType: this.getInteractions().indexOf(interactionType)
         }
         fetch(`${this.props.config.apiURL}/Endpoint/Add`, {
@@ -159,6 +164,16 @@ export class Endpoint extends Component {
             }
         }).then((response) => response.json())
         .then((methods) => this.setState({methods}));
+    }
+
+    getAuths = () => {
+        fetch(`${this.props.config.apiURL}/Auth/GetAll`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then((response) => response.json())
+        .then((auths) => this.setState({auths}));
     }
 
     validateEndpoint = () => {

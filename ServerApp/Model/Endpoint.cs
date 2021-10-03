@@ -27,5 +27,10 @@ namespace IntegrationTestingTool.Model
         public string CallbackData { get; set; }
 
         public int OutputStatusCode { get; set; } = 200;
+
+        [BsonIgnore]
+        public Auth Auth { get; set; }
+
+        public Guid? AuthId { get; set; }
     }
 }

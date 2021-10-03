@@ -8,6 +8,8 @@ namespace IntegrationTestingTool.Services.Interfaces
     {
         IEnumerable<Auth> GetAll();
 
+        Auth GetById(Guid id);
+
         Auth Create(Auth endpoint);
 
         bool Delete(Guid id);

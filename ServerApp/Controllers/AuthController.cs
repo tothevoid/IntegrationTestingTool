@@ -21,8 +21,12 @@ namespace IntegrationTestingTool.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<Auth> GetAll() =>
-             throw new NotImplementedException();
+        public IEnumerable<Auth> GetAll()
+        {
+            var result = AuthService.GetAll();
+            return result;
+        }
+            
 
         [HttpPost]
         public void Add(Auth auth) =>

@@ -4,7 +4,7 @@ import "./ComboBox.scss"
 export class ComboBox extends Component {
     
     constructor(props) {
-        super(props);       
+        super(props);
         const selectedValue = (this.props.selectedValue) ?
             this.props.selectedValue:
             this.props.values[0];
@@ -18,11 +18,12 @@ export class ComboBox extends Component {
         const {selectedValue} = this.state;
         const {values} = this.props;
         return <select className={`combobox ${theme}`} onChange={this.handleChange} value={selectedValue}>
-            {values.map((value, ix) =>
-                <option key={ix}>
-                    {value}
-                </option>
-                )
+            {values.map((value, ix) => {
+                    const isObject = typeof(value) === "object";
+                    return isObject ?
+                        <option key={value.id}>{value.name}</option> :
+                        <option key={ix}>{value}</option>
+                })
             }
         </select>
     }

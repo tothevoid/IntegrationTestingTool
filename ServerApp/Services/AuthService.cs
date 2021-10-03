@@ -1,6 +1,7 @@
 ﻿using IntegrationTestingTool.Model;
 using IntegrationTestingTool.Services.Interfaces;
 using IntegrationTestingTool.Settings;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
@@ -17,7 +18,6 @@ namespace IntegrationTestingTool.Services
             MongoCollection = client.GetDatabase(settings.DatabaseName).GetCollection<Auth>("Auths");
         }
 
-
         public Auth Create(Auth auth)
         {
             MongoCollection.InsertOne(auth);
@@ -29,9 +29,10 @@ namespace IntegrationTestingTool.Services
             throw new NotImplementedException();
         }
 
-        public IEnumerable<Auth> GetAll()
-        {
-            throw new NotImplementedException();
-        }
+        public Auth GetById(Guid id) =>
+            MongoCollection.Find(new BsonDocument("_id", id)).FirstOrDefault();
+
+        public IEnumerable<Auth> GetAll() =>
+            MongoCollection.Find(new BsonDocument()).ToList();
     }
 }

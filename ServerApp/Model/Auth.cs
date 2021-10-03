@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MongoDB.Bson.Serialization.Attributes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,6 +8,7 @@ namespace IntegrationTestingTool.Model
 {
     public class Auth
     {
+        [BsonId]
         public Guid Id { get; set; } = Guid.NewGuid();
 
         public string Name { get; set; }

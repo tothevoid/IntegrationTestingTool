@@ -17,6 +17,6 @@ namespace IntegrationTestingTool.Model
 
         public string Method { get; set; }
 
-        public IEnumerable<RequestParameter> RequestParameters { get; set; }
+        public Dictionary<string, string> Headers { get; set; }
     }
 }

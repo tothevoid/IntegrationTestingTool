@@ -1,0 +1,24 @@
+@import "./globals.scss";
+
+.new-auth.dark{
+    color: $text-dark;
+}
+
+.header-item{
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    div{
+        margin-right: 20px;
+    }
+}
+
+.new-header-form{
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    margin-bottom: 10px;
+    div{
+        margin-right: 20px;
+    }
+}

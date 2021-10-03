@@ -4,6 +4,9 @@
     &.inline{
         display: inline-block;
     }
+    .label.dark{
+        color: white;
+    }
     .field{
         @include control-base;
         min-width: 150px;

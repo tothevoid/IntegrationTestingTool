@@ -55,44 +55,6 @@ namespace IntegrationTestingTool.Services
                 message.Content = new StringContent(auth.Data, Encoding.UTF8, "application/json");
             }
 
-            foreach (var parameter in auth.RequestParameters)
-            {
-                switch (parameter.Source)
-                {
-                    case PropertyTarget.Body:
-                        throw new NotImplementedException();
-                    case PropertyTarget.Header:
-                        if (!authResult.Headers.TryGetValues(parameter.SourcePath, out var headerValues))
-                        {
-                            continue;
-                        }
-                        string headerValue = headerValues.FirstOrDefault();
-                        if (string.IsNullOrEmpty(headerValue))
-                        {
-                            continue;
-                        }
-
-                        switch (parameter.Destination)
-                        {
-                            case PropertyTarget.Body:
-                                var paths = parameter.SourcePath.Split(".");
-                                if (paths != null && paths.Length != 0)
-                                {
-
-                                }
-                                continue;
-                            case PropertyTarget.Header:
-                                if (parameter.Destination == PropertyTarget.Header)
-                                {
-                                    client.DefaultRequestHeaders.Add(parameter.DestinationPath, headerValue);
-                                }
-                                continue;
-                            default:
-                                throw new NotImplementedException();
-                        }
-                }
-            }
-
             await client.SendAsync(message);
         }
 

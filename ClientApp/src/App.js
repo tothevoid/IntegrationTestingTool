@@ -28,7 +28,7 @@ export default class App extends Component {
         apiURL: apiURL,
         wsURL: wsURL,
       },
-      theme: theme.dark
+      theme: localStorage.getItem("theme") || theme.dark
     }
 
     document.body.classList.add(this.state.theme);
@@ -63,6 +63,7 @@ export default class App extends Component {
       theme.dark;
     this.applyThemeOnBody(currentTheme, newTheme);
     this.setState({theme: newTheme});
+    localStorage.setItem("theme",  newTheme);
   }
 
   getConfig = () => 

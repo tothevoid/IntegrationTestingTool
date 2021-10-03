@@ -1,5 +1,16 @@
+@import "./globals.scss";
+
 .checkbox input, .checkbox span{
-    cursor: pointer
+    cursor: pointer;
+}
+
+.checkbox{
+    &.dark{
+        color: $control-foreground-dark;
+    }
+    &.light{
+        color: $control-foreground-light;
+    }
 }
 
 .checkbox span{

@@ -64,6 +64,12 @@ namespace IntegrationTestingTool.Services
         public IEnumerable<Endpoint> FindByParameter(string parameterName, string value) =>
             MongoCollection.Find(new BsonDocument(parameterName, value)).ToList();
 
+        public IEnumerable<Endpoint> FindLinkedByAuth(Guid authId)
+        {
+            BsonBinaryData binaryId = new BsonBinaryData(authId, GuidRepresentation.Standard);
+            return MongoCollection.Find(new BsonDocument(nameof(Endpoint.AuthId), binaryId)).ToList();
+        }
+
         public string ValidateUrl(string path)
         {
             var fullPath = $"{ConfigService.GetServerConfig().MockURL}/{path}";

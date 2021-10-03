@@ -124,7 +124,6 @@ export class Endpoint extends Component {
         const {path, outputData, statusCode, method, interactionType, 
             callbackData, callbackMethod, callbackUrl, auth, auths} = this.state;
 
-        debugger;
         const data = {
             path: path,
             outputData: outputData,

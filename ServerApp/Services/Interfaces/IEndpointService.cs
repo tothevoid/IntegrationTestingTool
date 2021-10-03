@@ -23,5 +23,7 @@ namespace IntegrationTestingTool.Services.Interfaces
         IEnumerable<int> GetStatusCodes();
 
         IEnumerable<string> GetRESTMethods();
+
+        IEnumerable<Endpoint> FindLinkedByAuth(Guid authId);
     }
 }

@@ -1,6 +1,7 @@
 ﻿using IntegrationTestingTool.Model.Entities;
 using IntegrationTestingTool.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 
 namespace IntegrationTestingTool.Controllers
@@ -28,5 +29,9 @@ namespace IntegrationTestingTool.Controllers
         [HttpPost]
         public void Add(Auth auth) =>
             AuthService.Create(auth);
+
+        [HttpGet]
+        public string Delete(Guid id) =>
+            AuthService.Delete(id);
     }
 }

@@ -12,6 +12,6 @@ namespace IntegrationTestingTool.Services.Interfaces
 
         Auth Create(Auth endpoint);
 
-        bool Delete(Guid id);
+        string Delete(Guid id);
     }
 }

@@ -6,17 +6,20 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace IntegrationTestingTool.Services
 {
     public class AuthService : IAuthService
     {
         private IMongoCollection<Auth> MongoCollection { get; }
-   
-        public AuthService(IDatabaseSettings settings)
+        private IEndpointService EndpointService { get; }
+
+        public AuthService(IDatabaseSettings settings, IEndpointService endpointService)
         {
             var client = new MongoClient(settings.ConnectionString);
             MongoCollection = client.GetDatabase(settings.DatabaseName).GetCollection<Auth>("Auths");
+            EndpointService = endpointService;
         }
 
         public Auth Create(Auth auth)
@@ -25,9 +28,16 @@ namespace IntegrationTestingTool.Services
             return auth;
         }
 
-        public bool Delete(Guid id)
+        public string Delete(Guid id)
         {
-            throw new NotImplementedException();
+            var linkedEndpoints = EndpointService.FindLinkedByAuth(id);
+            if (!linkedEndpoints.Any())
+            {
+                var deletionFilter = Builders<Auth>.Filter.Eq(nameof(Auth.Id), id);
+                var result = MongoCollection.DeleteOne(deletionFilter);
+                return string.Empty;
+            }
+            return $"There are some endpoints which use that auth:\n{string.Join("\n", linkedEndpoints.Select(x => x.Path))}";
         }
 
         public Auth GetById(Guid id)

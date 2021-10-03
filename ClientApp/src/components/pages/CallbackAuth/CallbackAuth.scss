@@ -22,3 +22,36 @@
         margin-right: 20px;
     }
 }
+
+.used-headers, .used-body-paths{
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    div{
+        margin-right: 20px;
+        margin-bottom: 5px;
+        padding: 5px;
+        border-radius: 5px;
+        border: 1px solid transparent;
+        min-width: 50px;
+        cursor: pointer;
+        &.dark{
+            background: $button-background-dark;
+            color: $button-foreground-dark;
+        }
+        &.light{
+            background: $button-background-light;
+            color: $button-foreground-light;
+        }
+    }
+}
+
+.new-collection-item{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    button{
+        margin-left: 10px;
+    }
+}

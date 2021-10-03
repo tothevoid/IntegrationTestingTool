@@ -10,13 +10,11 @@ namespace IntegrationTestingTool.Services
     public class AuthService : IAuthService
     {
         private IMongoCollection<Auth> MongoCollection { get; }
-        private IConfigService ConfigService { get; }
-
-        public AuthService(IDatabaseSettings settings, IConfigService configService)
+   
+        public AuthService(IDatabaseSettings settings)
         {
             var client = new MongoClient(settings.ConnectionString);
             MongoCollection = client.GetDatabase(settings.DatabaseName).GetCollection<Auth>("Auths");
-            ConfigService = configService;
         }
 
 

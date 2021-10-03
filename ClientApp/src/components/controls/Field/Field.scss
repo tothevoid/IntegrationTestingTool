@@ -2,7 +2,12 @@
 
 .field-container{
     &.inline{
-        display: inline-block;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        div{
+            margin-right: 5px;
+        }
     }
     .label.dark{
         color: white;

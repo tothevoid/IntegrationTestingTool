@@ -17,6 +17,10 @@ namespace IntegrationTestingTool.Model
 
         public string Method { get; set; }
 
-        public Dictionary<string, string> Headers { get; set; }
+        public IEnumerable<Header> Headers { get; set; }
+
+        public HashSet<string> UsedResponseHeaders { get; set; }
+
+        public HashSet<string> UsedBodyPaths { get; set; }
     }
 }

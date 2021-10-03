@@ -33,6 +33,7 @@ namespace IntegrationTestingTool.Extensions
             services.AddTransient<ILoggingService, LoggingService>();
             services.AddTransient<IConfigService, ConfigService>();
             services.AddTransient<IAsyncRequestService, AsyncRequestService>();
+            services.AddTransient<IAuthService, AuthService>();
         }
 
         public static void BindSettings(this IServiceCollection services, IConfiguration configuration)

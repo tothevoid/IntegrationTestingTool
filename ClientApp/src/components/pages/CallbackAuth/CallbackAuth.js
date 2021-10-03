@@ -29,6 +29,7 @@ export class CallbackAuth extends Component {
         const {theme} = this.props;
         const {name, data, url, method, methods, usedHeader, usedBodyPath} = this.state;
         return <div className={`new-auth ${theme}`}>
+            <h1>New auth</h1>
             <Field label="Name" name="name" theme={theme} value={name} onInput={this.onFieldInput}/>
             <Field label="URL" name="url" theme={theme} value={url} onInput={this.onFieldInput}/>
             {
@@ -44,24 +45,22 @@ export class CallbackAuth extends Component {
             {this.renderHeaders()}
             {this.renderNewHeaderForm()}
             <div>Include into next Request:</div>
-            <div>From headers</div>
             <div className="used-headers">
                 {this.state.usedHeaders.map((header) =>
                     <div className={theme} onClick={() => this.deleteFromCollection(header,"usedHeaders")} key={header}>{header}</div>
                 )}
             </div>
             <div className="new-collection-item">
-                <Field inline label="Used header" name="usedHeader" theme={theme} value={usedHeader} onInput={this.onFieldInput}/>
+                <Field inline label="Add header" name="usedHeader" theme={theme} value={usedHeader} onInput={this.onFieldInput}/>
                 <Button theme={theme} onClick={() => this.addIntoCollection("usedHeaders")} caption={"Add"}/>
             </div>
-            <div>From body</div>
             <div className="used-body-paths">
                 {this.state.usedBodyPaths.map((path) =>
                     <div className={theme} onClick={() => this.deleteFromCollection(path, "usedBodyPaths")} key={path}>{path}</div>
                 )}
             </div>
             <div className="new-collection-item">
-                <Field inline label="Body path" name="usedBodyPath" theme={theme} value={usedBodyPath} onInput={this.onFieldInput}/>
+                <Field inline label="Add body path" name="usedBodyPath" theme={theme} value={usedBodyPath} onInput={this.onFieldInput}/>
                 <Button theme={theme} onClick={() => this.addIntoCollection("usedBodyPaths")} caption={"Add"}/>
             </div>
            

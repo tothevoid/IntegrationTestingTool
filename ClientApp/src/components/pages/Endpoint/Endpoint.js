@@ -173,7 +173,7 @@ export class Endpoint extends Component {
                 'Content-Type': 'application/json'
             }
         }).then((response) => response.json())
-        .then((auths) => this.setState({auths}));
+        .then((auths) => this.setState({auths: [{id: null, name: "None"}, ...auths]}));
     }
 
     validateEndpoint = () => {

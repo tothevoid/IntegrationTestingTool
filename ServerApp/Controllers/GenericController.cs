@@ -4,6 +4,7 @@ using IntegrationTestingTool.Services.Inerfaces;
 using IntegrationTestingTool.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System;
 using System.Threading.Tasks;
 
 namespace IntegrationTestingTool.Controllers
@@ -16,32 +17,35 @@ namespace IntegrationTestingTool.Controllers
         private IRouteHandlerService RouteHandlerService { get; }
         private ILoggingService LoggingService { get; }
         private IAsyncRequestService AsyncRequestService { get; }
+        private IEndpointService EndpointService { get; }
+        private IFileService FileService { get; }
 
         public GenericController(IRouteHandlerService routeHandlerService, ILoggingService loggingService, 
-            IAsyncRequestService asyncRequestService)
+            IAsyncRequestService asyncRequestService, IEndpointService endpointService, IFileService fileService)
         {
             RouteHandlerService = routeHandlerService;
             LoggingService = loggingService;
             AsyncRequestService = asyncRequestService;
+            EndpointService = endpointService;
+            FileService = fileService;
         }
 
-        public IActionResult Get([FromRoute(Name = "data")] string data, [FromRoute(Name = "endpoint")] string endpointRaw)
+        public IActionResult Get([FromRoute(Name = "data")] string data, [FromRoute(Name = "endpoint")] Guid endpointId)
         {
-            var endpoint = JsonConvert.DeserializeObject<Endpoint>(endpointRaw);
-            var result = RouteHandlerService.ProcessRequest(endpoint, data);
+            var endpoint = EndpointService.FindById(endpointId);
+            var text = FileService.Get(endpoint.OutputDataFile);
 
             //TODO: get rid of try/catch
             try
             {
-                var json = JsonConvert.DeserializeObject(result);
+                var json = JsonConvert.DeserializeObject(text);
                 HttpContext.Response.Headers["Content-Type"] = "application/json; charset=utf-8";
             }
             catch { }
             HttpContext.Response.StatusCode = endpoint.OutputStatusCode;
             LoggingService.Create(new RequestLog 
             {
-                Recieved = data, 
-                Returned = result, 
+                Recieved = data,
                 Endpoint = endpoint
             });
 
@@ -50,7 +54,7 @@ namespace IntegrationTestingTool.Controllers
                 Task.Run(() => AsyncRequestService.Call(endpoint));
             }
 
-            return Content(result);
+            return Content(text);
         }
 
         public IActionResult Error([FromRoute(Name = "data")] string data, [FromRoute(Name = "endpoint")] string endpointRaw, 
@@ -60,7 +64,6 @@ namespace IntegrationTestingTool.Controllers
             LoggingService.Create(new RequestLog
             {
                 Recieved = data,
-                Returned = errorMessage,
                 Endpoint = endpoint,
                 IsError = true
             });

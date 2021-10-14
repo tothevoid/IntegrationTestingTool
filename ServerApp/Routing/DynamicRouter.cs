@@ -49,7 +49,7 @@ namespace IntegrationTestingTool
             {
                 output["action"] = "GET";
                 output["data"] = body;
-                output["endpoint"] = JsonConvert.SerializeObject(endpoint);
+                output["endpoint"] = endpoint.Id;
             } 
             else
             {

@@ -25,7 +25,6 @@ export class Endpoints extends Component {
                 <div className="returns">Returns</div>
                 <div className="returns-values"> 
                     <div>Status code: <b>{outputStatusCode}</b></div>
-                    <div>Data: {this.formatOutput(outputData)}</div>
                 </div>
                 {
                     (callbackType === 1) ?

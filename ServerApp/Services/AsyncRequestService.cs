@@ -74,11 +74,11 @@ namespace IntegrationTestingTool.Services
             try
             {
                 var result = await client.SendAsync(message);
-                LoggingService.Create(new RequestLog { Endpoint = endpoint, Returned = await result.Content.ReadAsStringAsync() });
+                LoggingService.Create(new RequestLog { Endpoint = endpoint });
             }
             catch (Exception ex)
             {
-                LoggingService.Create(new RequestLog { Endpoint = endpoint, Returned = ex.Message });
+                LoggingService.Create(new RequestLog { Endpoint = endpoint });
             }
         }
 

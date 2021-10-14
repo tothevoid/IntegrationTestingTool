@@ -54,7 +54,6 @@ export class Logs extends Component {
                     <Fragment>
                         <b>Returned:</b>
                         <div>Code: {log.endpoint.outputStatusCode}</div>
-                        <div>Data: {log.returned}</div>
                         {
                             log.isNew ? 
                                 <span className="new-label">New</span> :

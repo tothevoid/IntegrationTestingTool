@@ -1,4 +1,5 @@
 ﻿using IntegrationTestingTool.Model.Enums;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using System;
 
@@ -21,6 +22,10 @@ namespace IntegrationTestingTool.Model.Entities
         public string CallbackData { get; set; }
 
         public int OutputStatusCode { get; set; } = 200;
+
+        public ObjectId OutputDataFile { get; set; }
+
+        public int OutputDataSize { get; set; }
 
         public Guid? AuthId { get; set; }
 

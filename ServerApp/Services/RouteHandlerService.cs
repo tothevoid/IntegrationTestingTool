@@ -6,19 +6,31 @@ using System.Linq;
 
 namespace IntegrationTestingTool.Services
 {
-    public class RouteHandlerService: IRouteHandlerService
+    public class RouteHandlerService : IRouteHandlerService
     {
         private IEndpointService EndpointService { get; }
-        public RouteHandlerService(IEndpointService endpointService)
+        
+        private IFileService FileService {get;}
+
+        public RouteHandlerService(IEndpointService endpointService, IFileService fileService)
         {
             EndpointService = endpointService;
+            FileService = fileService;
         }
 
         public Endpoint GetEndpointByPath(string path) =>
             EndpointService.FindByParameter(nameof(Endpoint.Path), path).FirstOrDefault();
 
-        public Endpoint GetEndpointByPathAndMethod(string path, string method) =>
-            EndpointService.FindByPathAndMethod(path, method).FirstOrDefault();
+        public Endpoint GetEndpointByPathAndMethod(string path, string method)
+        {
+            var endpoint = EndpointService.FindByPathAndMethod(path, method).FirstOrDefault();
+            if (endpoint != null && endpoint.OutputDataFile != default)
+            {
+                var file = FileService.Get(endpoint.OutputDataFile);
+                endpoint.OutputData = file;
+            }
+            return endpoint;
+        }
     
         public string ProcessRequest(Endpoint endpoint, string data) =>
             endpoint.OutputData;

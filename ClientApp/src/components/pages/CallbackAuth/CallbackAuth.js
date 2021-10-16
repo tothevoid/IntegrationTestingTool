@@ -49,7 +49,8 @@ export class CallbackAuth extends Component {
             <div className="auths">
             {
                 auths.map(auth => <div key={auth.id} className={`auth ${theme}`}>
-                    {auth.name}
+                    <div>{auth.name}</div>
+                    <div>{auth.url}</div>
                     <Button additionalClasses="auth-delete" mode="danger" onClick={() => this.onDelete(auth.id)} caption={"X"}/>
                 </div>)
             }

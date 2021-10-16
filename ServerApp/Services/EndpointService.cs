@@ -55,9 +55,32 @@ namespace IntegrationTestingTool.Services
             endpoint.Id = Guid.NewGuid();
             endpoint.OutputData = Regex.Replace(endpoint.OutputData, @"\""", @"""");
 
-            var preprocessedEndpoint = await HandleLargeOutputData(endpoint);
-            await MongoCollection.InsertOneAsync(preprocessedEndpoint);
-            return preprocessedEndpoint;
+            if (!string.IsNullOrEmpty(endpoint.OutputData))
+            {
+                (ObjectId outputFileId, int outputSize) = await HandleLargeOutputData(endpoint.Id, endpoint.OutputData);
+                if (outputFileId != default)
+                {
+                    endpoint.OutputDataFile = outputFileId;
+                    endpoint.OutputData = null;
+                }
+                endpoint.OutputDataSize = outputSize;
+            }
+
+            //TODO: Remove code duplication
+            if (!string.IsNullOrEmpty(endpoint.CallbackData))
+            {
+                (ObjectId callbackFileId, int callbackSize) = await HandleLargeOutputData(endpoint.Id, endpoint.CallbackData);
+                if (callbackFileId != default)
+                {
+                    endpoint.CallbackDataFile = callbackFileId;
+                    endpoint.CallbackData = null;
+                }
+                endpoint.OutputDataSize = callbackSize;
+            }
+
+
+            await MongoCollection.InsertOneAsync(endpoint);
+            return endpoint;
         }
         public async Task<bool> Delete(Guid id)
         {
@@ -129,25 +152,24 @@ namespace IntegrationTestingTool.Services
             return props.Where(prop => prop.GetMethod.IsStatic).Select(x => x.Name.ToUpper());
         }
 
-        private async Task<Endpoint> HandleLargeOutputData(Endpoint endpoint)
+        private async Task<(ObjectId, int)> HandleLargeOutputData(Guid endpointId, string data)
         {
-            if (string.IsNullOrEmpty(endpoint.OutputData))
+            if (string.IsNullOrEmpty(data))
             {
-                return endpoint;
+                return default;
             }
 
-            endpoint.OutputDataSize = Encoding.UTF8.GetBytes(endpoint.OutputData).Length;
+            var size = Encoding.UTF8.GetBytes(data).Length;
 
-            double fileSize = 10 * Math.Pow(2, 20);
+            double minFileSize = 10 * Math.Pow(2, 20);
 
             //Store data into file it has size more than 10MB
-            if (endpoint.OutputDataSize > fileSize)
+            if (size > minFileSize)
             {
-                endpoint.OutputDataFile = await FileService.Create(endpoint.Id, endpoint.OutputData);
-                endpoint.OutputData = null;
+                return (await FileService.Create(endpointId, data), size);
             }
 
-            return endpoint;
+            return (default, size);
         }
     }
 }

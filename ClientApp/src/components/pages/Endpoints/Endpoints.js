@@ -2,6 +2,7 @@ import "./Endpoints.scss"
 import React, { Component, Fragment } from 'react';
 import { Button } from "../../controls/Button/Button"
 import { Search } from "../../controls/Search/Search"
+import { formatFileSize } from "../../../utils/coreExtensions"
 
 export class Endpoints extends Component {
     
@@ -16,14 +17,15 @@ export class Endpoints extends Component {
     renderEndpoint = (endpoint) =>
     {
         const {theme} = this.props;
-        const {path, outputData, outputStatusCode, method, callbackType, 
+        const {path, outputDataSize, outputStatusCode, method, callbackType, 
             callbackURL, callbackMethod, callbackData} = endpoint;
         return <div key={endpoint.id} className={`endpoint ${theme}`}>
             <div>
                 <div className="path">{this.props?.config?.mockURL}/{path}</div>
                 <div>Method: <b>{method}</b></div>
                 <div className="returns">Returns</div>
-                <div className="returns-values"> 
+                <div className="returns-values">
+                    <div>Data size: <b>{formatFileSize(outputDataSize)}</b></div>
                     <div>Status code: <b>{outputStatusCode}</b></div>
                 </div>
                 {

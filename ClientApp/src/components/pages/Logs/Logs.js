@@ -3,6 +3,7 @@ import React, { Component, Fragment } from 'react';
 import { HubConnectionBuilder } from '@microsoft/signalr';
 import { Button } from "../../controls/Button/Button"
 import { formatDate, getCurrentDate } from "../../../utils/dateExtensions"
+import { formatFileSize } from "../../../utils/coreExtensions"
 
 export class Logs extends Component {
     constructor(props) {
@@ -54,6 +55,7 @@ export class Logs extends Component {
                     <Fragment>
                         <b>Returned:</b>
                         <div>Code: {log.endpoint.outputStatusCode}</div>
+                        <div>Data size: {formatFileSize(log.endpoint.outputDataSize)}</div>
                         {
                             log.isNew ? 
                                 <span className="new-label">New</span> :

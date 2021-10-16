@@ -33,7 +33,9 @@ namespace IntegrationTestingTool.Controllers
         public async Task<IActionResult> Get([FromRoute(Name = "data")] string data, [FromRoute(Name = "endpoint")] Guid endpointId)
         {
             var endpoint = await EndpointService.FindById(endpointId);
-            var text = await FileService.Get(endpoint.OutputDataFile);
+            var text = (endpoint.OutputDataFile != default) ?
+                await FileService.Get(endpoint.OutputDataFile) :
+                endpoint.OutputData;
 
             //TODO: get rid of try/catch
             try

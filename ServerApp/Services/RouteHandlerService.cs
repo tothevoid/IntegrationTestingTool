@@ -3,6 +3,7 @@ using IntegrationTestingTool.Model.Entities;
 using IntegrationTestingTool.Services.Inerfaces;
 using IntegrationTestingTool.Services.Interfaces;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace IntegrationTestingTool.Services
 {
@@ -18,21 +19,18 @@ namespace IntegrationTestingTool.Services
             FileService = fileService;
         }
 
-        public Endpoint GetEndpointByPath(string path) =>
-            EndpointService.FindByParameter(nameof(Endpoint.Path), path).FirstOrDefault();
+        public async Task<Endpoint> GetEndpointByPath(string path) =>
+            (await EndpointService.FindByParameter(nameof(Endpoint.Path), path)).FirstOrDefault();
 
-        public Endpoint GetEndpointByPathAndMethod(string path, string method)
+        public async Task<Endpoint> GetEndpointByPathAndMethod(string path, string method)
         {
-            var endpoint = EndpointService.FindByPathAndMethod(path, method).FirstOrDefault();
+            var endpoint = (await EndpointService.FindByPathAndMethod(path, method)).FirstOrDefault();
             if (endpoint != null && endpoint.OutputDataFile != default)
             {
-                var file = FileService.Get(endpoint.OutputDataFile);
+                var file = await FileService.Get(endpoint.OutputDataFile);
                 endpoint.OutputData = file;
             }
             return endpoint;
         }
-    
-        public string ProcessRequest(Endpoint endpoint, string data) =>
-            endpoint.OutputData;
     }
 }

@@ -2,6 +2,7 @@
 using IntegrationTestingTool.Services.Interfaces;
 using IntegrationTestingTool.Settings.Interfaces;
 using Microsoft.AspNetCore.Http;
+using System.Threading.Tasks;
 
 namespace IntegrationTestingTool.Services
 {

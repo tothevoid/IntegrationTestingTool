@@ -1,6 +1,7 @@
 ﻿using IntegrationTestingTool.Model;
 using IntegrationTestingTool.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace IntegrationTestingTool.Controllers
 {

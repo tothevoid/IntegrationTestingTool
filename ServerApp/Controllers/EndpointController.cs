@@ -4,6 +4,7 @@ using IntegrationTestingTool.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace IntegrationTestingTool.Controllers
 {
@@ -20,20 +21,20 @@ namespace IntegrationTestingTool.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<Endpoint> GetAll(string path) =>
-             EndpointService.GetAllByPath(path);
+        public async Task<IEnumerable<Endpoint>> GetAll(string path) =>
+             await EndpointService.GetAllByPath(path);
 
         [HttpPost]
-        public void Add(Endpoint endpoint) =>
-            EndpointService.Create(endpoint);
+        public async Task Add(Endpoint endpoint) =>
+            await EndpointService.Create(endpoint);
 
         [HttpGet]
-        public bool Delete(Guid id) =>
-            EndpointService.Delete(id);
+        public async Task<bool> Delete(Guid id) =>
+            await EndpointService.Delete(id);
 
         [HttpGet]
-        public string ValidateUrl(string path) =>
-            EndpointService.ValidateUrl(path);
+        public async Task<string> ValidateUrl(string path) =>
+            await EndpointService.ValidateUrl(path);
 
 
         [HttpGet]

@@ -5,6 +5,7 @@ using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
 using System;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace IntegrationTestingTool.Services
 {
@@ -19,22 +20,19 @@ namespace IntegrationTestingTool.Services
             GridFS = new GridFSBucket(collection);
         }
 
-        public ObjectId Create(Guid id, string data)
+        public async Task<ObjectId> Create(Guid id, string data) =>
+            await GridFS.UploadFromBytesAsync($"{id}.txt", 
+                Encoding.UTF8.GetBytes(data));
+        
+        public async Task<string> Get(ObjectId fileId)
         {
-            var bytesData = Encoding.UTF8.GetBytes(data);
-            var itemId = GridFS.UploadFromBytes($"{id}.txt", bytesData);
-            return itemId;
-        }
-
-        public string Get(ObjectId fileId)
-        {
-            var file = GridFS.DownloadAsBytes(fileId);
+            var file = await GridFS.DownloadAsBytesAsync(fileId);
             return Encoding.UTF8.GetString(file);
         }
 
-        public void Delete(ObjectId fileId)
+        public async Task Delete(ObjectId fileId)
         {
-            GridFS.Delete(fileId);
+            await GridFS.DeleteAsync(fileId);
         }
     }
 }

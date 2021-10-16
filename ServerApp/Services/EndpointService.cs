@@ -11,6 +11,7 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace IntegrationTestingTool.Services
 {
@@ -29,69 +30,76 @@ namespace IntegrationTestingTool.Services
             FileService = fileService;
         }
 
-        public IEnumerable<Endpoint> GetAll() =>
-            MongoCollection.Find(new BsonDocument()).SortByDescending(bson => bson.CreatedOn).ToList();
+        public async Task<IEnumerable<Endpoint>> GetAll()
+        {
+            var sort = Builders<Endpoint>.Sort.Descending(endpoint => endpoint.CreatedOn);
+            var options = new FindOptions<Endpoint, Endpoint>
+            {
+                Sort = sort
+            };
+            return (await MongoCollection.FindAsync(new BsonDocument(), options)).ToList();
+        }
 
-        public IEnumerable<Endpoint> GetAllByPath(string path)
+        public async Task<IEnumerable<Endpoint>> GetAllByPath(string path)
         {
             if (string.IsNullOrEmpty(path)) 
             {
-                return GetAll();
+                return await GetAll();
             }
             var filter = new BsonDocument {{nameof(Endpoint.Path), new BsonDocument {{ "$regex", path }, { "$options", "i" }}}};
             return MongoCollection.Find(filter).SortByDescending(bson => bson.CreatedOn).ToList();
         }
 
-        public Endpoint Create(Endpoint endpoint)
+        public async Task<Endpoint> Create(Endpoint endpoint)
         {
             endpoint.Id = Guid.NewGuid();
             endpoint.OutputData = Regex.Replace(endpoint.OutputData, @"\""", @"""");
 
-            var preprocessedEndpoint = HandleLargeOutputData(endpoint);
-            MongoCollection.InsertOne(preprocessedEndpoint);
+            var preprocessedEndpoint = await HandleLargeOutputData(endpoint);
+            await MongoCollection.InsertOneAsync(preprocessedEndpoint);
             return preprocessedEndpoint;
         }
-        public bool Delete(Guid id)
+        public async Task<bool> Delete(Guid id)
         {
-            var endpoint = FindById(id);
+            var endpoint = await FindById(id);
             if (endpoint != null)
             {
                 var deletionFilter = Builders<Endpoint>.Filter.Eq(nameof(Endpoint.Id), id);
-                var result = MongoCollection.DeleteOne(deletionFilter);
+                var result = await MongoCollection.DeleteOneAsync(deletionFilter);
                 var isDeleted = result.DeletedCount != 0;
-                if (isDeleted)
+                if (isDeleted && endpoint.OutputDataFile != default)
                 {
-                    FileService.Delete(endpoint.OutputDataFile);
+                    await FileService.Delete(endpoint.OutputDataFile);
                     return isDeleted;
                 }
             }
             return false;
         }
 
-        public IEnumerable<Endpoint> FindByPathAndMethod(string path, string method)
+        public async Task<IEnumerable<Endpoint>> FindByPathAndMethod(string path, string method)
         {
             var pathFilter = Builders<Endpoint>.Filter.Eq(nameof(Endpoint.Path), path);
             var methodFilter = Builders<Endpoint>.Filter.Eq(nameof(Endpoint.Method), method);
             var filters = Builders<Endpoint>.Filter.And(pathFilter, methodFilter);
-            return MongoCollection.Find(filters).ToList();
+            return (await MongoCollection.FindAsync(filters)).ToList();
         }
 
-        public Endpoint FindById(Guid id)
+        public async Task<Endpoint> FindById(Guid id)
         {
             BsonBinaryData binaryId = new BsonBinaryData(id, GuidRepresentation.Standard);
-            return MongoCollection.Find(new BsonDocument("_id", binaryId)).FirstOrDefault();
+            return (await MongoCollection.FindAsync(new BsonDocument("_id", binaryId))).FirstOrDefault();
         }
 
-        public IEnumerable<Endpoint> FindByParameter(string parameterName, string value) =>
-            MongoCollection.Find(new BsonDocument(parameterName, value)).ToList();
+        public async Task<IEnumerable<Endpoint>> FindByParameter(string parameterName, string value) =>
+            (await MongoCollection.FindAsync(new BsonDocument(parameterName, value))).ToList();
 
-        public IEnumerable<Endpoint> FindLinkedByAuth(Guid authId)
+        public async Task<IEnumerable<Endpoint>> FindLinkedByAuth(Guid authId)
         {
             BsonBinaryData binaryId = new BsonBinaryData(authId, GuidRepresentation.Standard);
-            return MongoCollection.Find(new BsonDocument(nameof(Endpoint.AuthId), binaryId)).ToList();
+            return (await MongoCollection.FindAsync(new BsonDocument(nameof(Endpoint.AuthId), binaryId))).ToList();
         }
 
-        public string ValidateUrl(string path)
+        public async Task<string> ValidateUrl(string path)
         {
             var fullPath = $"{ConfigService.GetServerConfig().MockURL}/{path}";
             var isValid = Uri.TryCreate(fullPath, UriKind.Absolute, out _);
@@ -100,7 +108,7 @@ namespace IntegrationTestingTool.Services
             {
                 return "URL cant be empty";
             } 
-            else if (FindByParameter(nameof(Endpoint.Path), path.Trim()).Any())
+            else if ((await FindByParameter(nameof(Endpoint.Path), path.Trim())).Any())
             {
                 return "Same URL already exists";
             }
@@ -121,7 +129,7 @@ namespace IntegrationTestingTool.Services
             return props.Where(prop => prop.GetMethod.IsStatic).Select(x => x.Name.ToUpper());
         }
 
-        private Endpoint HandleLargeOutputData(Endpoint endpoint)
+        private async Task<Endpoint> HandleLargeOutputData(Endpoint endpoint)
         {
             if (string.IsNullOrEmpty(endpoint.OutputData))
             {
@@ -135,7 +143,7 @@ namespace IntegrationTestingTool.Services
             //Store data into file it has size more than 10MB
             if (endpoint.OutputDataSize > fileSize)
             {
-                endpoint.OutputDataFile = FileService.Create(endpoint.Id, endpoint.OutputData);
+                endpoint.OutputDataFile = await FileService.Create(endpoint.Id, endpoint.OutputData);
                 endpoint.OutputData = null;
             }
 

@@ -30,7 +30,7 @@ namespace IntegrationTestingTool
                 .Where(x => x != string.Empty)
                 .Skip(1);
             string path = string.Join("/", urlParts);
-            var endpoint = RouteHandlerService.GetEndpointByPathAndMethod(path, httpContext.Request.Method.ToUpper());
+            var endpoint = await RouteHandlerService.GetEndpointByPathAndMethod(path, httpContext.Request.Method.ToUpper());
 
             string body = string.Empty;
             if (httpContext.Request.ContentType == "application/json")

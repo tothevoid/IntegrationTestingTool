@@ -7,6 +7,7 @@ using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace IntegrationTestingTool.Services
 {
@@ -22,15 +23,15 @@ namespace IntegrationTestingTool.Services
             EndpointService = endpointService;
         }
 
-        public Auth Create(Auth auth)
+        public async Task<Auth> Create(Auth auth)
         {
-            MongoCollection.InsertOne(auth);
+            await MongoCollection.InsertOneAsync(auth);
             return auth;
         }
 
-        public string Delete(Guid id)
+        public async Task<string> Delete(Guid id)
         {
-            var linkedEndpoints = EndpointService.FindLinkedByAuth(id);
+            var linkedEndpoints = await EndpointService.FindLinkedByAuth(id);
             if (!linkedEndpoints.Any())
             {
                 var deletionFilter = Builders<Auth>.Filter.Eq(nameof(Auth.Id), id);
@@ -40,14 +41,14 @@ namespace IntegrationTestingTool.Services
             return $"There are some endpoints which use that auth:\n{string.Join("\n", linkedEndpoints.Select(x => x.Path))}";
         }
 
-        public Auth GetById(Guid id)
+        public async Task<Auth> GetById(Guid id)
         {
             BsonBinaryData binaryId = new BsonBinaryData(id, GuidRepresentation.Standard);
-            return MongoCollection.Find(new BsonDocument("_id", binaryId)).FirstOrDefault();
+            return (await MongoCollection.FindAsync(new BsonDocument("_id", binaryId))).FirstOrDefault();
         }
            
 
-        public IEnumerable<Auth> GetAll() =>
-            MongoCollection.Find(new BsonDocument()).ToList();
+        public async Task<IEnumerable<Auth>> GetAll() =>
+            (await MongoCollection.FindAsync(new BsonDocument())).ToList();
     }
 }

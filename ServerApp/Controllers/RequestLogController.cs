@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace IntegrationTestingTool.Controllers
 {
@@ -19,7 +20,8 @@ namespace IntegrationTestingTool.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<RequestLog> Get(DateTime date) =>
-            LoggingService.GetAll(date).OrderByDescending(x => x.CreatedOn);
+        public async Task<IEnumerable<RequestLog>> Get(DateTime date) =>
+            await LoggingService.GetAll(date);
+            
     }
 }

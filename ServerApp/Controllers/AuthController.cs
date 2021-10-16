@@ -3,6 +3,7 @@ using IntegrationTestingTool.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace IntegrationTestingTool.Controllers
 {
@@ -19,19 +20,19 @@ namespace IntegrationTestingTool.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<Auth> GetAll()
+        public async Task<IEnumerable<Auth>> GetAll()
         {
-            var result = AuthService.GetAll();
+            var result = await AuthService.GetAll();
             return result;
         }
             
 
         [HttpPost]
-        public void Add(Auth auth) =>
-            AuthService.Create(auth);
+        public async Task Add(Auth auth) =>
+            await AuthService.Create(auth);
 
         [HttpGet]
-        public string Delete(Guid id) =>
-            AuthService.Delete(id);
+        public async Task<string> Delete(Guid id) =>
+            await AuthService.Delete(id);
     }
 }

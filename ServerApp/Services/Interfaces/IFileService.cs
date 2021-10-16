@@ -1,15 +1,16 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Driver.GridFS;
 using System;
+using System.Threading.Tasks;
 
 namespace IntegrationTestingTool.Services.Interfaces
 {
     public interface IFileService
     {
-        ObjectId Create(Guid id, string data);
+        Task<ObjectId> Create(Guid id, string data);
 
-        string Get(ObjectId fileId);
+        Task<string> Get(ObjectId fileId);
 
-        void Delete(ObjectId fileId);
+        Task Delete(ObjectId fileId);
     }   
 }

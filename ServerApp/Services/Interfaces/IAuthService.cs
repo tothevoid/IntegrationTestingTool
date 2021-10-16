@@ -1,17 +1,18 @@
 ﻿using IntegrationTestingTool.Model.Entities;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace IntegrationTestingTool.Services.Interfaces
 {
     public interface IAuthService
     {
-        IEnumerable<Auth> GetAll();
+        Task<IEnumerable<Auth>> GetAll();
 
-        Auth GetById(Guid id);
+        Task<Auth> GetById(Guid id);
 
-        Auth Create(Auth endpoint);
+        Task<Auth> Create(Auth endpoint);
 
-        string Delete(Guid id);
+        Task<string> Delete(Guid id);
     }
 }

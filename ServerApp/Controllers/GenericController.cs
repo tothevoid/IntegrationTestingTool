@@ -30,10 +30,10 @@ namespace IntegrationTestingTool.Controllers
             FileService = fileService;
         }
 
-        public IActionResult Get([FromRoute(Name = "data")] string data, [FromRoute(Name = "endpoint")] Guid endpointId)
+        public async Task<IActionResult> Get([FromRoute(Name = "data")] string data, [FromRoute(Name = "endpoint")] Guid endpointId)
         {
-            var endpoint = EndpointService.FindById(endpointId);
-            var text = FileService.Get(endpoint.OutputDataFile);
+            var endpoint = await EndpointService.FindById(endpointId);
+            var text = await FileService.Get(endpoint.OutputDataFile);
 
             //TODO: get rid of try/catch
             try
@@ -43,7 +43,7 @@ namespace IntegrationTestingTool.Controllers
             }
             catch { }
             HttpContext.Response.StatusCode = endpoint.OutputStatusCode;
-            LoggingService.Create(new RequestLog 
+            await LoggingService.Create(new RequestLog 
             {
                 Recieved = data,
                 Endpoint = endpoint
@@ -51,17 +51,17 @@ namespace IntegrationTestingTool.Controllers
 
             if (endpoint.CallbackType == CallbackType.Asynchronous)
             {
-                Task.Run(() => AsyncRequestService.Call(endpoint));
+                await Task.Run(async () => await AsyncRequestService.Call(endpoint));
             }
 
             return Content(text);
         }
 
-        public IActionResult Error([FromRoute(Name = "data")] string data, [FromRoute(Name = "endpoint")] string endpointRaw, 
+        public async Task<IActionResult> Error([FromRoute(Name = "data")] string data, [FromRoute(Name = "endpoint")] string endpointRaw, 
             [FromRoute(Name = "errorMessage")] string errorMessage)
         {
             var endpoint = JsonConvert.DeserializeObject<Endpoint>(endpointRaw);
-            LoggingService.Create(new RequestLog
+            await LoggingService.Create(new RequestLog
             {
                 Recieved = data,
                 Endpoint = endpoint,

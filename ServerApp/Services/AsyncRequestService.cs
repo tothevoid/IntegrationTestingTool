@@ -24,7 +24,7 @@ namespace IntegrationTestingTool.Services
             Auth auth = null;
             if (endpoint.AuthId != null)
             {
-                auth = AuthService.GetById(endpoint.AuthId.Value);
+                auth = await AuthService.GetById(endpoint.AuthId.Value);
             }
             using var client = new HttpClient();
 
@@ -74,11 +74,11 @@ namespace IntegrationTestingTool.Services
             try
             {
                 var result = await client.SendAsync(message);
-                LoggingService.Create(new RequestLog { Endpoint = endpoint });
+                await LoggingService.Create(new RequestLog { Endpoint = endpoint });
             }
             catch (Exception ex)
             {
-                LoggingService.Create(new RequestLog { Endpoint = endpoint });
+                await LoggingService.Create(new RequestLog { Endpoint = endpoint, IsError = true, Recieved = ex.Message});
             }
         }
 

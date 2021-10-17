@@ -3,13 +3,15 @@ import React, { Component, Fragment } from 'react';
 import { Button } from "../../controls/Button/Button"
 import { Search } from "../../controls/Search/Search"
 import { formatFileSize } from "../../../utils/coreExtensions"
+import { Modal } from "../../controls/Modal/Modal";
 
 export class Endpoints extends Component {
     
     constructor(props) {
         super(props);
         this.state = {
-            endpoints: []
+            endpoints: [],
+            showModal: false
         }
         this.getEndpoints("");
     }
@@ -47,9 +49,9 @@ export class Endpoints extends Component {
         </div>
     }
 
-    deleteEndpoint = (endpointId) => 
-        fetch(`${this.props.config.apiURL}/Endpoint/Delete?id=${endpointId}`)
-            .then((response) => {if (response.text()) this.deleteEndpoints(endpointId)})
+    deleteEndpoint = (endpointId) => {
+        this.setState({showModal: true, selectedEndpoint: endpointId});
+    }
  
     deleteEndpoints = (endpointId) => {
         const filteredEndpoints = this.state.endpoints.filter((endpoint) =>
@@ -65,12 +67,24 @@ export class Endpoints extends Component {
 
     render = () => {
         const {theme} = this.props;
+        const {showModal} = this.state;
         return <Fragment>
             <Search theme={theme} onTextChanged={this.getEndpoints}/>
             <div className="endpoints-list">
                 {this.state.endpoints.map((endpoint)=>this.renderEndpoint(endpoint))}
             </div>
+            {
+                <Modal theme={theme} onSuccess={this.onDecidedToDelete} onReject={()=>this.setState({showModal: false})} 
+                    show={showModal} title="Are you sure?" text="Do you really want to delete that endpoint?"/>
+            }
         </Fragment> 
+    }
+
+    onDecidedToDelete = () => {
+        const {selectedEndpoint} = this.state;
+        this.setState({showModal: false});
+        fetch(`${this.props.config.apiURL}/Endpoint/Delete?id=${selectedEndpoint}`)
+            .then((response) => {if (response.text()) this.deleteEndpoints(selectedEndpoint)})
     }
 
     getEndpoints = (path) => 

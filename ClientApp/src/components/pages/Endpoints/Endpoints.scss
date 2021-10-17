@@ -16,10 +16,14 @@
     padding: 10px;
 }
 
-.returns{
-    font-weight: 600;
+.expected-headers{
+    margin-bottom: 0px;
 }
 
 .returns-values div{
     margin-left: 20px;
+}
+
+.expand{
+    cursor: pointer;
 }

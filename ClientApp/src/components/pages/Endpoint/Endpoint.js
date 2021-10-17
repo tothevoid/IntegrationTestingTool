@@ -2,6 +2,7 @@ import "./Endpoint.scss"
 import React, { Component, Fragment } from 'react';
 import { Button } from "../../controls/Button/Button"
 import { ComboBox } from "../../controls/ComboBox/ComboBox"
+import { Notification } from "../../controls/Notification/Notification"
 import { Checkbox } from "../../controls/Checkbox/Checkbox"
 import { Field } from "../../controls/Field/Field";
 import { uuidv4 } from "../../../utils/coreExtensions"
@@ -26,6 +27,7 @@ export class Endpoint extends Component {
             auth: "",
             headers: []
         };
+        this.notification = React.createRef();
     }
 
     componentDidMount = () => {
@@ -77,6 +79,7 @@ export class Endpoint extends Component {
                     <Fragment/> 
                    
             }
+            <Notification ref={this.notification}/>
             <Button theme={theme} disabled={(urlPathValidationText && urlPathValidationText.length !== 0 )} onClick={this.addEndpoint} caption={"Create"}/>
         </div>
     }
@@ -127,7 +130,12 @@ export class Endpoint extends Component {
         
         fetch(`${this.props.config.apiURL}/Endpoint/ValidateUrl?path=${this.state.path}`)
             .then(result => result.json())
-            .then(result => {this.setState({urlPathValidationText: result})});
+            .then(result => {
+                this.setState({urlPathValidationText: result});
+                if (result){
+                    this.notify(result);
+                }
+            });
     }
 
 
@@ -135,10 +143,14 @@ export class Endpoint extends Component {
         this.setState({path: event.target.value});
     }
 
+    notify = (text) => {
+        this.notification.current.addElement(text);
+    }
+
     addEndpoint = () => {
         const validationResult = this.validateEndpoint();
         if (validationResult){
-            console.log(validationResult);
+            this.notify(validationResult);
             return;
         }
         const {path, outputData, statusCode, method, interactionType, 
@@ -198,13 +210,15 @@ export class Endpoint extends Component {
     }
 
     validateEndpoint = () => {
-        const {urlPathValidationText, path} = this.state;
+        const {urlPathValidationText, path, callbackUrl, interactionType} = this.state;
 
         //move it to modal or smth else
         if (!path || path.trim() === ""){
-            return "Path can't be empty";
+            return "Endpoint's path can't be empty";
         } else if (urlPathValidationText){
             return "Url already created";
+        } else if (this.getInteractions().indexOf(interactionType) === 1 && (!callbackUrl || callbackUrl.trim() === "")){
+            return "Callback url is not specified";
         }
         return null;
     }
@@ -255,8 +269,9 @@ export class Endpoint extends Component {
         if (!alreadyExists){
             this.setState({headers: [...headers, {id: uuidv4(),key: headerName, value: headerValue}],
                 headerName: "", headerValue: ""});
+        } else {
+            this.notify(`Header with name "${headerName}" already exists`);
         }
-        //TODO: notify user
     }
 
     deleteHeader = (key) => {

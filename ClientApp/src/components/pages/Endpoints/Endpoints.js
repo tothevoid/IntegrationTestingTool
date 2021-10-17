@@ -20,15 +20,13 @@ export class Endpoints extends Component {
     {
         const {theme} = this.props;
         const {path, outputDataSize, outputStatusCode, method, callbackType, 
-            callbackURL, callbackMethod, callbackData} = endpoint;
+            callbackURL, callbackMethod, callbackData, expanded} = endpoint;
         return <div key={endpoint.id} className={`endpoint ${theme}`}>
             <div>
                 <div className="path">{this.props?.config?.mockURL}/{path}</div>
                 <div>Method: <b>{method}</b></div>
-                <div className="returns">Returns</div>
-                <div className="returns-values">
-                    <div>Data size: <b>{formatFileSize(outputDataSize)}</b></div>
-                    <div>Status code: <b>{outputStatusCode}</b></div>
+                <div className="returns">
+                    {`Returns status code: ${outputStatusCode}. Data size: ${formatFileSize(outputDataSize)}`}
                 </div>
                 {
                     (callbackType === 1) ?
@@ -40,13 +38,37 @@ export class Endpoints extends Component {
                                 <div>Data: {callbackData}</div>
                             </div>
                         </Fragment>:
-                        <Fragment/>
+                        null
+                }
+                <div className="expand" onClick={() => this.onExpand(endpoint.id)}>{endpoint.expanded ? "[Hide]" : "[Expand]"}</div>
+                {
+                    (expanded) ? 
+                        <div>
+                            <div>Expected headers: </div>
+                            <ul className="expected-headers">
+                                {endpoint.headers
+                                    .map(header => <li>{`${header.key} : ${header.value}`}</li>)
+                                }
+                            </ul>
+                        </div> :
+                        null
                 }
             </div>
             {
                 <Button onClick={() => this.deleteEndpoint(endpoint.id)} additionalClasses="endpoint-delete" mode="danger" caption={"Delete"}></Button>
             }
         </div>
+    }
+
+    onExpand = (endpointId) => {
+        const updatedEndpoints = this.state.endpoints.map((endpoint) => {
+            if (endpoint.id === endpointId){
+                const expaned = endpoint?.expanded || false;
+                endpoint.expanded = !expaned;
+            }
+            return endpoint;
+        })
+        this.setState({endpoints: updatedEndpoints});
     }
 
     deleteEndpoint = (endpointId) => {
@@ -71,7 +93,7 @@ export class Endpoints extends Component {
         return <Fragment>
             <Search theme={theme} onTextChanged={this.getEndpoints}/>
             <div className="endpoints-list">
-                {this.state.endpoints.map((endpoint)=>this.renderEndpoint(endpoint))}
+                {this.state.endpoints.map((endpoint) => this.renderEndpoint(endpoint))}
             </div>
             {
                 <Modal theme={theme} onSuccess={this.onDecidedToDelete} onReject={()=>this.setState({showModal: false})} 

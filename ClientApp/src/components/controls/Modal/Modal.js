@@ -26,5 +26,4 @@ export const Modal = (props) => {
     return <Fragment>
         {ReactDOM.createPortal(modal, element)}
     </Fragment>
-    
 }

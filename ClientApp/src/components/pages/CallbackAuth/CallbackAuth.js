@@ -94,7 +94,7 @@ export class CallbackAuth extends Component {
                 <Field inline label="Add header" name="usedHeader" theme={theme} value={usedHeader} onInput={this.onFieldInput}/>
                 <Button theme={theme} onClick={() => this.addIntoCollection("usedHeaders")} caption={"Add"}/>
             </div>
-            <div className="used-body-paths">
+            {/* <div className="used-body-paths">
                 {this.state.usedBodyPaths.map((path) =>
                     <div className={theme} onClick={() => this.deleteFromCollection(path, "usedBodyPaths")} key={path}>{path}</div>
                 )}
@@ -102,7 +102,7 @@ export class CallbackAuth extends Component {
             <div className="new-collection-item">
                 <Field inline label="Add body path" name="usedBodyPath" theme={theme} value={usedBodyPath} onInput={this.onFieldInput}/>
                 <Button theme={theme} onClick={() => this.addIntoCollection("usedBodyPaths")} caption={"Add"}/>
-            </div>
+            </div> */}
             <Button theme={theme} onClick={this.addAuth} caption={"Create"}/>
         </div>
     }
@@ -115,8 +115,10 @@ export class CallbackAuth extends Component {
         //TODO: commonize
         switch (collection){
             case ("usedHeaders"):
+                debugger;
                 const {usedHeader, usedHeaders} = this.state;
-                if (!this.state.usedHeaders.find((element) => usedHeader === element)){
+                if (usedHeader && this.state.usedHeaders
+                        .findIndex((element) => usedHeader === element) === -1){
                     const newHeaders = [...usedHeaders, usedHeader];
                     this.setState({usedHeaders: newHeaders, usedHeader: ""});
                 }
@@ -124,7 +126,8 @@ export class CallbackAuth extends Component {
                 break;
             case ("usedBodyPaths"):
                 const {usedBodyPath, usedBodyPaths} = this.state;
-                if (!this.state.usedBodyPaths.find((element) => usedBodyPath === element)){
+                if (usedBodyPath && this.state.usedBodyPaths
+                        .findIndex((element) => usedBodyPath === element) === -1){
                     const newBodyPaths = [...usedBodyPaths, usedBodyPath];
                     this.setState({usedBodyPaths: newBodyPaths, usedBodyPath: ""});
                 }
@@ -235,6 +238,11 @@ export class CallbackAuth extends Component {
 
     addHeader = () => {
         const {headers, headerName, headerValue} = this.state;
+
+        if (!headerName){
+            return;
+        }
+
         const alreadyExists = headers.find((header) => headerName === header.key);
         if (!alreadyExists){
             this.setState({headers: [...headers, {id: uuidv4(),key: headerName, value: headerValue}],

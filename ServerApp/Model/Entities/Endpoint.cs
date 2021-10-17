@@ -2,6 +2,7 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using System;
+using System.Collections.Generic;
 
 namespace IntegrationTestingTool.Model.Entities
 {
@@ -33,5 +34,7 @@ namespace IntegrationTestingTool.Model.Entities
 
         [BsonIgnore]
         public Auth Auth { get; set; }
+
+        public IEnumerable<Header> Headers { get; set; }
     }
 }

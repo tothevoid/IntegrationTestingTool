@@ -2,7 +2,9 @@ import "./Endpoint.scss"
 import React, { Component, Fragment } from 'react';
 import { Button } from "../../controls/Button/Button"
 import { ComboBox } from "../../controls/ComboBox/ComboBox"
+import { Checkbox } from "../../controls/Checkbox/Checkbox"
 import { Field } from "../../controls/Field/Field";
+import { uuidv4 } from "../../../utils/coreExtensions"
 
 export class Endpoint extends Component {
     static displayName = Endpoint.name;
@@ -16,11 +18,13 @@ export class Endpoint extends Component {
             statusCode: 200,
             interactionType: 0,
             method: "POST",
+            useHeaders: false,
             callbackMethod: "POST",
             callbackData: "",
             callbackUrl: "",
             auths:[],
-            auth: ""
+            auth: "",
+            headers: []
         };
     }
 
@@ -32,7 +36,8 @@ export class Endpoint extends Component {
 
     render = () => {
         const {theme} = this.props;
-        const {statusCode, outputData, statusCodes, method, methods, urlPathValidationText, interactionType} = this.state;
+        const {statusCode, outputData, statusCodes, method, methods, urlPathValidationText, 
+            interactionType, useHeaders, headers} = this.state;
         return <div className={`new-endpoint ${theme}`}>
             <h1>New endpoint</h1>
             <p className={`url ${theme}`}>
@@ -46,6 +51,21 @@ export class Endpoint extends Component {
                 {this.formatRowField(statusCode, statusCodes, "Status code", "statusCode")}
                 {this.formatRowField(interactionType, this.getInteractions(), "Interaction", "interactionType")}
             </div>
+            {
+                <Fragment>
+                    <Checkbox caption={`Expect headers (${headers.length})`} theme={theme} value={useHeaders} 
+                        onSelect={(useHeaders) => {this.setState({useHeaders})}}/>
+                    {
+                        (useHeaders) ?
+                            <Fragment>
+                                {this.renderHeaders()}
+                                {this.renderNewHeaderForm()}
+                            </Fragment>:
+                            null
+                    }
+                   
+                </Fragment>
+            }
             <Field isTextarea theme={theme} name="outputData" value={outputData} label="Response data:" onInput={this.onValueUpdated}/>
             {
                 //TODO: simplify condition
@@ -122,7 +142,7 @@ export class Endpoint extends Component {
             return;
         }
         const {path, outputData, statusCode, method, interactionType, 
-            callbackData, callbackMethod, callbackUrl, auth, auths} = this.state;
+            callbackData, callbackMethod, callbackUrl, auth, auths, headers} = this.state;
 
         const data = {
             path: path,
@@ -134,7 +154,8 @@ export class Endpoint extends Component {
             callbackUrl: callbackUrl,
             //TODO: simplify
             authId: auths.find(element => element.name === auth)?.id,
-            callbackType: this.getInteractions().indexOf(interactionType)
+            callbackType: this.getInteractions().indexOf(interactionType),
+            headers
         }
         fetch(`${this.props.config.apiURL}/Endpoint/Add`, {
             method: 'POST',
@@ -186,5 +207,61 @@ export class Endpoint extends Component {
             return "Url already created";
         }
         return null;
+    }
+
+    renderHeaders = () => {
+        const {theme} = this.props;
+        const {headers} = this.state;
+        debugger;
+        return (headers && headers.length !== 0) ?
+            headers.map(header => 
+                <div className="header-item" key={header.id}>
+                    <Field theme={theme} value={header.key} 
+                        onInput={(name, value) => this.onHeaderUpdated(header.id, "key", value)}/>
+                    <Field theme={theme} value={header.value} 
+                        onInput={(name, value) => this.onHeaderUpdated(header.id, "value", value)}/>
+                    <Button theme={theme} mode="danger" onClick={()=>this.deleteHeader(header.key)} caption="X"/>
+                </div>) :
+            <Fragment/>
+    }
+
+    onHeaderUpdated = (id, propName, propValue) => {
+        const headers = this.state.headers.map((header) => {
+            if (header.id === id){
+                header[propName] = propValue;
+            }
+            return header;
+        })
+        this.setState({headers});
+    }
+
+    renderNewHeaderForm = () => {
+        const {theme} = this.props;
+        const {headerName, headerValue} = this.state;
+        return <div className="new-header-form">
+            <Field label="Name" name="headerName" theme={theme} value={headerName} onInput={this.onFieldInput}/>
+            <Field label="Value" name="headerValue" theme={theme} value={headerValue} onInput={this.onFieldInput}/>
+            <Button theme={theme} onClick={this.addHeader} caption="Add"/>
+        </div>
+    }
+
+    onFieldInput = (name, value) => {
+        this.setState({[name]: value});
+    }
+
+    addHeader = () => {
+        const {headers, headerName, headerValue} = this.state;
+        const alreadyExists = headers.find((header) => headerName === header.key);
+        if (!alreadyExists){
+            this.setState({headers: [...headers, {id: uuidv4(),key: headerName, value: headerValue}],
+                headerName: "", headerValue: ""});
+        }
+        //TODO: notify user
+    }
+
+    deleteHeader = (key) => {
+        const filteredHeaders = this.state.headers.filter((header) =>
+            header.key !== key);
+        this.setState({headers: filteredHeaders});
     }
 }

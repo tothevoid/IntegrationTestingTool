@@ -30,7 +30,9 @@ namespace IntegrationTestingTool
                 .Where(x => x != string.Empty)
                 .Skip(1);
             string path = string.Join("/", urlParts);
-            var endpoint = await RouteHandlerService.GetEndpointByPathAndMethod(path, httpContext.Request.Method.ToUpper());
+            
+            var endpoint = await RouteHandlerService
+                .GetEndpointByPathAndMethod(path, httpContext.Request.Method.ToUpper(), httpContext.Request.Headers);
 
             string body = string.Empty;
             if (httpContext.Request.ContentType == "application/json")
@@ -62,7 +64,7 @@ namespace IntegrationTestingTool
                 output["action"] = "ERROR";
                 output["data"] = body;
                 output["errorMessage"] = errorMessage;
-                output["endpoint"] = JsonConvert.SerializeObject(customEndpoint);
+                output["endpoint"] = JsonConvert.SerializeObject(customEndpoint, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore, DefaultValueHandling = DefaultValueHandling.Ignore});
             }
             return output;
         }

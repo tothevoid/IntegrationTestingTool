@@ -8,6 +8,7 @@ namespace IntegrationTestingTool.Services.Inerfaces
     {
         Task<Endpoint> GetEndpointByPath(string path);
 
-        Task<Endpoint> GetEndpointByPathAndMethod(string path, string method);
+        Task<Endpoint> GetEndpointByPathAndMethod(string path, string method,
+            Microsoft.AspNetCore.Http.IHeaderDictionary requestHeaders);
     }
 }

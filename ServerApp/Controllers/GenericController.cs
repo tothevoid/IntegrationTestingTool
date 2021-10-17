@@ -62,7 +62,8 @@ namespace IntegrationTestingTool.Controllers
         public async Task<IActionResult> Error([FromRoute(Name = "data")] string data, [FromRoute(Name = "endpoint")] string endpointRaw, 
             [FromRoute(Name = "errorMessage")] string errorMessage)
         {
-            var endpoint = JsonConvert.DeserializeObject<Endpoint>(endpointRaw);
+            var settings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
+            var endpoint = JsonConvert.DeserializeObject<Endpoint>(endpointRaw, settings);
             await LoggingService.Create(new RequestLog
             {
                 Recieved = data,

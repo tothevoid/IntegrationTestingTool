@@ -22,9 +22,25 @@ namespace IntegrationTestingTool.Services
         public async Task<Endpoint> GetEndpointByPath(string path) =>
             (await EndpointService.FindByParameter(nameof(Endpoint.Path), path)).FirstOrDefault();
 
-        public async Task<Endpoint> GetEndpointByPathAndMethod(string path, string method)
+        public async Task<Endpoint> GetEndpointByPathAndMethod(string path, string method, 
+            Microsoft.AspNetCore.Http.IHeaderDictionary requestHeaders)
         {
             var endpoint = (await EndpointService.FindByPathAndMethod(path, method)).FirstOrDefault();
+
+            if (endpoint == null)
+            {
+                return null;
+            }
+            
+            foreach (var expectedHeader in endpoint.Headers)
+            {
+                var hasValue = requestHeaders.TryGetValue(expectedHeader.Key, out var values);
+                if (!hasValue || !values.Contains(expectedHeader.Value))
+                {
+                    return null;
+                }
+            }
+
             if (endpoint != null && endpoint.OutputDataFile != default)
             {
                 var file = await FileService.Get(endpoint.OutputDataFile);

@@ -193,7 +193,6 @@ export class CallbackAuth extends Component {
         })
         .then(response => response.json())
         .then((auth) => {
-            debugger;
             if (auth){
                 this.setState({auths: [auth, ...this.state.auths], ...this.getDefaultState()});
             }});

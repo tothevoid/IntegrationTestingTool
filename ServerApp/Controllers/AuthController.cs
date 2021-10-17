@@ -28,7 +28,7 @@ namespace IntegrationTestingTool.Controllers
             
 
         [HttpPost]
-        public async Task Add(Auth auth) =>
+        public async Task<Auth> Add(Auth auth) =>
             await AuthService.Create(auth);
 
         [HttpGet]

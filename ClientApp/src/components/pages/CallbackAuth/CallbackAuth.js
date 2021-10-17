@@ -4,6 +4,7 @@ import { Field } from "../../controls/Field/Field";
 import { Button } from "../../controls/Button/Button"
 import { Checkbox } from "../../controls/Checkbox/Checkbox"
 import { uuidv4 } from "../../../utils/coreExtensions"
+import { Modal } from "../../controls/Modal/Modal"
 import "./CallbackAuth.scss"
 
 export class CallbackAuth extends Component {
@@ -13,7 +14,9 @@ export class CallbackAuth extends Component {
         this.state = {
             ...defaultState,
             auths: [],
-            addNewAuth: false
+            addNewAuth: false,
+            showModal: false,
+            selectedAuth: ""
         }
     }
 
@@ -38,7 +41,7 @@ export class CallbackAuth extends Component {
 
     render = () => {
         const {theme} = this.props;
-        const {addNewAuth, auths} = this.state;
+        const {addNewAuth, auths, showModal} = this.state;
         return <Fragment>
             <Checkbox theme={theme} value={addNewAuth} caption="New auth" onSelect={this.onNewAuthToggle}/>
             {
@@ -51,10 +54,14 @@ export class CallbackAuth extends Component {
                 auths.map(auth => <div key={auth.id} className={`auth ${theme}`}>
                     <div>{auth.name}</div>
                     <div>{auth.url}</div>
-                    <Button additionalClasses="auth-delete" mode="danger" onClick={() => this.onDelete(auth.id)} caption={"X"}/>
+                    <Button additionalClasses="auth-delete" mode="danger" onClick={() => this.onDecidedToDelete(auth.id)} caption={"X"}/>
                 </div>)
             }
             </div>
+            {
+                <Modal theme={theme} onSuccess={this.onDelete} onReject={() => this.setState({showModal: false})} 
+                    show={showModal} title="Are you sure?" text="Do you really want to delete that auth?"/>
+            }
         </Fragment>
     }
 
@@ -125,20 +132,25 @@ export class CallbackAuth extends Component {
         }
     }
 
-    onDelete = (authId) => {
-        fetch(`${this.props.config.apiURL}/Auth/Delete?id=${authId}`)
+    onDecidedToDelete = (authId) => {
+        this.setState({selectedAuth: authId, showModal: true})
+    }
+
+    onDelete = () => {
+        const {selectedAuth} = this.state
+        fetch(`${this.props.config.apiURL}/Auth/Delete?id=${selectedAuth}`)
             .then((response) => response.json())
             .then((response) => {
                 if (response){
                     console.log(response);
                 } else {
-                    this.deleteAuth(authId);
+                    this.deleteAuth(selectedAuth);
                 }})
     }
 
     deleteAuth = (authId) => {
         const newAuths = this.state.auths.filter((auth) => auth.id !== authId);
-        this.setState({auths: newAuths});
+        this.setState({auths: newAuths, showModal: false});
     }
 
     deleteFromCollection = (element, collection) => {
@@ -179,9 +191,11 @@ export class CallbackAuth extends Component {
                 'Content-Type': 'application/json'
             }
         })
-        .then((response)=>{
-            if (response.ok){
-                this.setState({auths: [authData, ...this.state.auths], ...this.getDefaultState()});
+        .then(response => response.json())
+        .then((auth) => {
+            debugger;
+            if (auth){
+                this.setState({auths: [auth, ...this.state.auths], ...this.getDefaultState()});
             }});
     }
 

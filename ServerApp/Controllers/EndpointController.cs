@@ -29,6 +29,24 @@ namespace IntegrationTestingTool.Controllers
             await EndpointService.Create(endpoint);
 
         [HttpGet]
+        public async Task<IActionResult> Get(Guid id)
+        {
+            var endpoint = await EndpointService.FindById(id);
+            if (endpoint == null) 
+            {
+                return new BadRequestResult();
+            }
+            else
+            {
+                return new OkObjectResult(endpoint);
+            }
+        }
+
+        [HttpPost]
+        public async Task Update(Endpoint endpoint) =>
+            await EndpointService.Update(endpoint);
+
+        [HttpGet]
         public async Task<bool> Delete(Guid id) =>
             await EndpointService.Delete(id);
 

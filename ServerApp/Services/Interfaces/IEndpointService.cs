@@ -23,6 +23,8 @@ namespace IntegrationTestingTool.Services.Interfaces
 
         IEnumerable<string> GetRESTMethods();
 
+        Task<Endpoint> Update(Endpoint endpoint);
+
         Task<IEnumerable<Endpoint>> FindLinkedByAuth(Guid authId);
 
         Task<Endpoint> FindById(Guid id);

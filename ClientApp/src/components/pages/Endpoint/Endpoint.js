@@ -12,10 +12,34 @@ export class Endpoint extends Component {
 
     constructor(props) {
         super(props);
-        this.state = {
+
+        this.state = this.getInitialState();
+        this.state.statusCodes = [];
+        this.state.auths = [];
+        this.notification = React.createRef();
+    }
+
+    async componentDidMount() {
+        await this.fetchEndpoint();
+        this.getStatusCodes();
+        this.getRESTMethods();
+        this.getAuths();
+    }
+
+    fetchEndpoint = async () => {
+        const id = this.props.location.state?.endpointId;
+        if (id){
+            this.state.statusCodes = [];
+            this.state.auths = [];
+            const state = {...await this.getStateFromEndpoint(id)};
+            this.setState({...state, id});
+        }
+    }
+
+    getInitialState = () => {
+        return {
             path: "",
             outputData: "",
-            statusCodes: [],
             statusCode: 200,
             interactionType: 0,
             method: "POST",
@@ -27,21 +51,35 @@ export class Endpoint extends Component {
             auth: "",
             headers: []
         };
-        this.notification = React.createRef();
     }
 
-    componentDidMount = () => {
-        this.getStatusCodes();
-        this.getRESTMethods();
-        this.getAuths();
+    getStateFromEndpoint = async (id) => {
+        const fetchResult = await fetch(`${this.props.config.apiURL}/Endpoint/Get?id=${id}`);
+        if (fetchResult.ok){
+            const endpoint = await fetchResult.json();
+            return {
+                path: endpoint.path,
+                outputData: endpoint.outputData,
+                statusCode: endpoint.outputStatusCode,
+                interactionType: endpoint.callbackType,
+                method: endpoint.method,
+                useHeaders: endpoint.headers?.length !== 0,
+                callbackMethod: endpoint.callbackMethod,
+                callbackData: endpoint.callbackData,
+                callbackUrl: endpoint.callbackUrl,
+                auth: endpoint.authId,
+                headers: endpoint.headers
+            }
+        }
+        return null;
     }
 
     render = () => {
         const {theme} = this.props;
         const {statusCode, outputData, statusCodes, method, methods, 
-            interactionType, useHeaders, headers} = this.state;
+            interactionType, useHeaders, headers, id} = this.state;
         return <div className={`new-endpoint ${theme}`}>
-            <h1>New endpoint</h1>
+            <h1>{(id) ? "Update endpoint": "New endpoint"}</h1>
             <p className={`url ${theme}`}>
                 <span>{this.props.config?.mockURL}/</span>
                 <input className={`dynamic-url ${theme}`} onChange={this.onPathChanged}
@@ -79,7 +117,7 @@ export class Endpoint extends Component {
                    
             }
             <Notification ref={this.notification}/>
-            <Button theme={theme} onClick={this.addEndpoint} caption={"Create"}/>
+            <Button theme={theme} onClick={this.addEndpoint} caption={(id) ? "Update" : "Create"}/>
         </div>
     }
 
@@ -134,7 +172,7 @@ export class Endpoint extends Component {
             this.notify(validationResult);
             return;
         }
-        const {path, outputData, statusCode, method, interactionType, 
+        const {path, outputData, statusCode, method, interactionType, id,
             callbackData, callbackMethod, callbackUrl, auth, auths, headers} = this.state;
 
         const data = {
@@ -148,9 +186,12 @@ export class Endpoint extends Component {
             //TODO: simplify
             authId: auths.find(element => element.name === auth)?.id,
             callbackType: this.getInteractions().indexOf(interactionType),
-            headers
+            headers,
+            id
         }
-        fetch(`${this.props.config.apiURL}/Endpoint/Add`, {
+        const operation = (id) ? "Update" : "Add";
+
+        fetch(`${this.props.config.apiURL}/Endpoint/${operation}`, {
             method: 'POST',
             body: JSON.stringify(data),
             headers: {
@@ -208,7 +249,6 @@ export class Endpoint extends Component {
     renderHeaders = () => {
         const {theme} = this.props;
         const {headers} = this.state;
-        debugger;
         return (headers && headers.length !== 0) ?
             headers.map(header => 
                 <div className="header-item" key={header.id}>

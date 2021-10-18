@@ -82,6 +82,7 @@ namespace IntegrationTestingTool.Services
             await MongoCollection.InsertOneAsync(endpoint);
             return endpoint;
         }
+
         public async Task<bool> Delete(Guid id)
         {
             var endpoint = await FindById(id);
@@ -127,6 +128,13 @@ namespace IntegrationTestingTool.Services
         {
             BsonBinaryData binaryId = new BsonBinaryData(authId, GuidRepresentation.Standard);
             return (await MongoCollection.FindAsync(new BsonDocument(nameof(Endpoint.AuthId), binaryId))).ToList();
+        }
+        public async Task<Endpoint> Update(Endpoint endpoint)
+        {
+            var result = await MongoCollection.ReplaceOneAsync(new BsonDocument("_id", endpoint.Id), endpoint);
+            return result.ModifiedCount != 0 ?
+                endpoint:
+                null;
         }
 
         public IEnumerable<int> GetStatusCodes() =>

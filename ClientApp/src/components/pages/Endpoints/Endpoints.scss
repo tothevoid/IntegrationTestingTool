@@ -9,12 +9,6 @@
     }
 }
 
-.endpoint-delete{
-    position: absolute;
-    right: 10px;
-    top: 10px;
-    padding: 10px;
-}
 
 .expected-headers{
     margin-bottom: 0px;
@@ -26,4 +20,16 @@
 
 .expand{
     cursor: pointer;
+}
+
+.endpoint-manipulations{
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    button{
+        margin-bottom: 5px;
+    }
 }

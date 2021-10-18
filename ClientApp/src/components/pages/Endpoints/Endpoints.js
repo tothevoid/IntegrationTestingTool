@@ -60,9 +60,20 @@ export class Endpoints extends Component {
                 }
             </div>
             {
-                <Button onClick={() => this.deleteEndpoint(endpoint.id)} additionalClasses="endpoint-delete" mode="danger" caption={"Delete"}></Button>
+                <div className="endpoint-manipulations">
+                    <Button onClick={() => this.updateEndpoint(endpoint.id)} caption={"Edit"}></Button>
+                    <Button onClick={() => this.deleteEndpoint(endpoint.id)} additionalClasses="endpoint-delete" mode="danger" caption={"Delete"}></Button>
+                </div>
+               
             }
         </div>
+    }
+
+    updateEndpoint = (endpointId) => {
+        this.props.history.push({
+            pathname: '/endpoint',
+            state: { endpointId }
+        })
     }
 
     onExpand = (endpointId) => {

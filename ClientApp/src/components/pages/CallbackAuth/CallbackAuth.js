@@ -54,7 +54,7 @@ export class CallbackAuth extends Component {
                 auths.map(auth => <div key={auth.id} className={`auth ${theme}`}>
                     <div>{auth.name}</div>
                     <div>{auth.url}</div>
-                    <Button additionalClasses="auth-delete" mode="danger" onClick={() => this.onDecidedToDelete(auth.id)} caption={"X"}/>
+                    <Button additionalClasses="auth-delete" mode="danger" onClick={() => this.onDecidedToDelete(auth.id)} caption="Delete"/>
                 </div>)
             }
             </div>
@@ -115,7 +115,6 @@ export class CallbackAuth extends Component {
         //TODO: commonize
         switch (collection){
             case ("usedHeaders"):
-                debugger;
                 const {usedHeader, usedHeaders} = this.state;
                 if (usedHeader && this.state.usedHeaders
                         .findIndex((element) => usedHeader === element) === -1){

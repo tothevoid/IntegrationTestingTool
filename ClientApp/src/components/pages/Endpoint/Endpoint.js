@@ -38,15 +38,14 @@ export class Endpoint extends Component {
 
     render = () => {
         const {theme} = this.props;
-        const {statusCode, outputData, statusCodes, method, methods, urlPathValidationText, 
+        const {statusCode, outputData, statusCodes, method, methods, 
             interactionType, useHeaders, headers} = this.state;
         return <div className={`new-endpoint ${theme}`}>
             <h1>New endpoint</h1>
             <p className={`url ${theme}`}>
                 <span>{this.props.config?.mockURL}/</span>
-                <input className={`dynamic-url ${theme}`} onBlur={() => this.validateUrl()} onChange={this.onPathChanged}
+                <input className={`dynamic-url ${theme}`} onChange={this.onPathChanged}
                     value={this.state.path} type="text"/>
-                <span className="url-validation-error">{this.state.urlPathValidationText}</span>
             </p>
             <div className="form-part-row">
                 {this.formatRowField(method, methods, "REST method", "method")}
@@ -80,7 +79,7 @@ export class Endpoint extends Component {
                    
             }
             <Notification ref={this.notification}/>
-            <Button theme={theme} disabled={(urlPathValidationText && urlPathValidationText.length !== 0 )} onClick={this.addEndpoint} caption={"Create"}/>
+            <Button theme={theme} onClick={this.addEndpoint} caption={"Create"}/>
         </div>
     }
 
@@ -120,24 +119,6 @@ export class Endpoint extends Component {
     onValueUpdated = (propName, value) => {
         this.setState({[propName]: value})
     }
-
-    validateUrl = () => 
-    {
-        if (!this.state.path?.trim())
-        {
-            return;
-        }
-        
-        fetch(`${this.props.config.apiURL}/Endpoint/ValidateUrl?path=${this.state.path}`)
-            .then(result => result.json())
-            .then(result => {
-                this.setState({urlPathValidationText: result});
-                if (result){
-                    this.notify(result);
-                }
-            });
-    }
-
 
     onPathChanged = (event) => {
         this.setState({path: event.target.value});
@@ -210,17 +191,18 @@ export class Endpoint extends Component {
     }
 
     validateEndpoint = () => {
-        const {urlPathValidationText, path, callbackUrl, interactionType} = this.state;
-
-        //move it to modal or smth else
+        const {path, callbackUrl, interactionType} = this.state;
         if (!path || path.trim() === ""){
             return "Endpoint's path can't be empty";
-        } else if (urlPathValidationText){
-            return "Url already created";
         } else if (this.getInteractions().indexOf(interactionType) === 1 && (!callbackUrl || callbackUrl.trim() === "")){
             return "Callback url is not specified";
         }
         return null;
+    }
+
+    validateExisting = async () => {
+        const response = await fetch('/movies');
+        const movies = await response.json();
     }
 
     renderHeaders = () => {

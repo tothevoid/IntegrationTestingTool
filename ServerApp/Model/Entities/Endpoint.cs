@@ -8,6 +8,8 @@ namespace IntegrationTestingTool.Model.Entities
 {
     public class Endpoint: BaseEntity
     {
+        public bool Active { get; set; } = true;
+
         public string Path { get; set; }
 
         public string Method { get; set; } = "POST";

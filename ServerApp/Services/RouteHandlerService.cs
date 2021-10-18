@@ -1,5 +1,4 @@
-﻿using IntegrationTestingTool.Model;
-using IntegrationTestingTool.Model.Entities;
+﻿using IntegrationTestingTool.Model.Entities;
 using IntegrationTestingTool.Services.Inerfaces;
 using IntegrationTestingTool.Services.Interfaces;
 using System.Linq;
@@ -22,31 +21,31 @@ namespace IntegrationTestingTool.Services
         public async Task<Endpoint> GetEndpointByPath(string path) =>
             (await EndpointService.FindByParameter(nameof(Endpoint.Path), path)).FirstOrDefault();
 
-        public async Task<Endpoint> GetEndpointByPathAndMethod(string path, string method, 
+        public async Task<Endpoint> GetEndpointByPathAndMethod(string path, string method,
             Microsoft.AspNetCore.Http.IHeaderDictionary requestHeaders)
         {
-            var endpoint = (await EndpointService.FindByPathAndMethod(path, method)).FirstOrDefault();
+            var endpoints = (await EndpointService.FindByPathAndMethod(path, method));
+            var suitableEndpoint = endpoints.FirstOrDefault(endpoint => ValidateEndpoint(endpoint, requestHeaders));
 
-            if (endpoint == null)
+            if (suitableEndpoint != null && suitableEndpoint.OutputDataFile != default)
             {
-                return null;
+                var file = await FileService.Get(suitableEndpoint.OutputDataFile);
+                suitableEndpoint.OutputData = file;
             }
-            
+            return suitableEndpoint;
+        }
+
+        private bool ValidateEndpoint(Endpoint endpoint, Microsoft.AspNetCore.Http.IHeaderDictionary requestHeaders)
+        {
             foreach (var expectedHeader in endpoint.Headers)
             {
-                var hasValue = requestHeaders.TryGetValue(expectedHeader.Key, out var values);
+                bool hasValue = requestHeaders.TryGetValue(expectedHeader.Key, out var values);
                 if (!hasValue || !values.Contains(expectedHeader.Value))
                 {
-                    return null;
+                    return false;
                 }
             }
-
-            if (endpoint != null && endpoint.OutputDataFile != default)
-            {
-                var file = await FileService.Get(endpoint.OutputDataFile);
-                endpoint.OutputData = file;
-            }
-            return endpoint;
+            return true;
         }
     }
 }

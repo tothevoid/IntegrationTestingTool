@@ -20,7 +20,7 @@ export class Endpoints extends Component {
     {
         const {theme} = this.props;
         const {path, outputDataSize, outputStatusCode, method, callbackType, 
-            callbackURL, callbackMethod, callbackData, expanded} = endpoint;
+            callbackURL, callbackMethod, callbackData, expanded, headers} = endpoint;
         return <div key={endpoint.id} className={`endpoint ${theme}`}>
             <div>
                 <div className="path">{this.props?.config?.mockURL}/{path}</div>
@@ -40,7 +40,12 @@ export class Endpoints extends Component {
                         </Fragment>:
                         null
                 }
-                <div className="expand" onClick={() => this.onExpand(endpoint.id)}>{endpoint.expanded ? "[Hide]" : "[Expand]"}</div>
+                {
+                    (headers && headers.length !== 0) ?
+                        <div className="expand" onClick={() => this.onExpand(endpoint.id)}>{endpoint.expanded ? "[Hide]" : "[Expand]"}</div> :
+                        null
+                }
+               
                 {
                     (expanded) ? 
                         <div>

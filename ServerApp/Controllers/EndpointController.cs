@@ -33,11 +33,6 @@ namespace IntegrationTestingTool.Controllers
             await EndpointService.Delete(id);
 
         [HttpGet]
-        public async Task<string> ValidateUrl(string path) =>
-            await EndpointService.ValidateUrl(path);
-
-
-        [HttpGet]
         public IEnumerable<int> GetStatusCodes() =>
             EndpointService.GetStatusCodes();
 

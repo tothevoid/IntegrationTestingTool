@@ -101,10 +101,17 @@ namespace IntegrationTestingTool.Services
 
         public async Task<IEnumerable<Endpoint>> FindByPathAndMethod(string path, string method)
         {
+            var sort = Builders<Endpoint>.Sort.Descending(endpoint => endpoint.CreatedOn);
+            var options = new FindOptions<Endpoint, Endpoint>
+            {
+                Sort = sort
+            };
+
             var pathFilter = Builders<Endpoint>.Filter.Eq(nameof(Endpoint.Path), path);
+            var activeFilter = Builders<Endpoint>.Filter.Eq(nameof(Endpoint.Active), true);
             var methodFilter = Builders<Endpoint>.Filter.Eq(nameof(Endpoint.Method), method);
-            var filters = Builders<Endpoint>.Filter.And(pathFilter, methodFilter);
-            return (await MongoCollection.FindAsync(filters)).ToList();
+            var filters = Builders<Endpoint>.Filter.And(pathFilter, methodFilter, activeFilter);
+            return (await MongoCollection.FindAsync(filters, options)).ToList();
         }
 
         public async Task<Endpoint> FindById(Guid id)
@@ -120,27 +127,6 @@ namespace IntegrationTestingTool.Services
         {
             BsonBinaryData binaryId = new BsonBinaryData(authId, GuidRepresentation.Standard);
             return (await MongoCollection.FindAsync(new BsonDocument(nameof(Endpoint.AuthId), binaryId))).ToList();
-        }
-
-        public async Task<string> ValidateUrl(string path)
-        {
-            var fullPath = $"{ConfigService.GetServerConfig().MockURL}/{path}";
-            var isValid = Uri.TryCreate(fullPath, UriKind.Absolute, out _);
-           
-            if (string.IsNullOrEmpty(path.Trim()))
-            {
-                return "URL cant be empty";
-            } 
-            else if ((await FindByParameter(nameof(Endpoint.Path), path.Trim())).Any())
-            {
-                return "Same URL already exists";
-            }
-            //extract into constant
-            else if (!isValid)
-            {
-                return "Incorrect format of URL";
-            }
-            return string.Empty;
         }
 
         public IEnumerable<int> GetStatusCodes() =>

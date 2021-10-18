@@ -19,8 +19,6 @@ namespace IntegrationTestingTool.Services.Interfaces
 
         Task<IEnumerable<Endpoint>> FindByPathAndMethod(string path, string method);
 
-        Task<string> ValidateUrl(string path);
-
         IEnumerable<int> GetStatusCodes();
 
         IEnumerable<string> GetRESTMethods();

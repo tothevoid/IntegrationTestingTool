@@ -49,7 +49,8 @@ export class Endpoint extends Component {
             callbackUrl: "",
             auths:[],
             auth: "",
-            headers: []
+            headers: [],
+            active: true
         };
     }
 
@@ -68,7 +69,8 @@ export class Endpoint extends Component {
                 callbackData: endpoint.callbackData,
                 callbackUrl: endpoint.callbackUrl,
                 auth: endpoint.authId,
-                headers: endpoint.headers
+                headers: endpoint.headers,
+                active: endpoint.active
             }
         }
         return null;
@@ -77,7 +79,7 @@ export class Endpoint extends Component {
     render = () => {
         const {theme} = this.props;
         const {statusCode, outputData, statusCodes, method, methods, 
-            interactionType, useHeaders, headers, id} = this.state;
+            interactionType, useHeaders, headers, id, active} = this.state;
         return <div className={`new-endpoint ${theme}`}>
             <h1>{(id) ? "Update endpoint": "New endpoint"}</h1>
             <p className={`url ${theme}`}>
@@ -90,6 +92,8 @@ export class Endpoint extends Component {
                 {this.formatRowField(statusCode, statusCodes, "Status code", "statusCode")}
                 {this.formatRowField(interactionType, this.getInteractions(), "Interaction", "interactionType")}
             </div>
+            <Checkbox caption="Active" theme={theme} value={active} 
+                onSelect={(active) => {this.setState({active})}}/>
             {
                 <Fragment>
                     <Checkbox caption={`Expect headers (${headers.length})`} theme={theme} value={useHeaders} 
@@ -173,7 +177,7 @@ export class Endpoint extends Component {
             return;
         }
         const {path, outputData, statusCode, method, interactionType, id,
-            callbackData, callbackMethod, callbackUrl, auth, auths, headers} = this.state;
+            callbackData, callbackMethod, callbackUrl, auth, auths, headers, active} = this.state;
 
         const data = {
             path: path,
@@ -187,7 +191,8 @@ export class Endpoint extends Component {
             authId: auths.find(element => element.name === auth)?.id,
             callbackType: this.getInteractions().indexOf(interactionType),
             headers,
-            id
+            id,
+            active
         }
         const operation = (id) ? "Update" : "Add";
 

@@ -3,12 +3,12 @@
 .endpoint{
     @include list-item-base;
     margin: 10px 0;
+    min-height: 125px;
     &.path{
         font-size: 20px;
         font-weight: 700;
     }
 }
-
 
 .expected-headers{
     margin-bottom: 0px;

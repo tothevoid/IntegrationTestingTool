@@ -4,6 +4,7 @@ import { Button } from "../../controls/Button/Button"
 import { Search } from "../../controls/Search/Search"
 import { formatFileSize } from "../../../utils/coreExtensions"
 import { Modal } from "../../controls/Modal/Modal";
+import { Checkbox } from "../../controls/Checkbox/Checkbox" 
 
 export class Endpoints extends Component {
     
@@ -20,10 +21,12 @@ export class Endpoints extends Component {
     {
         const {theme} = this.props;
         const {path, outputDataSize, outputStatusCode, method, callbackType, 
-            callbackURL, callbackMethod, callbackData, expanded, headers} = endpoint;
+            callbackURL, callbackMethod, callbackData, expanded, headers, active} = endpoint;
+        const prefix = active ? "[Active]" : "[Inactive]";
+
         return <div key={endpoint.id} className={`endpoint ${theme}`}>
             <div>
-                <div className="path">{this.props?.config?.mockURL}/{path}</div>
+                <div className="path"><span>{prefix} </span>{this.props?.config?.mockURL}/{path}</div>
                 <div>Method: <b>{method}</b></div>
                 <div className="returns">
                     {`Returns status code: ${outputStatusCode}. Data size: ${formatFileSize(outputDataSize)}`}

@@ -25,11 +25,18 @@ namespace IntegrationTestingTool.Controllers
             var result = await AuthService.GetAll();
             return result;
         }
-            
+
+        [HttpGet]
+        public async Task<Auth> Get(Guid id) =>
+            await AuthService.GetById(id);
 
         [HttpPost]
         public async Task<Auth> Add(Auth auth) =>
             await AuthService.Create(auth);
+
+        [HttpPost]
+        public async Task<Auth> Update(Auth auth) =>
+            await AuthService.Update(auth);
 
         [HttpGet]
         public async Task<string> Delete(Guid id) =>

@@ -11,6 +11,8 @@ namespace IntegrationTestingTool.Services.Interfaces
 
         Task<Auth> GetById(Guid id);
 
+        Task<Auth> Update(Auth auth);
+
         Task<Auth> Create(Auth endpoint);
 
         Task<string> Delete(Guid id);

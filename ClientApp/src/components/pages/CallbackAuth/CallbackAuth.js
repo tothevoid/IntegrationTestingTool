@@ -22,6 +22,7 @@ export class CallbackAuth extends Component {
 
     getDefaultState = () => {
         return {
+            id: "",
             name: "",
             data: "",
             url: "",
@@ -41,9 +42,9 @@ export class CallbackAuth extends Component {
 
     render = () => {
         const {theme} = this.props;
-        const {addNewAuth, auths, showModal} = this.state;
+        const {addNewAuth, auths, showModal, id} = this.state;
         return <Fragment>
-            <Checkbox theme={theme} value={addNewAuth} caption="New auth" onSelect={this.onNewAuthToggle}/>
+            <Checkbox theme={theme} value={addNewAuth} caption={id ? "Update auth": "New auth"} onSelect={this.onNewAuthToggle}/>
             {
                 (addNewAuth) ? 
                     this.renderNewAuth() :
@@ -54,7 +55,10 @@ export class CallbackAuth extends Component {
                 auths.map(auth => <div key={auth.id} className={`auth ${theme}`}>
                     <div>{auth.name}</div>
                     <div>{auth.url}</div>
-                    <Button additionalClasses="auth-delete" mode="danger" onClick={() => this.onDecidedToDelete(auth.id)} caption="Delete"/>
+                    <div className="auth-delete">
+                        <Button onClick={async () => this.fetchEndpoint(auth.id)} caption="Edit"/>
+                        <Button onClick={() => this.onDecidedToDelete(auth.id)} additionalClasses="auth-delete-btn" mode="danger" caption="Delete"/>
+                    </div>
                 </div>)
             }
             </div>
@@ -65,11 +69,33 @@ export class CallbackAuth extends Component {
         </Fragment>
     }
 
+    fetchEndpoint = async (id) => {
+        const fetchResult = await fetch(`${this.props.config.apiURL}/Auth/Get?id=${id}`);
+        if (fetchResult.ok){
+            const auth = await fetchResult.json();
+            debugger;
+            const state = {
+                id: auth.id,
+                name: auth.name,
+                data: auth.data,
+                url: auth.url,
+                method: auth.method,
+                headers: auth.headers,
+                usedHeaders: auth.usedResponseHeaders || [],
+                usedBodyPaths: auth.usedBodyPaths || [],
+                usedHeader: "",
+                usedBodyPath: "",
+                addNewAuth: true,
+            };
+            this.setState({...state});
+        }
+    }
+
     renderNewAuth = () => {
         const {theme} = this.props;
-        const {name, data, url, method, methods, usedHeader, usedBodyPath} = this.state;
+        const {name, data, url, method, methods, usedHeader, id} = this.state;
         return <div className={`new-auth ${theme}`}>
-            <h1>New auth</h1>
+            <h1>{(id) ? "Update auth" : "New auth" }</h1>
             <Field label="Name" name="name" theme={theme} value={name} onInput={this.onFieldInput}/>
             <Field label="URL" name="url" theme={theme} value={url} onInput={this.onFieldInput}/>
             {
@@ -103,8 +129,16 @@ export class CallbackAuth extends Component {
                 <Field inline label="Add body path" name="usedBodyPath" theme={theme} value={usedBodyPath} onInput={this.onFieldInput}/>
                 <Button theme={theme} onClick={() => this.addIntoCollection("usedBodyPaths")} caption={"Add"}/>
             </div> */}
-            <Button theme={theme} onClick={this.addAuth} caption={"Create"}/>
+            <div>
+                <Button theme={theme} onClick={this.addAuth} caption={(id) ? "Update": "Create"}/>
+                <Button additionalClasses="cancel-btn" theme={theme} onClick={this.onCancelClick} caption="Cancel"/>
+            </div>
+           
         </div>
+    }
+
+    onCancelClick = () => {
+        this.setState({...this.getDefaultState()});
     }
 
     onNewAuthToggle = (addNewAuth) => {
@@ -175,8 +209,9 @@ export class CallbackAuth extends Component {
 
     addAuth = () => {
         //TODO: simplify
-        const {name, data, url, method, headers, usedHeaders, usedBodyPaths} = this.state;
+        const {name, data, url, method, headers, usedHeaders, usedBodyPaths, id} = this.state;
         const authData = {
+            id,
             name,
             data,
             url,
@@ -186,7 +221,9 @@ export class CallbackAuth extends Component {
             usedBodyPaths: usedBodyPaths
         }
 
-        fetch(`${this.props.config.apiURL}/Auth/Add`, {
+        const requestMethod = (id) ? "Update" : "Add";
+
+        fetch(`${this.props.config.apiURL}/Auth/${requestMethod}`, {
             method: 'POST',
             body: JSON.stringify(authData),
             headers: {
@@ -196,7 +233,14 @@ export class CallbackAuth extends Component {
         .then(response => response.json())
         .then((auth) => {
             if (auth){
-                this.setState({auths: [auth, ...this.state.auths], ...this.getDefaultState()});
+                //TODO: remove duplication
+                if (id){
+                    const newAuths = this.state.auths.map(storedAuth => 
+                        (storedAuth.id === id) ? auth: storedAuth);
+                    this.setState({auths: newAuths, ...this.getDefaultState()})
+                } else {
+                    this.setState({auths: [auth, ...this.state.auths], ...this.getDefaultState()});
+                }
             }});
     }
 

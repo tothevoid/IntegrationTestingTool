@@ -46,7 +46,15 @@ namespace IntegrationTestingTool.Services
             BsonBinaryData binaryId = new BsonBinaryData(id, GuidRepresentation.Standard);
             return (await MongoCollection.FindAsync(new BsonDocument("_id", binaryId))).FirstOrDefault();
         }
-           
+
+        public async Task<Auth> Update(Auth auth)
+        {
+            var result = await MongoCollection.ReplaceOneAsync(new BsonDocument("_id", auth.Id), auth);
+
+            return result.ModifiedCount != 0 ?
+                auth :
+                null;
+        }
 
         public async Task<IEnumerable<Auth>> GetAll() =>
             (await MongoCollection.FindAsync(new BsonDocument())).ToList();

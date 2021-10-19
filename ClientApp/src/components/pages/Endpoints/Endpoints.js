@@ -68,7 +68,6 @@ export class Endpoints extends Component {
                     <Button onClick={() => this.updateEndpoint(endpoint.id)} caption={"Edit"}></Button>
                     <Button onClick={() => this.deleteEndpoint(endpoint.id)} additionalClasses="endpoint-delete" mode="danger" caption={"Delete"}></Button>
                 </div>
-               
             }
         </div>
     }
@@ -112,7 +111,7 @@ export class Endpoints extends Component {
         const {showModal, isOnlyActive, searchText} = this.state;
         return <Fragment>
             <Search theme={theme} onTextChanged={this.getEndpoints}/>
-            <Checkbox caption="Only active" value={isOnlyActive} 
+            <Checkbox caption="Only active" additionalClass={"checkbox-inline"} value={isOnlyActive} 
                 onSelect={(value) => {this.setState({isOnlyActive: value}); this.fetchEndpoints(searchText, value)}} theme={theme}/>
             <div className="endpoints-list">
                 {this.state.endpoints.map((endpoint) => this.renderEndpoint(endpoint))}

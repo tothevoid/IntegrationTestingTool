@@ -18,15 +18,12 @@ namespace IntegrationTestingTool.Services
     public class EndpointService: IEndpointService
     {
         private IMongoCollection<Endpoint> MongoCollection { get; }
-        private IConfigService ConfigService { get; }
-
         private IFileService FileService { get; }
 
-        public EndpointService(IDatabaseSettings settings, IConfigService configService, IFileService fileService)
+        public EndpointService(IDatabaseSettings settings, IFileService fileService)
         {
             var client = new MongoClient(settings.ConnectionString);
             MongoCollection = client.GetDatabase(settings.DatabaseName).GetCollection<Endpoint>("Endpoints");
-            ConfigService = configService;
             FileService = fileService;
         }
 
@@ -75,9 +72,8 @@ namespace IntegrationTestingTool.Services
                     endpoint.CallbackDataFile = callbackFileId;
                     endpoint.CallbackData = null;
                 }
-                endpoint.OutputDataSize = callbackSize;
+                endpoint.CallbackDataSize = callbackSize;
             }
-
 
             await MongoCollection.InsertOneAsync(endpoint);
             return endpoint;
@@ -131,7 +127,31 @@ namespace IntegrationTestingTool.Services
         }
         public async Task<Endpoint> Update(Endpoint endpoint)
         {
+            //TODO: Remove code duplication
+            if (!string.IsNullOrEmpty(endpoint.OutputData))
+            {
+                (ObjectId outputFileId, int outputSize) = await HandleLargeOutputData(endpoint.Id, endpoint.OutputData);
+                if (outputFileId != default)
+                {
+                    endpoint.OutputDataFile = outputFileId;
+                    endpoint.OutputData = null;
+                }
+                endpoint.OutputDataSize = outputSize;
+            }
+           
+            if (!string.IsNullOrEmpty(endpoint.CallbackData))
+            {
+                (ObjectId callbackFileId, int callbackSize) = await HandleLargeOutputData(endpoint.Id, endpoint.CallbackData);
+                if (callbackFileId != default)
+                {
+                    endpoint.CallbackDataFile = callbackFileId;
+                    endpoint.CallbackData = null;
+                }
+                endpoint.CallbackDataSize = callbackSize;
+            }
+
             var result = await MongoCollection.ReplaceOneAsync(new BsonDocument("_id", endpoint.Id), endpoint);
+
             return result.ModifiedCount != 0 ?
                 endpoint:
                 null;

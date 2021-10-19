@@ -5,7 +5,7 @@ import { ComboBox } from "../../controls/ComboBox/ComboBox"
 import { Notification } from "../../controls/Notification/Notification"
 import { Checkbox } from "../../controls/Checkbox/Checkbox"
 import { Field } from "../../controls/Field/Field";
-import { uuidv4 } from "../../../utils/coreExtensions"
+import { uuidv4, formatFileSize } from "../../../utils/coreExtensions"
 
 export class Endpoint extends Component {
     static displayName = Endpoint.name;
@@ -16,7 +16,11 @@ export class Endpoint extends Component {
         this.state = this.getInitialState();
         this.state.statusCodes = [];
         this.state.auths = [];
+        
         this.notification = React.createRef();
+        this.outputFileControl = React.createRef();
+        this.callbackFileControl = React.createRef();
+
     }
 
     async componentDidMount() {
@@ -29,8 +33,6 @@ export class Endpoint extends Component {
     fetchEndpoint = async () => {
         const id = this.props.location.state?.endpointId;
         if (id){
-            this.state.statusCodes = [];
-            this.state.auths = [];
             const state = {...await this.getStateFromEndpoint(id)};
             this.setState({...state, id});
         }
@@ -50,7 +52,9 @@ export class Endpoint extends Component {
             auths:[],
             auth: "",
             headers: [],
-            active: true
+            active: true,
+            outputFile: "",
+            callbackFile: ""
         };
     }
 
@@ -70,7 +74,9 @@ export class Endpoint extends Component {
                 callbackUrl: endpoint.callbackUrl,
                 auth: endpoint.authId,
                 headers: endpoint.headers,
-                active: endpoint.active
+                active: endpoint.active,
+                outputFile: (endpoint.outputDataSize) ? {size: endpoint.outputDataSize}: null,
+                callbackFile: (endpoint.callbackDataSize) ? {size: endpoint.callbackDataSize}: null
             }
         }
         return null;
@@ -78,7 +84,7 @@ export class Endpoint extends Component {
 
     render = () => {
         const {theme} = this.props;
-        const {statusCode, outputData, statusCodes, method, methods, 
+        const {statusCode, outputData, statusCodes, method, methods, outputFile,
             interactionType, useHeaders, headers, id, active} = this.state;
         return <div className={`new-endpoint ${theme}`}>
             <h1>{(id) ? "Update endpoint": "New endpoint"}</h1>
@@ -106,10 +112,23 @@ export class Endpoint extends Component {
                             </Fragment>:
                             null
                     }
-                   
                 </Fragment>
             }
-            <Field isTextarea theme={theme} name="outputData" value={outputData} label="Response data:" onInput={this.onValueUpdated}/>
+            {
+                (outputFile) ?
+                    <div onClick={()=>this.onDeleteFileClick()} className="file-container">
+                        <div className="file-control" onClick={() => this.setState({outputFile: null})}>Output data: {formatFileSize(outputFile.size)}</div>
+                        <div className="delete-btn">x</div>
+                    </div>:
+                    <Fragment>
+                        <Field isTextarea theme={theme} name="outputData" value={outputData} label="Response data:" onInput={this.onValueUpdated}/>
+                        <div className="file-data">
+                            <label ref={this.outputFileControl} htmlFor="outputFile">Or attach an output file</label>
+                            <input id="outputFile" type='file' name="outputFile"
+                                onChange={(e) => this.onValueUpdated(e.target.name, e.target.files.length !== 0 ? e.target?.files[0]: null)}/>
+                        </div>
+                    </Fragment>
+            }
             {
                 //TODO: simplify condition
                 (this.getInteractions().indexOf(interactionType) === 1) ?
@@ -121,20 +140,40 @@ export class Endpoint extends Component {
                    
             }
             <Notification ref={this.notification}/>
-            <Button theme={theme} onClick={this.addEndpoint} caption={(id) ? "Update" : "Create"}/>
+            <Button theme={theme} onClick={async () => await this.addEndpoint()} caption={(id) ? "Update" : "Create"}/>
         </div>
+    }
+
+    onDeleteFileClick = (propName) => {
+        const propValue = this.state[propName]
+        if (propValue && !propValue.lastModified){
+            this.setState({[propName]: null});
+        }
     }
 
     renderAsyncCallbackSettings = () => {
         const { theme } = this.props;
-        const { methods, callbackMethod, callbackData, callbackUrl, auth, auths } = this.state;
+        const { methods, callbackMethod, callbackData, callbackUrl, auth, auths, callbackFile } = this.state;
         return <Fragment>
             <div className="form-part-row">
                 {this.formatRowField(auth, auths, "Auth", "auth")}
                 {this.formatRowField(callbackMethod, methods, "Method", "callbackMethod")}
                 <Field theme={theme} name="callbackUrl" value={callbackUrl} label="URL" onInput={this.onValueUpdated} placeholder="https://test.com/api"/>
             </div>
-            <Field isTextarea theme={theme} name="callbackData" value={callbackData} label="Data:" onInput={this.onValueUpdated}/>
+            {
+                (callbackFile) ?
+                    <Fragment>
+                        <div onClick={() => this.setState({callbackFile: null})}>Callback data: {formatFileSize(callbackFile.size)}</div>
+                    </Fragment>:
+                    <Fragment>
+                        <Field isTextarea theme={theme} name="callbackData" value={callbackData} label="Data:" onInput={this.onValueUpdated}/>
+                        <div className="file-data" >
+                            <label htmlFor="callbackFile">Or attach an callback file</label>
+                            <input  ref={this.callbackFileControl} id="callbackFile" className="callbackFile" type='file' name="callbackFile" 
+                                onChange={(e)=>this.onValueUpdated(e.target.name, e.target.files.length !== 0 ? e.target?.files[0]: null)}/>
+                        </div>
+                    </Fragment>
+            }
         </Fragment>
     }
 
@@ -170,21 +209,20 @@ export class Endpoint extends Component {
         this.notification.current.addElement(text);
     }
 
-    addEndpoint = () => {
+    addEndpoint = async () => {
         const validationResult = this.validateEndpoint();
         if (validationResult){
             this.notify(validationResult);
             return;
         }
-        const {path, outputData, statusCode, method, interactionType, id,
+        const {path, outputData, statusCode, method, interactionType, id, outputFile, callbackFile,
             callbackData, callbackMethod, callbackUrl, auth, auths, headers, active} = this.state;
-
         const data = {
             path: path,
-            outputData: outputData,
+            outputData: (outputFile) ? await outputFile.text(): outputData,
             outputStatusCode: parseInt(statusCode),
             method: method,
-            callbackData: callbackData,
+            callbackData: (callbackFile) ? await callbackFile.text(): callbackData,
             callbackMethod: callbackMethod,
             callbackUrl: callbackUrl,
             //TODO: simplify

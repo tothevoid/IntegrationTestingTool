@@ -54,3 +54,37 @@
         background-color: $highlithing-dark;
     }
 }
+
+.file-data{
+    display: block;
+    margin: 0 0 10px 0;
+    label{
+        cursor: pointer;
+    }
+    input{
+        display: none;
+    }
+}
+
+.file-container{
+    position: relative;
+    width: 200px;
+}
+
+.file-control{
+    width: 100%;
+    text-overflow: clip;
+    height: 35px;
+    padding: 5px;
+    background: white;
+    margin: 5px 0;
+    border-radius: 10px;
+    color:black;
+}
+
+.delete-btn{
+    position: absolute;
+    color:black;
+    right: 5px;
+    top: 0;
+}

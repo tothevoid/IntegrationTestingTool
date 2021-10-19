@@ -24,6 +24,8 @@ namespace IntegrationTestingTool.Model.Entities
 
         public string CallbackData { get; set; }
 
+        public int CallbackDataSize { get; set; }
+
         public ObjectId CallbackDataFile { get; set; }
 
         public int OutputStatusCode { get; set; } = 200;

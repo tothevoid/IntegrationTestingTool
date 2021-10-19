@@ -21,8 +21,8 @@ namespace IntegrationTestingTool.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<Endpoint>> GetAll(string path) =>
-             await EndpointService.GetAllByPath(path);
+        public async Task<IEnumerable<Endpoint>> GetAll(string path, bool onlyActive) =>
+             await EndpointService.GetAllByFilters(path, onlyActive);
 
         [HttpPost]
         public async Task Add(Endpoint endpoint) =>

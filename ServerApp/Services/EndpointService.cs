@@ -37,14 +37,27 @@ namespace IntegrationTestingTool.Services
             return (await MongoCollection.FindAsync(new BsonDocument(), options)).ToList();
         }
 
-        public async Task<IEnumerable<Endpoint>> GetAllByPath(string path)
+        public async Task<IEnumerable<Endpoint>> GetAllByFilters(string path, bool onlyActive)
         {
-            if (string.IsNullOrEmpty(path)) 
+            if (string.IsNullOrEmpty(path) && !onlyActive)
             {
                 return await GetAll();
             }
-            var filter = new BsonDocument {{nameof(Endpoint.Path), new BsonDocument {{ "$regex", path }, { "$options", "i" }}}};
-            return MongoCollection.Find(filter).SortByDescending(bson => bson.CreatedOn).ToList();
+            var list = new List<FilterDefinition<Endpoint>>();
+            if (!string.IsNullOrEmpty(path))
+            {
+                list.Add(Builders<Endpoint>.Filter.Regex(nameof(Endpoint.Path), new BsonRegularExpression(path, "i")));
+            }
+
+            if (onlyActive)
+            {
+                list.Add(Builders<Endpoint>.Filter.Eq(nameof(Endpoint.Active), onlyActive));
+            }
+
+            var filters = list.Count > 1 ?
+                Builders<Endpoint>.Filter.And(list) :
+                list.First();
+            return MongoCollection.Find(filters).SortByDescending(bson => bson.CreatedOn).ToList();
         }
 
         public async Task<Endpoint> Create(Endpoint endpoint)

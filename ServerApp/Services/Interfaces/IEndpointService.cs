@@ -9,7 +9,7 @@ namespace IntegrationTestingTool.Services.Interfaces
     {
         Task<IEnumerable<Endpoint>> GetAll();
 
-        Task<IEnumerable<Endpoint>> GetAllByPath(string path);
+        Task<IEnumerable<Endpoint>> GetAllByFilters(string path, bool onlyActive);
 
         Task<Endpoint> Create(Endpoint endpoint);
 

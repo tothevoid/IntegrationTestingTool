@@ -12,9 +12,11 @@ export class Endpoints extends Component {
         super(props);
         this.state = {
             endpoints: [],
-            showModal: false
+            showModal: false,
+            isOnlyActive: false,
+            searchText: ""
         }
-        this.getEndpoints("");
+        this.fetchEndpoints("", false);
     }
 
     renderEndpoint = (endpoint) =>
@@ -48,7 +50,6 @@ export class Endpoints extends Component {
                         <div className="expand" onClick={() => this.onExpand(endpoint.id)}>{endpoint.expanded ? "[Hide]" : "[Expand]"}</div> :
                         null
                 }
-               
                 {
                     (expanded) ? 
                         <div>
@@ -108,9 +109,11 @@ export class Endpoints extends Component {
 
     render = () => {
         const {theme} = this.props;
-        const {showModal} = this.state;
+        const {showModal, isOnlyActive, searchText} = this.state;
         return <Fragment>
             <Search theme={theme} onTextChanged={this.getEndpoints}/>
+            <Checkbox caption="Only active" value={isOnlyActive} 
+                onSelect={(value) => {this.setState({isOnlyActive: value}); this.fetchEndpoints(searchText, value)}} theme={theme}/>
             <div className="endpoints-list">
                 {this.state.endpoints.map((endpoint) => this.renderEndpoint(endpoint))}
             </div>
@@ -128,8 +131,16 @@ export class Endpoints extends Component {
             .then((response) => {if (response.text()) this.deleteEndpoints(selectedEndpoint)})
     }
 
-    getEndpoints = (path) => 
-        fetch(`${this.props.config.apiURL}/Endpoint/GetAll?path=${path}`)
+    getEndpoints = (path) => {
+        const {isOnlyActive} = this.state;
+        this.setState({path});
+        this.fetchEndpoints(path, isOnlyActive);
+    }
+
+    fetchEndpoints = (path, isOnlyActive) => {
+        fetch(`${this.props.config.apiURL}/Endpoint/GetAll?path=${path}&onlyActive=${isOnlyActive}`)
             .then((response)=> response.json())
             .then((endpoints)=> {this.setState({endpoints: endpoints})});
+    }
+      
 }    

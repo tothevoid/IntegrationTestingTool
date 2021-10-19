@@ -8,4 +8,3 @@ export const Checkbox = (props) => {
         <span onClick={() => onSelect(!value, fieldName)}>{caption}</span>
     </div>
 }
-   

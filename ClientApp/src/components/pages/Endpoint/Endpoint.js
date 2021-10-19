@@ -219,10 +219,10 @@ export class Endpoint extends Component {
             callbackData, callbackMethod, callbackUrl, auth, auths, headers, active} = this.state;
         const data = {
             path: path,
-            outputData: (outputFile) ? await outputFile.text(): outputData,
+            outputData: (outputFile && outputFile.text) ? await outputFile.text(): outputData,
             outputStatusCode: parseInt(statusCode),
             method: method,
-            callbackData: (callbackFile) ? await callbackFile.text(): callbackData,
+            callbackData: (callbackFile && outputFile.text) ? await callbackFile.text(): callbackData,
             callbackMethod: callbackMethod,
             callbackUrl: callbackUrl,
             //TODO: simplify

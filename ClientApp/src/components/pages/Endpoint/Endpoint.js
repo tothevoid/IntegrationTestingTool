@@ -20,7 +20,6 @@ export class Endpoint extends Component {
         this.notification = React.createRef();
         this.outputFileControl = React.createRef();
         this.callbackFileControl = React.createRef();
-
     }
 
     async componentDidMount() {

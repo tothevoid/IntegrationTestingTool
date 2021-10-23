@@ -5,6 +5,7 @@ import { Button } from "../../controls/Button/Button"
 import { Checkbox } from "../../controls/Checkbox/Checkbox"
 import { uuidv4 } from "../../../utils/coreExtensions"
 import { Modal } from "../../controls/Modal/Modal"
+import { Notification } from '../../controls/Notification/Notification';
 import "./CallbackAuth.scss"
 
 export class CallbackAuth extends Component {
@@ -18,20 +19,20 @@ export class CallbackAuth extends Component {
             showModal: false,
             selectedAuth: ""
         }
+
+        this.notification = React.createRef();
     }
 
     getDefaultState = () => {
         return {
-            id: "",
+            id: undefined,
             name: "",
             data: "",
             url: "",
             method: "",
             headers: [],
             usedHeader: "",
-            usedHeaders: [],
-            usedBodyPath: "",
-            usedBodyPaths: []
+            usedHeaders: []
         }
     }
 
@@ -66,6 +67,7 @@ export class CallbackAuth extends Component {
                 <Modal theme={theme} onSuccess={this.onDelete} onReject={() => this.setState({showModal: false})} 
                     show={showModal} title="Are you sure?" text="Do you really want to delete that auth?"/>
             }
+            <Notification ref={this.notification}/>
         </Fragment>
     }
 
@@ -73,7 +75,6 @@ export class CallbackAuth extends Component {
         const fetchResult = await fetch(`${this.props.config.apiURL}/Auth/Get?id=${id}`);
         if (fetchResult.ok){
             const auth = await fetchResult.json();
-            debugger;
             const state = {
                 id: auth.id,
                 name: auth.name,
@@ -82,9 +83,7 @@ export class CallbackAuth extends Component {
                 method: auth.method,
                 headers: auth.headers,
                 usedHeaders: auth.usedResponseHeaders || [],
-                usedBodyPaths: auth.usedBodyPaths || [],
                 usedHeader: "",
-                usedBodyPath: "",
                 addNewAuth: true,
             };
             this.setState({...state});
@@ -120,21 +119,21 @@ export class CallbackAuth extends Component {
                 <Field inline label="Add header" name="usedHeader" theme={theme} value={usedHeader} onInput={this.onFieldInput}/>
                 <Button theme={theme} onClick={() => this.addIntoCollection("usedHeaders")} caption={"Add"}/>
             </div>
-            {/* <div className="used-body-paths">
-                {this.state.usedBodyPaths.map((path) =>
-                    <div className={theme} onClick={() => this.deleteFromCollection(path, "usedBodyPaths")} key={path}>{path}</div>
-                )}
-            </div>
-            <div className="new-collection-item">
-                <Field inline label="Add body path" name="usedBodyPath" theme={theme} value={usedBodyPath} onInput={this.onFieldInput}/>
-                <Button theme={theme} onClick={() => this.addIntoCollection("usedBodyPaths")} caption={"Add"}/>
-            </div> */}
             <div>
                 <Button theme={theme} onClick={this.addAuth} caption={(id) ? "Update": "Create"}/>
-                <Button additionalClasses="cancel-btn" theme={theme} onClick={this.onCancelClick} caption="Cancel"/>
+                {
+                    (id) ?
+                        <Button additionalClasses="cancel-btn" theme={theme} onClick={this.onCancelClick} caption="Cancel"/> :
+                        null
+                }
+               
             </div>
            
         </div>
+    }
+
+    notify = (text) => {
+        this.notification.current.addElement(text);
     }
 
     onCancelClick = () => {
@@ -155,15 +154,6 @@ export class CallbackAuth extends Component {
                     const newHeaders = [...usedHeaders, usedHeader];
                     this.setState({usedHeaders: newHeaders, usedHeader: ""});
                 }
-                
-                break;
-            case ("usedBodyPaths"):
-                const {usedBodyPath, usedBodyPaths} = this.state;
-                if (usedBodyPath && this.state.usedBodyPaths
-                        .findIndex((element) => usedBodyPath === element) === -1){
-                    const newBodyPaths = [...usedBodyPaths, usedBodyPath];
-                    this.setState({usedBodyPaths: newBodyPaths, usedBodyPath: ""});
-                }
                 break;
         }
     }
@@ -178,9 +168,10 @@ export class CallbackAuth extends Component {
             .then((response) => response.json())
             .then((response) => {
                 if (response){
-                    console.log(response);
+                    this.notify(`An error ocured while deleting auth`)
                 } else {
                     this.deleteAuth(selectedAuth);
+                    this.notify(`Auth succesfully deleted`)
                 }})
     }
 
@@ -198,18 +189,12 @@ export class CallbackAuth extends Component {
                     .filter((header) => header !== element);
                 this.setState({usedHeaders: newHeaders}); 
                 break;
-            case ("usedBodyPaths"):
-                const {usedBodyPaths} = this.state;
-                const newPath = usedBodyPaths
-                    .filter((path) => path !== element);
-                this.setState({usedBodyPats: newPath});
-                break;
         }
     }
 
     addAuth = () => {
         //TODO: simplify
-        const {name, data, url, method, headers, usedHeaders, usedBodyPaths, id} = this.state;
+        const {name, data, url, method, headers, usedHeaders, id} = this.state;
         const authData = {
             id,
             name,
@@ -217,8 +202,7 @@ export class CallbackAuth extends Component {
             url,
             method,
             headers,
-            usedResponseHeaders: usedHeaders,
-            usedBodyPaths: usedBodyPaths
+            usedResponseHeaders: usedHeaders
         }
 
         const requestMethod = (id) ? "Update" : "Add";

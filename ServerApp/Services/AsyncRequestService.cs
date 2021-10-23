@@ -31,14 +31,6 @@ namespace IntegrationTestingTool.Services
             if (auth != null)
             {
                 var authResult = await CallAuthRequest(auth);
-                //TODO: body currently unsupported
-                //var responseText = await authResult.Content.ReadAsStringAsync();
-                //dynamic callbackData = JsonConvert.DeserializeObject(endpoint.CallbackData);
-                //if (!string.IsNullOrEmpty(endpoint.CallbackData) || !string.IsNullOrEmpty(responseText))
-                //{
-                //    message.Content = new StringContent(auth.Data, Encoding.UTF8, "application/json");
-                //}
-
                 var possibleValues = new Dictionary<string, IEnumerable<string>>();
                 foreach (var header in authResult.Headers)
                 {

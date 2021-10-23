@@ -6,11 +6,8 @@ using System.Threading.Tasks;
 
 namespace IntegrationTestingTool.Model.Entities
 {
-    public class Auth
+    public class Auth: BaseEntity
     {
-        [BsonId]
-        public Guid Id { get; set; } = Guid.NewGuid();
-
         public string Name { get; set; }
 
         public string Data { get; set; }

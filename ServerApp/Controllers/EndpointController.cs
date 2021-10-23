@@ -11,7 +11,7 @@ namespace IntegrationTestingTool.Controllers
     [ApiController]
     [Route("[controller]/[action]")]
     [Produces("application/json")]
-    public class EndpointController
+    public class EndpointController: Controller
     {
         private IEndpointService EndpointService { get; }
 
@@ -25,7 +25,8 @@ namespace IntegrationTestingTool.Controllers
              await EndpointService.GetAllByFilters(path, onlyActive);
 
         [HttpPost]
-        public async Task Add(Endpoint endpoint) =>
+        [RequestFormLimits(MultipartBodyLengthLimit = 1073741824)]
+        public async Task Add([FromForm] Endpoint endpoint) =>
             await EndpointService.Create(endpoint);
 
         [HttpGet]
@@ -43,7 +44,8 @@ namespace IntegrationTestingTool.Controllers
         }
 
         [HttpPost]
-        public async Task Update(Endpoint endpoint) =>
+        [RequestFormLimits(MultipartBodyLengthLimit = 1073741824)]
+        public async Task Update([FromForm] Endpoint endpoint) =>
             await EndpointService.Update(endpoint);
 
         [HttpGet]

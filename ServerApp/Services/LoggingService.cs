@@ -15,7 +15,7 @@ namespace IntegrationTestingTool.Services
     public class LoggingService: ILoggingService
     {
         private IMongoCollection<RequestLog> MongoCollection { get; }
-        protected IHubContext<LogsHub> HubContext { get; }
+        private IHubContext<LogsHub> HubContext { get; }
 
         public LoggingService(IDatabaseSettings settings, IHubContext<LogsHub> hubContext)
         {

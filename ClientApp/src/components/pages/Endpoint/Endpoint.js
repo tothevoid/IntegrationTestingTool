@@ -6,6 +6,7 @@ import { Notification } from "../../controls/Notification/Notification"
 import { Checkbox } from "../../controls/Checkbox/Checkbox"
 import { Field } from "../../controls/Field/Field";
 import { uuidv4, formatFileSize } from "../../../utils/coreExtensions"
+import { ReactComponent as FileIcon } from "./images/file.svg";
 
 export class Endpoint extends Component {
     static displayName = Endpoint.name;
@@ -85,6 +86,7 @@ export class Endpoint extends Component {
         const {theme} = this.props;
         const {statusCode, outputData, statusCodes, method, methods, outputFile,
             interactionType, useHeaders, headers, id, active} = this.state;
+        debugger;
         return <div className={`new-endpoint ${theme}`}>
             <h1>{(id) ? "Update endpoint": "New endpoint"}</h1>
             <p className={`url ${theme}`}>
@@ -122,7 +124,7 @@ export class Endpoint extends Component {
                     <Fragment>
                         <Field isTextarea theme={theme} name="outputData" value={outputData} label="Response data:" onInput={this.onValueUpdated}/>
                         <div className="file-data">
-                            <label ref={this.outputFileControl} htmlFor="outputFile">Or attach an output file</label>
+                            <label ref={this.outputFileControl} htmlFor="outputFile">{this.getFileIcon()} Get output from file</label>
                             <input id="outputFile" type='file' name="outputFile"
                                 onChange={(e) => this.onValueUpdated(e.target.name, e.target.files.length !== 0 ? e.target?.files[0]: null)}/>
                         </div>
@@ -130,7 +132,7 @@ export class Endpoint extends Component {
             }
             {
                 //TODO: simplify condition
-                (this.getInteractions().indexOf(interactionType) === 1) ?
+                (interactionType === 1) ?
                     <Fragment>
                         <div className={`callback-title ${theme}`}>Callback</div>
                         {this.renderAsyncCallbackSettings()}
@@ -141,6 +143,13 @@ export class Endpoint extends Component {
             <Notification ref={this.notification}/>
             <Button theme={theme} onClick={async () => await this.addEndpoint()} caption={(id) ? "Update" : "Create"}/>
         </div>
+    }
+
+    getFileIcon = () => {  
+        const {theme} = this.props;
+        return (theme === "dark") ?
+            <FileIcon fill="white"/> :
+            <FileIcon/>
     }
 
     onDeleteFileClick = (propName) => {
@@ -167,7 +176,7 @@ export class Endpoint extends Component {
                     <Fragment>
                         <Field isTextarea theme={theme} name="callbackData" value={callbackData} label="Data:" onInput={this.onValueUpdated}/>
                         <div className="file-data" >
-                            <label htmlFor="callbackFile">Or attach an callback file</label>
+                            <label htmlFor="callbackFile">{this.getFileIcon()} Get output from file</label>
                             <input  ref={this.callbackFileControl} id="callbackFile" className="callbackFile" type='file' name="callbackFile" 
                                 onChange={(e)=>this.onValueUpdated(e.target.name, e.target.files.length !== 0 ? e.target?.files[0]: null)}/>
                         </div>
@@ -218,27 +227,40 @@ export class Endpoint extends Component {
             callbackData, callbackMethod, callbackUrl, auth, auths, headers, active} = this.state;
         const data = {
             path: path,
-            outputData: (outputFile && outputFile.text) ? await outputFile.text(): outputData,
             outputStatusCode: parseInt(statusCode),
             method: method,
-            callbackData: (callbackFile && outputFile.text) ? await callbackFile.text(): callbackData,
             callbackMethod: callbackMethod,
             callbackUrl: callbackUrl,
             //TODO: simplify
             authId: auths.find(element => element.name === auth)?.id,
-            callbackType: this.getInteractions().indexOf(interactionType),
+            callbackType: interactionType,
             headers,
             id,
             active
         }
+
+        let formData = new FormData()
+        Object.keys(data).forEach(key => {if (data[key] !== undefined) formData.append(key, data[key])});
+       
+        if (outputFile){
+            formData.append('outputDataFile', outputFile);
+        } else {
+            formData.append('outputData', outputData);
+        }
+
+        if (callbackFile){
+            formData.append('callbackDataFile', callbackFile);
+        } else {
+            formData.append('callbackData', callbackData);
+        }
+        
+        debugger;
+
         const operation = (id) ? "Update" : "Add";
 
         fetch(`${this.props.config.apiURL}/Endpoint/${operation}`, {
             method: 'POST',
-            body: JSON.stringify(data),
-            headers: {
-                'Content-Type': 'application/json'
-            }
+            body: formData
         }).then(response => response.status)
             .then(status => { if (status === 200) this.props.history.push("/endpoints")});
     }

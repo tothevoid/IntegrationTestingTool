@@ -10,7 +10,7 @@ namespace IntegrationTestingTool.Controllers
     [ApiController]
     [Route("[controller]/[action]")]
     [Produces("application/json")]
-    public class AuthController
+    public class AuthController: Controller
     {
         private IAuthService AuthService { get; }
 

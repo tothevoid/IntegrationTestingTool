@@ -57,12 +57,18 @@
 
 .file-data{
     display: block;
+    display: flex;
+    align-items: center;
     margin: 0 0 10px 0;
     label{
+        margin-bottom: 0;
         cursor: pointer;
+        display: flex;
+        align-items: center;
     }
     input{
         display: none;
+        cursor: pointer;
     }
 }
 

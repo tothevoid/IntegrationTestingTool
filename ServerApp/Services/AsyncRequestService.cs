@@ -70,7 +70,7 @@ namespace IntegrationTestingTool.Services
             }
             catch (Exception ex)
             {
-                await LoggingService.Create(new RequestLog { Endpoint = endpoint, IsError = true, Recieved = ex.Message});
+                await LoggingService.Create(new RequestLog { Endpoint = endpoint, IsError = true, Received = ex.Message});
             }
         }
 

@@ -27,6 +27,6 @@ namespace IntegrationTestingTool.Services.Interfaces
 
         Task<IEnumerable<Endpoint>> FindLinkedByAuth(Guid authId);
 
-        Task<Endpoint> FindById(Guid id);
+        Task<Endpoint> FindById(Guid id, bool loadFile = false);
     }
 }

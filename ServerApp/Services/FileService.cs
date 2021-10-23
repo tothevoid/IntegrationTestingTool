@@ -4,6 +4,7 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
 using System;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -23,7 +24,9 @@ namespace IntegrationTestingTool.Services
         public async Task<ObjectId> Create(Guid id, string data) =>
             await GridFS.UploadFromBytesAsync($"{id}.txt", 
                 Encoding.UTF8.GetBytes(data));
-        
+        public async Task<ObjectId> Create(Guid id, Stream stream) =>
+           await GridFS.UploadFromStreamAsync($"{id}.txt", stream);
+
         public async Task<string> Get(ObjectId fileId)
         {
             var file = await GridFS.DownloadAsBytesAsync(fileId);

@@ -49,7 +49,7 @@ export class Logs extends Component {
                     <Fragment/>
             }
             <div className="log-url">[{log.endpoint.method}] {this.props?.config?.mockURL}/{log.endpoint.path}</div>
-            <div>Got data: {log.recieved}</div>
+            <div>Got data: {log.received}</div>
             {
                 (!log.isError) ?
                     <Fragment>

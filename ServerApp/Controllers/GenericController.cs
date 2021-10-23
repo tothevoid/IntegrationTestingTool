@@ -32,22 +32,20 @@ namespace IntegrationTestingTool.Controllers
 
         public async Task<IActionResult> Get([FromRoute(Name = "data")] string data, [FromRoute(Name = "endpoint")] Guid endpointId)
         {
-            var endpoint = await EndpointService.FindById(endpointId);
-            var text = (endpoint.OutputDataFile != default) ?
-                await FileService.Get(endpoint.OutputDataFile) :
-                endpoint.OutputData;
-
+            var endpoint = await EndpointService.FindById(endpointId, true);
+            var outputData = endpoint.OutputData;
             //TODO: get rid of try/catch
             try
             {
-                var json = JsonConvert.DeserializeObject(text);
+                var json = JsonConvert.DeserializeObject(endpoint.OutputData);
                 HttpContext.Response.Headers["Content-Type"] = "application/json; charset=utf-8";
             }
             catch { }
             HttpContext.Response.StatusCode = endpoint.OutputStatusCode;
+            endpoint.OutputData = null;
             await LoggingService.Create(new RequestLog 
             {
-                Recieved = data,
+                Received = data,
                 Endpoint = endpoint
             });
 
@@ -56,7 +54,7 @@ namespace IntegrationTestingTool.Controllers
                 await Task.Run(async () => await AsyncRequestService.Call(endpoint));
             }
 
-            return Content(text);
+            return Content(outputData);
         }
 
         public async Task<IActionResult> Error([FromRoute(Name = "data")] string data, [FromRoute(Name = "endpoint")] string endpointRaw, 
@@ -66,7 +64,7 @@ namespace IntegrationTestingTool.Controllers
             var endpoint = JsonConvert.DeserializeObject<Endpoint>(endpointRaw, settings);
             await LoggingService.Create(new RequestLog
             {
-                Recieved = data,
+                Received = data,
                 Endpoint = endpoint,
                 IsError = true
             });

@@ -1,5 +1,4 @@
-﻿using IntegrationTestingTool.Model;
-using IntegrationTestingTool.Model.Entities;
+﻿using IntegrationTestingTool.Model.Entities;
 using IntegrationTestingTool.Services.Interfaces;
 using IntegrationTestingTool.Settings;
 using MongoDB.Bson;
@@ -32,13 +31,14 @@ namespace IntegrationTestingTool.Services
         public async Task<string> Delete(Guid id)
         {
             var linkedEndpoints = await EndpointService.FindLinkedByAuth(id);
-            if (!linkedEndpoints.Any())
-            {
-                var deletionFilter = Builders<Auth>.Filter.Eq(nameof(Auth.Id), id);
-                var result = MongoCollection.DeleteOne(deletionFilter);
-                return string.Empty;
-            }
-            return $"There are some endpoints which use that auth:\n{string.Join("\n", linkedEndpoints.Select(x => x.Path))}";
+            IEnumerable<Endpoint> endpoints = linkedEndpoints.ToList();
+            if (endpoints.Any())
+                return
+                    $"There are some endpoints which use that auth:\n{string.Join("\n", endpoints.Select(x => x.Path))}";
+            var deletionFilter = Builders<Auth>.Filter.Eq(nameof(Auth.Id), id);
+            var result = await MongoCollection.DeleteOneAsync(deletionFilter);
+            //TODO: remove that auth from all endpoints
+            return string.Empty;
         }
 
         public async Task<Auth> GetById(Guid id)
@@ -49,7 +49,8 @@ namespace IntegrationTestingTool.Services
 
         public async Task<Auth> Update(Auth auth)
         {
-            var result = await MongoCollection.ReplaceOneAsync(new BsonDocument("_id", auth.Id), auth);
+            BsonBinaryData binaryId = new BsonBinaryData(auth.Id, GuidRepresentation.Standard);
+            var result = await MongoCollection.ReplaceOneAsync(new BsonDocument("_id", binaryId), auth);
 
             return result.ModifiedCount != 0 ?
                 auth :

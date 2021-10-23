@@ -6,6 +6,7 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -63,48 +64,25 @@ namespace IntegrationTestingTool.Services
         public async Task<Endpoint> Create(Endpoint endpoint)
         {
             endpoint.Id = Guid.NewGuid();
-            endpoint.OutputData = Regex.Replace(endpoint.OutputData, @"\""", @"""");
-
-            if (!string.IsNullOrEmpty(endpoint.OutputData))
-            {
-                (ObjectId outputFileId, int outputSize) = await HandleLargeOutputData(endpoint.Id, endpoint.OutputData);
-                if (outputFileId != default)
-                {
-                    endpoint.OutputDataFile = outputFileId;
-                    endpoint.OutputData = null;
-                }
-                endpoint.OutputDataSize = outputSize;
-            }
-
-            //TODO: Remove code duplication
-            if (!string.IsNullOrEmpty(endpoint.CallbackData))
-            {
-                (ObjectId callbackFileId, int callbackSize) = await HandleLargeOutputData(endpoint.Id, endpoint.CallbackData);
-                if (callbackFileId != default)
-                {
-                    endpoint.CallbackDataFile = callbackFileId;
-                    endpoint.CallbackData = null;
-                }
-                endpoint.CallbackDataSize = callbackSize;
-            }
-
-            await MongoCollection.InsertOneAsync(endpoint);
-            return endpoint;
+            var updatedEndpoint = await PreprocessEndpointData(endpoint);
+            await MongoCollection.InsertOneAsync(updatedEndpoint);
+            return updatedEndpoint;
         }
 
         public async Task<bool> Delete(Guid id)
         {
             var endpoint = await FindById(id);
-            if (endpoint != null)
+            if (endpoint == null) return false;
+            var deletionFilter = Builders<Endpoint>.Filter.Eq(nameof(Endpoint.Id), id);
+            var result = await MongoCollection.DeleteOneAsync(deletionFilter);
+            var isDeleted = result.DeletedCount != 0;
+            if (isDeleted)
             {
-                var deletionFilter = Builders<Endpoint>.Filter.Eq(nameof(Endpoint.Id), id);
-                var result = await MongoCollection.DeleteOneAsync(deletionFilter);
-                var isDeleted = result.DeletedCount != 0;
-                if (isDeleted && endpoint.OutputDataFile != default)
+                if (endpoint.OutputDataFileId != default)
                 {
-                    await FileService.Delete(endpoint.OutputDataFile);
-                    return isDeleted;
+                    await FileService.Delete(endpoint.OutputDataFileId);
                 }
+                return true;
             }
             return false;
         }
@@ -124,10 +102,16 @@ namespace IntegrationTestingTool.Services
             return (await MongoCollection.FindAsync(filters, options)).ToList();
         }
 
-        public async Task<Endpoint> FindById(Guid id)
+        public async Task<Endpoint> FindById(Guid id, bool loadFile = false)
         {
             BsonBinaryData binaryId = new BsonBinaryData(id, GuidRepresentation.Standard);
-            return (await MongoCollection.FindAsync(new BsonDocument("_id", binaryId))).FirstOrDefault();
+            var endpoint = (await MongoCollection.FindAsync(new BsonDocument("_id", binaryId))).FirstOrDefault();
+
+            if (loadFile && endpoint.OutputDataFileId != default)
+            {
+                endpoint.OutputData = await FileService.Get(endpoint.OutputDataFileId);
+            }
+            return endpoint;
         }
 
         public async Task<IEnumerable<Endpoint>> FindByParameter(string parameterName, string value) =>
@@ -140,33 +124,13 @@ namespace IntegrationTestingTool.Services
         }
         public async Task<Endpoint> Update(Endpoint endpoint)
         {
-            //TODO: Remove code duplication
-            if (!string.IsNullOrEmpty(endpoint.OutputData))
-            {
-                (ObjectId outputFileId, int outputSize) = await HandleLargeOutputData(endpoint.Id, endpoint.OutputData);
-                if (outputFileId != default)
-                {
-                    endpoint.OutputDataFile = outputFileId;
-                    endpoint.OutputData = null;
-                }
-                endpoint.OutputDataSize = outputSize;
-            }
-           
-            if (!string.IsNullOrEmpty(endpoint.CallbackData))
-            {
-                (ObjectId callbackFileId, int callbackSize) = await HandleLargeOutputData(endpoint.Id, endpoint.CallbackData);
-                if (callbackFileId != default)
-                {
-                    endpoint.CallbackDataFile = callbackFileId;
-                    endpoint.CallbackData = null;
-                }
-                endpoint.CallbackDataSize = callbackSize;
-            }
+            var updatedEndpoint = await PreprocessEndpointData(endpoint);
 
-            var result = await MongoCollection.ReplaceOneAsync(new BsonDocument("_id", endpoint.Id), endpoint);
+            BsonBinaryData binaryId = new BsonBinaryData(updatedEndpoint.Id, GuidRepresentation.Standard);
+            var result = await MongoCollection.ReplaceOneAsync(new BsonDocument("_id", binaryId), updatedEndpoint);
 
             return result.ModifiedCount != 0 ?
-                endpoint:
+                updatedEndpoint :
                 null;
         }
 
@@ -176,7 +140,8 @@ namespace IntegrationTestingTool.Services
         public IEnumerable<string> GetRESTMethods()
         {
             var props = typeof(HttpMethod).GetProperties();
-            return props.Where(prop => prop.GetMethod.IsStatic).Select(x => x.Name.ToUpper());
+            return props.Where(prop => prop.GetMethod?.IsStatic ?? false)
+                .Select(x => x.Name.ToUpper());
         }
 
         private async Task<(ObjectId, int)> HandleLargeOutputData(Guid endpointId, string data)
@@ -188,15 +153,89 @@ namespace IntegrationTestingTool.Services
 
             var size = Encoding.UTF8.GetBytes(data).Length;
 
-            double minFileSize = 10 * Math.Pow(2, 20);
-
             //Store data into file it has size more than 10MB
-            if (size > minFileSize)
+            return IsFileShouldBeStoredInGridFS(size) ? 
+                (await FileService.Create(endpointId, data), size) : 
+                (default, size);
+        }
+
+        private async Task<Endpoint> PreprocessEndpointData(Endpoint endpoint)
+        {
+            if (!string.IsNullOrEmpty((endpoint.OutputData)))
             {
-                return (await FileService.Create(endpointId, data), size);
+                endpoint.OutputData = Regex.Replace(endpoint.OutputData, @"\""", @"""");
             }
 
-            return (default, size);
+            //TODO: Remove code duplication
+            if (endpoint.OutputDataFile != null)
+            {
+                var isShouldBeStored = IsFileShouldBeStoredInGridFS(endpoint.OutputDataFile.Length);
+                if (isShouldBeStored)
+                {
+                    using (var stream = endpoint.OutputDataFile.OpenReadStream())
+                    {
+                        ObjectId fileId = await FileService.Create(endpoint.Id, stream);
+                        endpoint.OutputDataFileId = fileId;
+                    }
+                    endpoint.OutputDataSize = endpoint.OutputDataFile.Length;
+                    endpoint.OutputDataFile = null;
+                }
+                else
+                {
+                    using (var reader = new StreamReader(endpoint.OutputDataFile.OpenReadStream()))
+                    {
+                        endpoint.OutputData = reader.ReadToEnd();
+                    }
+                }
+            }
+
+            if (endpoint.CallbackDataFile != null)
+            {
+                var isShouldBeStored = IsFileShouldBeStoredInGridFS(endpoint.CallbackDataFile.Length);
+                if (isShouldBeStored)
+                {
+                    using (var stream = endpoint.CallbackDataFile.OpenReadStream())
+                    {
+                        ObjectId fileId = await FileService.Create(endpoint.Id, stream);
+                        endpoint.CallbackDataFileId = fileId;
+                    }
+                    endpoint.CallbackDataSize = endpoint.CallbackDataFile.Length;
+                    endpoint.CallbackDataFile = null;
+                }
+                else
+                {
+                    using (var reader = new StreamReader(endpoint.CallbackDataFile.OpenReadStream()))
+                    {
+                        endpoint.CallbackData = reader.ReadToEnd();
+                    }
+                }
+            }
+
+            if (!string.IsNullOrEmpty(endpoint.OutputData))
+            {
+                (ObjectId outputFileId, int outputSize) = await HandleLargeOutputData(endpoint.Id, endpoint.OutputData);
+                if (outputFileId != default)
+                {
+                    endpoint.OutputDataFileId = outputFileId;
+                    endpoint.OutputData = null;
+                }
+                endpoint.OutputDataSize = outputSize;
+            }
+
+            if (!string.IsNullOrEmpty(endpoint.CallbackData))
+            {
+                (ObjectId callbackFileId, int callbackSize) = await HandleLargeOutputData(endpoint.Id, endpoint.CallbackData);
+                if (callbackFileId != default)
+                {
+                    endpoint.CallbackDataFileId = callbackFileId;
+                    endpoint.CallbackData = null;
+                }
+                endpoint.CallbackDataSize = callbackSize;
+            }
+            return endpoint;
         }
+
+        private bool IsFileShouldBeStoredInGridFS(long size) =>
+            size > 10 * Math.Pow(2, 20);
     }
 }

@@ -4,7 +4,7 @@
     {
         public bool IsError { get; set; } = false;
 
-        public string Recieved { get; set; }
+        public string Received { get; set; }
 
         public Endpoint Endpoint { get; set; }
     }

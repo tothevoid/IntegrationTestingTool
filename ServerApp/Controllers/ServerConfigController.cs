@@ -7,7 +7,7 @@ namespace IntegrationTestingTool.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class ServerConfigController
+    public class ServerConfigController: Controller
     {
         private IConfigService ConfigService { get; }
         public ServerConfigController(IConfigService configService)

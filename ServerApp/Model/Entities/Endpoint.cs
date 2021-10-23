@@ -3,6 +3,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Http;
 
 namespace IntegrationTestingTool.Model.Entities
 {
@@ -24,15 +25,15 @@ namespace IntegrationTestingTool.Model.Entities
 
         public string CallbackData { get; set; }
 
-        public int CallbackDataSize { get; set; }
+        public long CallbackDataSize { get; set; }
 
-        public ObjectId CallbackDataFile { get; set; }
+        public ObjectId CallbackDataFileId { get; set; }
 
         public int OutputStatusCode { get; set; } = 200;
 
-        public ObjectId OutputDataFile { get; set; }
+        public ObjectId OutputDataFileId { get; set; }
 
-        public int OutputDataSize { get; set; }
+        public long OutputDataSize { get; set; }
 
         public Guid? AuthId { get; set; }
 
@@ -40,5 +41,11 @@ namespace IntegrationTestingTool.Model.Entities
         public Auth Auth { get; set; }
 
         public IEnumerable<Header> Headers { get; set; }
+        
+        [BsonIgnore]
+        public IFormFile CallbackDataFile { get; set; }
+
+        [BsonIgnore]
+        public IFormFile OutputDataFile { get; set; }
     }
 }

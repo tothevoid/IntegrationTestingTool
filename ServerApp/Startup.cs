@@ -43,7 +43,7 @@ namespace IntegrationTestingTool
         {
             if (env.IsDevelopment())
             {
-                app.UseCors(builder => builder.WithOrigins("null", "https://localhost:44315")
+                app.UseCors(builder => builder.AllowAnyOrigin().WithOrigins("null", "https://localhost:44315")
                     .AllowAnyHeader().AllowAnyMethod().AllowCredentials());
                 app.UseDeveloperExceptionPage();
             }
@@ -59,7 +59,7 @@ namespace IntegrationTestingTool
                 app.UseExceptionHandler("/Error");
                 app.UseHsts();
             }
-
+            
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseSpaStaticFiles();

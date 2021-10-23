@@ -1,5 +1,4 @@
-﻿using IntegrationTestingTool.Model.Entities;
-using IntegrationTestingTool.Services.Inerfaces;
+﻿using IntegrationTestingTool.Services.Inerfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Routing;
@@ -44,7 +43,7 @@ namespace IntegrationTestingTool
             }
 
             var errorMessage = (endpoint == null) ?
-                "There is no endpoint with the same url and method" :
+                "There is no active endpoint with the same url, method and headers" :
                 string.Empty;
 
             if (string.IsNullOrEmpty(errorMessage))
@@ -64,9 +63,15 @@ namespace IntegrationTestingTool
                 output["action"] = "ERROR";
                 output["data"] = body;
                 output["errorMessage"] = errorMessage;
-                output["endpoint"] = JsonConvert.SerializeObject(customEndpoint, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore, DefaultValueHandling = DefaultValueHandling.Ignore});
+                output["endpoint"] = JsonConvert.SerializeObject(customEndpoint, 
+                    new JsonSerializerSettings 
+                    { 
+                        NullValueHandling = NullValueHandling.Ignore,
+                        DefaultValueHandling = DefaultValueHandling.
+                        Ignore
+                    });
             }
             return output;
-        }
+        }        
     }
 }

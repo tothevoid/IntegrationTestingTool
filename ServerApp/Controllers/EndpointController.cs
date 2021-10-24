@@ -26,8 +26,11 @@ namespace IntegrationTestingTool.Controllers
 
         [HttpPost]
         [RequestFormLimits(MultipartBodyLengthLimit = 1073741824)]
-        public async Task Add([FromForm] Endpoint endpoint) =>
-            await EndpointService.Create(endpoint);
+        public async Task<string> Add([FromForm] Endpoint endpoint)
+        {
+            var result = await EndpointService.Create(endpoint);
+            return (result != null) ? string.Empty : "An error occured during endpoint creating";
+        }
 
         [HttpGet]
         public async Task<IActionResult> Get(Guid id)

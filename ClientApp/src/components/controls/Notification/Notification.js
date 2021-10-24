@@ -21,7 +21,7 @@ export class Notification extends Component {
         const notification = <div className={`notifications ${theme}`}>
             {
                 this.state.notifications.map((notification) => 
-                    <div className="notification">{notification.text}</div>)
+                    <div key={notification.id} className="notification">{notification.text}</div>)
             }
         </div>
     

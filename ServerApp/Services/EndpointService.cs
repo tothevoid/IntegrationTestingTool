@@ -47,12 +47,13 @@ namespace IntegrationTestingTool.Services
             var list = new List<FilterDefinition<Endpoint>>();
             if (!string.IsNullOrEmpty(path))
             {
-                list.Add(Builders<Endpoint>.Filter.Regex(nameof(Endpoint.Path), new BsonRegularExpression(path, "i")));
+                list.Add(Builders<Endpoint>.Filter.Regex(nameof(Endpoint.Path), 
+                    new BsonRegularExpression(path, "i")));
             }
 
             if (onlyActive)
             {
-                list.Add(Builders<Endpoint>.Filter.Eq(nameof(Endpoint.Active), onlyActive));
+                list.Add(Builders<Endpoint>.Filter.Eq(nameof(Endpoint.Active), true));
             }
 
             var filters = list.Count > 1 ?
@@ -75,16 +76,21 @@ namespace IntegrationTestingTool.Services
             if (endpoint == null) return false;
             var deletionFilter = Builders<Endpoint>.Filter.Eq(nameof(Endpoint.Id), id);
             var result = await MongoCollection.DeleteOneAsync(deletionFilter);
-            var isDeleted = result.DeletedCount != 0;
-            if (isDeleted)
+            if (result.DeletedCount == 0) return false;
+            
+            List<Task> tasks = new List<Task>();
+            if (endpoint.OutputDataFileId != default)
             {
-                if (endpoint.OutputDataFileId != default)
-                {
-                    await FileService.Delete(endpoint.OutputDataFileId);
-                }
-                return true;
+                tasks.Add(FileService.Delete(endpoint.OutputDataFileId));
             }
-            return false;
+
+            if (endpoint.CallbackDataFileId != default)
+            {
+                tasks.Add(FileService.Delete(endpoint.CallbackDataFileId));
+            }
+
+            await Task.WhenAll(tasks);
+            return true;
         }
 
         public async Task<IEnumerable<Endpoint>> FindByPathAndMethod(string path, string method)

@@ -1,6 +1,7 @@
 import "./Endpoint.scss"
 import React, { Component, Fragment } from 'react';
 import { Button } from "../../controls/Button/Button"
+import { Spinner } from "../../controls/Spinner/Spinner"
 import { ComboBox } from "../../controls/ComboBox/ComboBox"
 import { Notification } from "../../controls/Notification/Notification"
 import { Checkbox } from "../../controls/Checkbox/Checkbox"
@@ -15,6 +16,7 @@ export class Endpoint extends Component {
         super(props);
 
         this.state = this.getInitialState();
+        this.state.isLoading = this.props.location.state?.endpointId;
         this.state.statusCodes = [];
         this.state.auths = [];
         
@@ -34,7 +36,7 @@ export class Endpoint extends Component {
         const id = this.props.location.state?.endpointId;
         if (id){
             const state = {...await this.getStateFromEndpoint(id)};
-            this.setState({...state, id});
+            this.setState({...state, id, isLoading: false});
         }
     }
 
@@ -83,10 +85,22 @@ export class Endpoint extends Component {
     }
 
     render = () => {
+        const { isLoading } = this.state;
+        
+        return (isLoading) ?
+            <Fragment>
+                <Spinner/>
+                <div className="spinner-content">
+                    {this.renderContent()}
+                </div>
+            </Fragment> :
+            this.renderContent();
+    }
+
+    renderContent = () => {
         const {theme} = this.props;
         const {statusCode, outputData, statusCodes, method, methods, outputFile,
             interactionType, useHeaders, headers, id, active} = this.state;
-        debugger;
         return <div className={`new-endpoint ${theme}`}>
             <h1>{(id) ? "Update endpoint": "New endpoint"}</h1>
             <p className={`url ${theme}`}>
@@ -132,7 +146,9 @@ export class Endpoint extends Component {
             }
             {
                 //TODO: simplify condition
-                (interactionType === 1) ?
+                ((typeof(interactionType) === "number") ? 
+                    interactionType === 1 : 
+                    this.getInteractions().indexOf(interactionType)) ?
                     <Fragment>
                         <div className={`callback-title ${theme}`}>Callback</div>
                         {this.renderAsyncCallbackSettings()}
@@ -233,7 +249,7 @@ export class Endpoint extends Component {
             callbackUrl: callbackUrl,
             //TODO: simplify
             authId: auths.find(element => element.name === auth)?.id,
-            callbackType: interactionType,
+            callbackType: (typeof(interactionType) === "number") ? interactionType: this.getInteractions().indexOf(interactionType),
             headers,
             id,
             active
@@ -253,16 +269,22 @@ export class Endpoint extends Component {
         } else {
             formData.append('callbackData', callbackData);
         }
-        
-        debugger;
 
         const operation = (id) ? "Update" : "Add";
-
+        this.setState({isLoading: true});
         fetch(`${this.props.config.apiURL}/Endpoint/${operation}`, {
             method: 'POST',
             body: formData
-        }).then(response => response.status)
-            .then(status => { if (status === 200) this.props.history.push("/endpoints")});
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (!result) {
+                this.props.history.push("/endpoints") 
+            } else {
+                this.setState({isLoading: false});
+                this.notify(result);
+            }
+        }).catch(error => {this.setState({isLoading: false}); this.notify(error.message);});
     }
 
     getStatusCodes = () => {

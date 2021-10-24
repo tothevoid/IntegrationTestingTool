@@ -1,0 +1,47 @@
+.loading-spinner{
+    width: 100%;
+    height: 90vh;
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    .circle{
+        background: transparent;
+        border-radius: 50%;
+        animation: move 2s infinite;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        .sub-circle{
+            background: transparent;
+            border-radius: 50%;
+            animation: move 2s infinite;
+        }
+    }
+}
+
+.main-circle{
+    width: 200px;
+    height: 200px;
+    border-top: 4px solid #B22630;
+}
+
+.sub-circle{
+    width: 150px;
+    height: 150px;
+    border-top: 4px solid #B22630;
+}
+
+@keyframes move {
+    0%{
+        transform: rotate(0deg)
+    }
+    50%{
+        transform: rotate(180deg)
+    }
+    100%{
+        transform: rotate(360deg)
+    }
+}

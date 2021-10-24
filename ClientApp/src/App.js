@@ -5,6 +5,7 @@ import { Route, Switch, HashRouter as Router } from 'react-router-dom';
 import { Endpoints } from './components/pages/Endpoints/Endpoints';
 import { Endpoint } from './components/pages/Endpoint/Endpoint';
 import { Logs } from './components/pages/Logs/Logs';
+import { CallbackAuth } from './components/pages/CallbackAuth/CallbackAuth';
 import { NotFound } from './components/pages/NotFound/NotFound';
 import { NavMenu } from "./components/controls/NavMenu/NavMenu"
 import { Container } from 'reactstrap';
@@ -27,7 +28,7 @@ export default class App extends Component {
         apiURL: apiURL,
         wsURL: wsURL,
       },
-      theme: theme.dark
+      theme: localStorage.getItem("theme") || theme.dark
     }
 
     document.body.classList.add(this.state.theme);
@@ -48,6 +49,7 @@ export default class App extends Component {
           <Route exact path='/' render={(props) => <Endpoints {...props} {...this.state}/>}/>
           <Route exact path='/endpoints' render={(props) => <Endpoints {...props} {...this.state}/>}/>
           <Route exact path='/endpoint' render={(props) => <Endpoint  {...props} {...this.state}/>}/>
+          <Route exact path='/auth' render={(props) => <CallbackAuth  {...props} {...this.state}/>}/>
           <Route exact path='/logs' render={(props) => <Logs {...props} {...this.state}/>}/>
           <Route component={NotFound} />
         </Switch>
@@ -61,6 +63,7 @@ export default class App extends Component {
       theme.dark;
     this.applyThemeOnBody(currentTheme, newTheme);
     this.setState({theme: newTheme});
+    localStorage.setItem("theme",  newTheme);
   }
 
   getConfig = () => 

@@ -1,0 +1,79 @@
+@import "./globals.scss";
+
+.new-auth.dark{
+    color: $text-dark;
+}
+
+.header-item{
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    div{
+        margin-right: 20px;
+    }
+}
+
+.new-header-form{
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    margin-bottom: 10px;
+    div{
+        margin-right: 20px;
+    }
+}
+
+.used-headers, .used-body-paths{
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    div{
+        margin-right: 20px;
+        margin-bottom: 5px;
+        padding: 5px;
+        border-radius: 5px;
+        border: 1px solid transparent;
+        min-width: 50px;
+        cursor: pointer;
+        text-align: center;  
+        &.dark{
+            background: $button-background-dark;
+            color: $button-foreground-dark;
+        }
+        &.light{
+            background: $button-background-light;
+            color: $button-foreground-light;
+        }
+    }
+}
+
+.new-collection-item{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    button{
+        margin-left: 10px;
+    }
+}
+
+.auth{
+    @include list-item-base;
+    margin: 10px 0;
+    height: 60px;
+}
+
+.auth-delete{
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    margin-left: 10px;
+}
+
+.auth-delete-btn{
+    margin-left: 10px;
+}
+
+.cancel-btn {
+    margin-left: 5px;
+}

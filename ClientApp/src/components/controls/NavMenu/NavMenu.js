@@ -21,6 +21,9 @@ export const NavMenu = (props) => {
               <NavLink tag={Link} className={theme} to="/endpoint">Add endpoint</NavLink>
             </NavItem>
             <NavItem>
+              <NavLink tag={Link} className={theme} to="/auth">Auth</NavLink>
+            </NavItem>
+            <NavItem>
               <NavLink tag={Link} className={theme} to="/logs">Logs</NavLink>
             </NavItem>
             <span onClick={() => onThemeSwitched()} className={`image-container ${theme}`}>

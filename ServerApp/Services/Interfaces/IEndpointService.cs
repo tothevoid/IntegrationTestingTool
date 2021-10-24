@@ -1,27 +1,32 @@
-﻿using IntegrationTestingTool.Model;
+﻿using IntegrationTestingTool.Model.Entities;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace IntegrationTestingTool.Services.Interfaces
 {
     public interface IEndpointService
     {
-        IEnumerable<Endpoint> GetAll();
+        Task<IEnumerable<Endpoint>> GetAll();
 
-        IEnumerable<Endpoint> GetAllByPath(string path);
+        Task<IEnumerable<Endpoint>> GetAllByFilters(string path, bool onlyActive);
 
-        Endpoint Create(Endpoint endpoint);
+        Task<Endpoint> Create(Endpoint endpoint);
 
-        bool Delete(Guid id);
+        Task<bool> Delete(Guid id);
 
-        IEnumerable<Endpoint> FindByParameter(string parameterName, string value);
+        Task<IEnumerable<Endpoint>> FindByParameter(string parameterName, string value);
 
-        IEnumerable<Endpoint> FindByPathAndMethod(string path, string method);
-
-        string ValidateUrl(string path);
+        Task<IEnumerable<Endpoint>> FindByPathAndMethod(string path, string method);
 
         IEnumerable<int> GetStatusCodes();
 
         IEnumerable<string> GetRESTMethods();
+
+        Task<Endpoint> Update(Endpoint endpoint);
+
+        Task<IEnumerable<Endpoint>> FindLinkedByAuth(Guid authId);
+
+        Task<Endpoint> FindById(Guid id, bool loadFile = false);
     }
 }

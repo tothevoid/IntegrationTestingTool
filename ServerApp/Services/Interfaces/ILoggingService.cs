@@ -1,13 +1,14 @@
-﻿using IntegrationTestingTool.Model;
+﻿using IntegrationTestingTool.Model.Entities;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace IntegrationTestingTool.Services.Interfaces
 {
     public interface ILoggingService
     {
-        IEnumerable<RequestLog> GetAll(DateTime date);
+        Task<IEnumerable<RequestLog>> GetAll(DateTime date);
 
-        RequestLog Create(RequestLog log);
+        Task<RequestLog> Create(RequestLog log);
     }
 }

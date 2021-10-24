@@ -3,15 +3,37 @@
 .endpoint{
     @include list-item-base;
     margin: 10px 0;
+    min-height: 125px;
     &.path{
         font-size: 20px;
         font-weight: 700;
     }
 }
 
-.endpoint-delete{
+.expected-headers{
+    margin-bottom: 0px;
+}
+
+.returns-values div{
+    margin-left: 20px;
+}
+
+.expand{
+    cursor: pointer;
+}
+
+.endpoint-manipulations{
     position: absolute;
     right: 10px;
     top: 10px;
     padding: 10px;
+    display: flex;
+    flex-direction: column;
+    button{
+        margin-bottom: 5px;
+    }
+}
+
+.checkbox-inline{
+    display: inline;
 }

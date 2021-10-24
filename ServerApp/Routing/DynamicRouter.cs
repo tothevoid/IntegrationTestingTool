@@ -1,5 +1,4 @@
 ﻿using IntegrationTestingTool.Services.Inerfaces;
-using IntegrationTestingTool.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Routing;
@@ -30,7 +29,9 @@ namespace IntegrationTestingTool
                 .Where(x => x != string.Empty)
                 .Skip(1);
             string path = string.Join("/", urlParts);
-            var endpoint = RouteHandlerService.GetEndpointByPathAndMethod(path, httpContext.Request.Method.ToUpper());
+            
+            var endpoint = await RouteHandlerService
+                .GetEndpointByPathAndMethod(path, httpContext.Request.Method.ToUpper(), httpContext.Request.Headers);
 
             string body = string.Empty;
             if (httpContext.Request.ContentType == "application/json")
@@ -42,24 +43,35 @@ namespace IntegrationTestingTool
             }
 
             var errorMessage = (endpoint == null) ?
-                "There is no endpoint with the same url and method" :
+                "There is no active endpoint with the same url, method and headers" :
                 string.Empty;
 
             if (string.IsNullOrEmpty(errorMessage))
             {
                 output["action"] = "GET";
                 output["data"] = body;
-                output["endpoint"] = JsonConvert.SerializeObject(endpoint);
+                output["endpoint"] = endpoint.Id;
             } 
             else
             {
-                var customEndpoint = new Model.Endpoint { Method = httpContext.Request.Method, Path = path, OutputStatusCode = 400};
+                var customEndpoint = new Model.Entities.Endpoint 
+                { 
+                    Method = httpContext.Request.Method, 
+                    Path = path, 
+                    OutputStatusCode = 400
+                };
                 output["action"] = "ERROR";
                 output["data"] = body;
                 output["errorMessage"] = errorMessage;
-                output["endpoint"] = JsonConvert.SerializeObject(customEndpoint);
+                output["endpoint"] = JsonConvert.SerializeObject(customEndpoint, 
+                    new JsonSerializerSettings 
+                    { 
+                        NullValueHandling = NullValueHandling.Ignore,
+                        DefaultValueHandling = DefaultValueHandling.
+                        Ignore
+                    });
             }
             return output;
-        }
+        }        
     }
 }

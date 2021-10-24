@@ -3,6 +3,7 @@ import React, { Component, Fragment } from 'react';
 import { HubConnectionBuilder } from '@microsoft/signalr';
 import { Button } from "../../controls/Button/Button"
 import { formatDate, getCurrentDate } from "../../../utils/dateExtensions"
+import { formatFileSize } from "../../../utils/coreExtensions"
 
 export class Logs extends Component {
     constructor(props) {
@@ -48,13 +49,13 @@ export class Logs extends Component {
                     <Fragment/>
             }
             <div className="log-url">[{log.endpoint.method}] {this.props?.config?.mockURL}/{log.endpoint.path}</div>
-            <div>Got data: {log.recieved}</div>
+            <div>Got data: {log.received}</div>
             {
                 (!log.isError) ?
                     <Fragment>
                         <b>Returned:</b>
                         <div>Code: {log.endpoint.outputStatusCode}</div>
-                        <div>Data: {log.returned}</div>
+                        <div>Data size: {formatFileSize(log.endpoint.outputDataSize)}</div>
                         {
                             log.isNew ? 
                                 <span className="new-label">New</span> :

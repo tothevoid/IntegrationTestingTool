@@ -1,15 +1,15 @@
-﻿using IntegrationTestingTool.Model;
+﻿using IntegrationTestingTool.Model.Entities;
 using IntegrationTestingTool.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Threading.Tasks;
 
 namespace IntegrationTestingTool.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class RequestLogController
+    public class RequestLogController: Controller
     {
         private ILoggingService LoggingService { get; }
         public RequestLogController(ILoggingService loggingService)
@@ -18,7 +18,7 @@ namespace IntegrationTestingTool.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<RequestLog> Get(DateTime date) =>
-            LoggingService.GetAll(date).OrderByDescending(x => x.CreatedOn);
+        public async Task<IEnumerable<RequestLog>> Get(DateTime date) =>
+            await LoggingService.GetAll(date);
     }
 }

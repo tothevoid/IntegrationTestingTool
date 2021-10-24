@@ -33,15 +33,68 @@
     }
 }
 
-.output{
-    @include control-base;
-    border-radius: 5px;
-    padding: 5px;
-    width: 100%;
-    min-height: 150px;
-    vertical-align: top;
-    margin-bottom: 10px;
-    &:focus{
-        outline: none;
+.form-part-row{
+    display: flex;
+    flex-direction: row;
+}
+
+.form-part-row>div{
+    margin-right: 10px;
+}
+
+.callback-title{
+    margin: 10px 0;
+    font-size: 20px;
+    display: inline-block;
+    padding: 2px;
+    &.light{
+        background-color: $highlithing-light;
     }
+    &.dark{
+        background-color: $highlithing-dark;
+    }
+}
+
+.file-data{
+    display: block;
+    display: flex;
+    align-items: center;
+    margin: 0 0 10px 0;
+    label{
+        margin-bottom: 0;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+    }
+    input{
+        display: none;
+        cursor: pointer;
+    }
+}
+
+.file-container{
+    position: relative;
+    width: 200px;
+}
+
+.file-control{
+    width: 100%;
+    text-overflow: clip;
+    height: 35px;
+    padding: 5px;
+    background: white;
+    margin: 5px 0;
+    border-radius: 10px;
+    color:black;
+}
+
+.delete-btn{
+    position: absolute;
+    color:black;
+    right: 5px;
+    top: 0;
+}
+
+.spinner-content{
+    opacity: 0.5;
 }

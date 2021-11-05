@@ -7,6 +7,7 @@ import { uuidv4 } from "../../../utils/coreExtensions"
 import { Modal } from "../../controls/Modal/Modal"
 import { Notification } from '../../controls/Notification/Notification';
 import "./CallbackAuth.scss"
+import {HeadersModal} from "../../controls/HeadersModal/HeadersModal";
 
 export class CallbackAuth extends Component {
     constructor(props) {
@@ -17,7 +18,8 @@ export class CallbackAuth extends Component {
             auths: [],
             addNewAuth: false,
             showModal: false,
-            selectedAuth: ""
+            selectedAuth: "",
+            showHeadersModal: false
         }
 
         this.notification = React.createRef();
@@ -92,23 +94,24 @@ export class CallbackAuth extends Component {
 
     renderNewAuth = () => {
         const {theme} = this.props;
-        const {name, data, url, method, methods, usedHeader, id} = this.state;
+        const {name, data, url, method, methods, usedHeader, id, headers, showHeadersModal} = this.state;
         return <div className={`new-auth ${theme}`}>
             <h1>{(id) ? "Update auth" : "New auth" }</h1>
-            <Field label="Name" name="name" theme={theme} value={name} onInput={this.onFieldInput}/>
-            <Field label="URL" name="url" theme={theme} value={url} onInput={this.onFieldInput}/>
-            {
-                (methods && methods.length !== 0) ?
-                <div>
-                    <div>Method</div>
-                        <ComboBox theme={theme} selectedValue={method} values={methods} onSelect={(value) => this.setState({[method]: value})}></ComboBox>
-                    </div>:
-                <Fragment/>
-            }
+            <Field className="auth-name" label="Name" name="name" theme={theme} value={name} onInput={this.onFieldInput}/>
+            <div className="fields-row">
+                {
+                    (methods && methods.length !== 0) ?
+                        <div className="method">
+                            <div>Method</div>
+                            <ComboBox theme={theme} selectedValue={method} values={methods} onSelect={(value) => this.setState({[method]: value})}/>
+                        </div>:
+                        null
+                }
+                <Field className="url" label="URL" name="url" theme={theme} value={url} onInput={this.onFieldInput}/>
+            </div>
             <Field label="Data" name="data" theme={theme} value={data} onInput={this.onFieldInput} isTextarea/>
-            <div>Headers:</div>
-            {this.renderHeaders()}
-            {this.renderNewHeaderForm()}
+            <div>Request headers:</div>
+            <button onClick={()=>this.setState({showHeadersModal: true})}>Test</button>
             <div>Include into next Request:</div>
             <div className="used-headers">
                 {this.state.usedHeaders.map((header) =>
@@ -126,10 +129,13 @@ export class CallbackAuth extends Component {
                         <Button additionalClasses="cancel-btn" theme={theme} onClick={this.onCancelClick} caption="Cancel"/> :
                         null
                 }
-               
             </div>
-           
+            <HeadersModal onModalClosed={()=>this.setState({showHeadersModal: false})} theme={theme} show={showHeadersModal} headers={headers} onHeaderCollectionChanged={this.onHeaderCollectionChanged}/>
         </div>
+    }
+
+    onHeaderCollectionChanged = (newHeaders) => {
+        this.setState({headers: newHeaders})
     }
 
     notify = (text) => {
@@ -168,7 +174,7 @@ export class CallbackAuth extends Component {
             .then((response) => response.json())
             .then((response) => {
                 if (response){
-                    this.notify(`An error ocured while deleting auth`)
+                    this.notify(`An error occurred while deleting auth`)
                 } else {
                     this.deleteAuth(selectedAuth);
                     this.notify(`Auth succesfully deleted`)
@@ -226,62 +232,6 @@ export class CallbackAuth extends Component {
                     this.setState({auths: [auth, ...this.state.auths], ...this.getDefaultState()});
                 }
             }});
-    }
-
-    renderHeaders = () => {
-        const {theme} = this.props;
-        const {headers} = this.state;
-        return (headers && headers.length !== 0) ?
-            headers.map(header => 
-                <div className="header-item" key={header.id}>
-                    <Field theme={theme} value={header.key} 
-                        onInput={(name, value) => this.onHeaderUpdated(header.id, "key", value)}/>
-                    <Field theme={theme} value={header.value} 
-                        onInput={(name, value) => this.onHeaderUpdated(header.id, "value", value)}/>
-                    <Button theme={theme} mode="danger" onClick={()=>this.deleteHeader(header.key)} caption="X"/>
-                </div>) :
-            <Fragment/>
-    }
-
-    onHeaderUpdated = (id, propName, propValue) => {
-        const headers = this.state.headers.map((header) => {
-            if (header.id === id){
-                header[propName] = propValue;
-            }
-            return header;
-        })
-        this.setState({headers});
-    }
-
-    renderNewHeaderForm = () => {
-        const {theme} = this.props;
-        const {headerName, headerValue} = this.state;
-        return <div className="new-header-form">
-            <Field label="Name" name="headerName" theme={theme} value={headerName} onInput={this.onFieldInput}/>
-            <Field label="Value" name="headerValue" theme={theme} value={headerValue} onInput={this.onFieldInput}/>
-            <Button theme={theme} onClick={this.addHeader} caption="Add"/>
-        </div>
-    }
-
-    addHeader = () => {
-        const {headers, headerName, headerValue} = this.state;
-
-        if (!headerName){
-            return;
-        }
-
-        const alreadyExists = headers.find((header) => headerName === header.key);
-        if (!alreadyExists){
-            this.setState({headers: [...headers, {id: uuidv4(),key: headerName, value: headerValue}],
-                headerName: "", headerValue: ""});
-        }
-        //TODO: notify user
-    }
-
-    deleteHeader = (key) => {
-        const filteredHeaders = this.state.headers.filter((header) =>
-            header.key !== key);
-        this.setState({headers: filteredHeaders});
     }
 
     onFieldInput = (name, value) => {

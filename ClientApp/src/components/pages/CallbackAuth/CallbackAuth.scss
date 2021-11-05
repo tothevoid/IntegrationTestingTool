@@ -13,16 +13,6 @@
     }
 }
 
-.new-header-form{
-    display: flex;
-    flex-direction: row;
-    align-items: flex-end;
-    margin-bottom: 10px;
-    div{
-        margin-right: 20px;
-    }
-}
-
 .used-headers, .used-body-paths{
     display: flex;
     flex-direction: row;
@@ -76,4 +66,29 @@
 
 .cancel-btn {
     margin-left: 5px;
+}
+
+.fields-row{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    .method{
+        width: 12%;
+        select{
+            width: 100%;
+        }
+    }
+    .url{
+        width: 85%;
+        input{
+            width: 100%;
+        }
+    }
+}
+
+.auth-name{
+    width: 100%;
+    input{
+        width: 100%;
+    }
 }

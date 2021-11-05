@@ -19,7 +19,5 @@ namespace IntegrationTestingTool.Model.Entities
         public IEnumerable<Header> Headers { get; set; }
 
         public HashSet<string> UsedResponseHeaders { get; set; }
-
-        public HashSet<string> UsedBodyPaths { get; set; }
     }
 }

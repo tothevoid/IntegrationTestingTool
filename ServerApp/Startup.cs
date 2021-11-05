@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using IntegrationTestingTool.Extensions;
 using IntegrationTestingTool.Settings;
+using IntegrationTestingTool.Routing;
 using System;
 
 namespace IntegrationTestingTool

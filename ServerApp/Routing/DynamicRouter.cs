@@ -5,9 +5,10 @@ using Microsoft.AspNetCore.Routing;
 using Newtonsoft.Json;
 using System.IO;
 using System.Linq;
+using System.Net.Mime;
 using System.Threading.Tasks;
 
-namespace IntegrationTestingTool
+namespace IntegrationTestingTool.Routing
 {
     public class DynamicRouter: DynamicRouteValueTransformer
     {
@@ -18,7 +19,8 @@ namespace IntegrationTestingTool
             RouteHandlerService = routeHandlerService;
         }
 
-        public override async ValueTask<RouteValueDictionary> TransformAsync(HttpContext httpContext, RouteValueDictionary values)
+        public override async ValueTask<RouteValueDictionary> TransformAsync(HttpContext httpContext, 
+            RouteValueDictionary values)
         {
             var output = new RouteValueDictionary()
             {
@@ -32,21 +34,9 @@ namespace IntegrationTestingTool
             
             var endpoint = await RouteHandlerService
                 .GetEndpointByPathAndMethod(path, httpContext.Request.Method.ToUpper(), httpContext.Request.Headers);
-
-            string body = string.Empty;
-            if (httpContext.Request.ContentType == "application/json")
-            {
-                using (StreamReader stream = new StreamReader(httpContext.Request.Body))
-                {
-                    body = await stream.ReadToEndAsync();
-                }
-            }
-
-            var errorMessage = (endpoint == null) ?
-                "There is no active endpoint with the same url, method and headers" :
-                string.Empty;
-
-            if (string.IsNullOrEmpty(errorMessage))
+            
+            var body = await GetRequestBody(httpContext.Request);
+            if (endpoint != null)
             {
                 output["action"] = "GET";
                 output["data"] = body;
@@ -56,13 +46,13 @@ namespace IntegrationTestingTool
             {
                 var customEndpoint = new Model.Entities.Endpoint 
                 { 
-                    Method = httpContext.Request.Method, 
+                    Method = httpContext.Request.Method,
                     Path = path, 
                     OutputStatusCode = 400
                 };
                 output["action"] = "ERROR";
                 output["data"] = body;
-                output["errorMessage"] = errorMessage;
+                output["errorMessage"] = "There is no active endpoint with the same url, method and headers";
                 output["endpoint"] = JsonConvert.SerializeObject(customEndpoint, 
                     new JsonSerializerSettings 
                     { 
@@ -72,6 +62,15 @@ namespace IntegrationTestingTool
                     });
             }
             return output;
-        }        
+        }
+
+        private async Task<string> GetRequestBody(HttpRequest request)
+        {
+            if (request.ContentType != MediaTypeNames.Application.Json) return string.Empty;
+            using (StreamReader stream = new StreamReader(request.Body))
+            {
+                return await stream.ReadToEndAsync();
+            }
+        }
     }
 }

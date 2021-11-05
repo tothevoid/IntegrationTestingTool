@@ -31,7 +31,7 @@ namespace IntegrationTestingTool.Services
         public async Task<string> Delete(Guid id)
         {
             var linkedEndpoints = await EndpointService.FindLinkedByAuth(id);
-            IEnumerable<Endpoint> endpoints = linkedEndpoints.ToList();
+            IEnumerable<Endpoint> endpoints = linkedEndpoints.ToArray();
             if (endpoints.Any())
                 return
                     $"There are some endpoints which use that auth:\n{string.Join("\n", endpoints.Select(x => x.Path))}";

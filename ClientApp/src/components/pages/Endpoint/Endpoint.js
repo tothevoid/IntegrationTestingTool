@@ -138,7 +138,7 @@ export class Endpoint extends Component {
                     <Fragment>
                         <Field isTextarea theme={theme} name="outputData" value={outputData} label="Response data:" onInput={this.onValueUpdated}/>
                         <div className="file-data">
-                            <label ref={this.outputFileControl} htmlFor="outputFile">{this.getFileIcon()} Get output from file</label>
+                            <label ref={this.outputFileControl} htmlFor="outputFile">{this.getFileIcon()} Attach output by file</label>
                             <input id="outputFile" type='file' name="outputFile"
                                 onChange={(e) => this.onValueUpdated(e.target.name, e.target.files.length !== 0 ? e.target?.files[0]: null)}/>
                         </div>
@@ -153,7 +153,7 @@ export class Endpoint extends Component {
                         <div className={`callback-title ${theme}`}>Callback</div>
                         {this.renderAsyncCallbackSettings()}
                     </Fragment>: 
-                    <Fragment/> 
+                    null
                    
             }
             <Notification ref={this.notification}/>
@@ -192,7 +192,7 @@ export class Endpoint extends Component {
                     <Fragment>
                         <Field isTextarea theme={theme} name="callbackData" value={callbackData} label="Data:" onInput={this.onValueUpdated}/>
                         <div className="file-data" >
-                            <label htmlFor="callbackFile">{this.getFileIcon()} Get output from file</label>
+                            <label htmlFor="callbackFile">{this.getFileIcon()} Attach output by file</label>
                             <input  ref={this.callbackFileControl} id="callbackFile" className="callbackFile" type='file' name="callbackFile" 
                                 onChange={(e)=>this.onValueUpdated(e.target.name, e.target.files.length !== 0 ? e.target?.files[0]: null)}/>
                         </div>

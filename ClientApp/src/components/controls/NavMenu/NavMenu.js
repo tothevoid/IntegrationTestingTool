@@ -18,10 +18,7 @@ export const NavMenu = (props) => {
               <NavLink tag={Link} className={theme} to="/">Endpoints</NavLink>
             </NavItem>
             <NavItem>
-              <NavLink tag={Link} className={theme} to="/endpoint">Add endpoint</NavLink>
-            </NavItem>
-            <NavItem>
-              <NavLink tag={Link} className={theme} to="/auth">Auth</NavLink>
+              <NavLink tag={Link} className={theme} to="/auths">Auths</NavLink>
             </NavItem>
             <NavItem>
               <NavLink tag={Link} className={theme} to="/logs">Logs</NavLink>

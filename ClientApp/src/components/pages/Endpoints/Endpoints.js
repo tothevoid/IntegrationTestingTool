@@ -19,6 +19,24 @@ export class Endpoints extends Component {
         this.fetchEndpoints("", false);
     }
 
+    render = () => {
+        const {theme} = this.props;
+        const {showModal, isOnlyActive, searchText} = this.state;
+        return <Fragment>
+            <Button additionalClasses="new-endpoint-btn" theme={theme} caption="Add" onClick={() => this.navigateToEdit()}/>
+            <Search theme={theme} onTextChanged={this.getEndpoints}/>
+            <Checkbox caption="Only active" additionalClass={"checkbox-inline"} value={isOnlyActive}
+                      onSelect={(value) => {this.setState({isOnlyActive: value}); this.fetchEndpoints(searchText, value)}} theme={theme}/>
+            <div className="endpoints-list">
+                {this.state.endpoints.map((endpoint) => this.renderEndpoint(endpoint))}
+            </div>
+            {
+                <Modal theme={theme} onSuccess={this.onDecidedToDelete} onReject={()=>this.setState({showModal: false})}
+                       show={showModal} title="Are you sure?" text="Do you really want to delete that endpoint?"/>
+            }
+        </Fragment>
+    }
+
     renderEndpoint = (endpoint) =>
     {
         const {theme} = this.props;
@@ -65,14 +83,14 @@ export class Endpoints extends Component {
             </div>
             {
                 <div className="endpoint-manipulations">
-                    <Button onClick={() => this.updateEndpoint(endpoint.id)} caption={"Edit"}></Button>
-                    <Button onClick={() => this.deleteEndpoint(endpoint.id)} additionalClasses="endpoint-delete" mode="danger" caption={"Delete"}></Button>
+                    <Button onClick={() => this.navigateToEdit(endpoint.id)} caption={"Edit"}/>
+                    <Button onClick={() => this.deleteEndpoint(endpoint.id)} additionalClasses="endpoint-delete" mode="danger" caption={"Delete"}/>
                 </div>
             }
         </div>
     }
 
-    updateEndpoint = (endpointId) => {
+    navigateToEdit = (endpointId) => {
         this.props.history.push({
             pathname: '/endpoint',
             state: { endpointId }
@@ -98,29 +116,6 @@ export class Endpoints extends Component {
         const filteredEndpoints = this.state.endpoints.filter((endpoint) =>
             endpoint.id !== endpointId)
         this.setState({endpoints: filteredEndpoints});
-    }
-
-    formatOutput = (outputData) => {
-        return (outputData && outputData.trim()) ?
-            `${outputData}`:
-            "nothing";
-    }
-
-    render = () => {
-        const {theme} = this.props;
-        const {showModal, isOnlyActive, searchText} = this.state;
-        return <Fragment>
-            <Search theme={theme} onTextChanged={this.getEndpoints}/>
-            <Checkbox caption="Only active" additionalClass={"checkbox-inline"} value={isOnlyActive} 
-                onSelect={(value) => {this.setState({isOnlyActive: value}); this.fetchEndpoints(searchText, value)}} theme={theme}/>
-            <div className="endpoints-list">
-                {this.state.endpoints.map((endpoint) => this.renderEndpoint(endpoint))}
-            </div>
-            {
-                <Modal theme={theme} onSuccess={this.onDecidedToDelete} onReject={()=>this.setState({showModal: false})} 
-                    show={showModal} title="Are you sure?" text="Do you really want to delete that endpoint?"/>
-            }
-        </Fragment> 
     }
 
     onDecidedToDelete = () => {

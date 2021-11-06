@@ -1,9 +1,9 @@
 import "./HeadersModal.scss"
 import React, { Component, Fragment } from 'react';
-import { Field } from "../../controls/Field/Field";
-import { Button } from "../../controls/Button/Button"
+import { Field } from "../Field/Field";
+import { Button } from "../Button/Button"
 import ReactDOM from "react-dom";
-import {uuidv4} from "../../../utils/coreExtensions";
+import { uuidv4 } from "../../../utils/coreExtensions";
 
 export class HeadersModal extends Component {
     constructor(props) {
@@ -66,7 +66,6 @@ export class HeadersModal extends Component {
             <Button additionalClasses="header-btn"  theme={theme} onClick={this.addHeader} caption="Add"/>
         </div>
     }
-
 
     addHeader = () => {
         const {headers } = this.props;

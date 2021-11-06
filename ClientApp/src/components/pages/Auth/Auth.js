@@ -2,25 +2,21 @@ import React, { Component, Fragment } from 'react';
 import { ComboBox } from "../../controls/ComboBox/ComboBox"
 import { Field } from "../../controls/Field/Field";
 import { Button } from "../../controls/Button/Button"
-import { Checkbox } from "../../controls/Checkbox/Checkbox"
-import { Modal } from "../../controls/Modal/Modal"
 import { Notification } from '../../controls/Notification/Notification';
-import "./CallbackAuth.scss"
+import "./Auth.scss"
 import {HeadersModal} from "../../controls/HeadersModal/HeadersModal";
 
-export class CallbackAuth extends Component {
+export class Auth extends Component {
     constructor(props) {
         super(props);
         const defaultState = this.getDefaultState();
         this.state = {
             ...defaultState,
-            auths: [],
             addNewAuth: false,
             showModal: false,
             selectedAuth: "",
             showHeadersModal: false
         }
-
         this.notification = React.createRef();
     }
 
@@ -37,37 +33,19 @@ export class CallbackAuth extends Component {
         }
     }
 
-    componentDidMount = () => {
+    componentDidMount = async () => {
         this.getRESTMethods();
-        this.getAuths();
+
+        const id = this.props.location.state?.authId;
+        if (id){
+            await this.fetchEndpoint(id);
+        }
+
     }
 
     render = () => {
-        const {theme} = this.props;
-        const {addNewAuth, auths, showModal, id} = this.state;
         return <Fragment>
-            <Checkbox theme={theme} value={addNewAuth} caption={id ? "Update auth": "New auth"} onSelect={this.onNewAuthToggle}/>
-            {
-                (addNewAuth) ? 
-                    this.renderNewAuth() :
-                    <Fragment/>
-            }
-            <div className="auths">
-            {
-                auths.map(auth => <div key={auth.id} className={`auth ${theme}`}>
-                    <div>{auth.name}</div>
-                    <div>{auth.url}</div>
-                    <div className="auth-delete">
-                        <Button onClick={async () => this.fetchEndpoint(auth.id)} caption="Edit"/>
-                        <Button onClick={() => this.onDecidedToDelete(auth.id)} additionalClasses="auth-delete-btn" mode="danger" caption="Delete"/>
-                    </div>
-                </div>)
-            }
-            </div>
-            {
-                <Modal theme={theme} onSuccess={this.onDelete} onReject={() => this.setState({showModal: false})} 
-                    show={showModal} title="Are you sure?" text="Do you really want to delete that auth?"/>
-            }
+            {this.renderNewAuth()}
             <Notification ref={this.notification}/>
         </Fragment>
     }
@@ -121,10 +99,10 @@ export class CallbackAuth extends Component {
                 <Button theme={theme} onClick={() => this.addIntoCollection("usedHeaders")} caption={"Add"}/>
             </div>
             <div>
-                <Button theme={theme} onClick={this.addAuth} caption={(id) ? "Update": "Create"}/>
+                <Button theme={theme} onClick={async () => await this.addAuth()} caption={(id) ? "Update": "Create"}/>
                 {
                     (id) ?
-                        <Button additionalClasses="cancel-btn" theme={theme} onClick={this.onCancelClick} caption="Cancel"/> :
+                        <Button additionalClasses="cancel-btn" theme={theme} onClick={this.naviagateToAuths} caption="Back"/> :
                         null
                 }
             </div>
@@ -132,16 +110,15 @@ export class CallbackAuth extends Component {
         </div>
     }
 
+    naviagateToAuths = () =>
+        this.props.history.push({pathname: '/auths',})
+
     onHeaderCollectionChanged = (newHeaders) => {
         this.setState({headers: newHeaders})
     }
 
     notify = (text) => {
         this.notification.current.addElement(text);
-    }
-
-    onCancelClick = () => {
-        this.setState({...this.getDefaultState()});
     }
 
     onNewAuthToggle = (addNewAuth) => {
@@ -162,27 +139,6 @@ export class CallbackAuth extends Component {
         }
     }
 
-    onDecidedToDelete = (authId) => {
-        this.setState({selectedAuth: authId, showModal: true})
-    }
-
-    onDelete = () => {
-        const {selectedAuth} = this.state
-        fetch(`${this.props.config.apiURL}/Auth/Delete?id=${selectedAuth}`)
-            .then((response) => response.json())
-            .then((response) => {
-                if (response){
-                    this.notify(`An error occurred while deleting auth`)
-                } else {
-                    this.deleteAuth(selectedAuth);
-                    this.notify(`Auth successfully deleted`)
-                }})
-    }
-
-    deleteAuth = (authId) => {
-        const newAuths = this.state.auths.filter((auth) => auth.id !== authId);
-        this.setState({auths: newAuths, showModal: false});
-    }
 
     deleteFromCollection = (element, collection) => {
         //TODO: commonize
@@ -196,7 +152,7 @@ export class CallbackAuth extends Component {
         }
     }
 
-    addAuth = () => {
+    addAuth = async () => {
         //TODO: simplify
         const {name, data, url, method, headers, usedHeaders, id} = this.state;
         const authData = {
@@ -210,26 +166,19 @@ export class CallbackAuth extends Component {
         }
 
         const requestMethod = (id) ? "Update" : "Add";
-
-        fetch(`${this.props.config.apiURL}/Auth/${requestMethod}`, {
+        debugger;
+        const response = await fetch(`${this.props.config.apiURL}/Auth/${requestMethod}`, {
             method: 'POST',
             body: JSON.stringify(authData),
             headers: {
                 'Content-Type': 'application/json'
             }
-        })
-        .then(response => response.json())
-        .then((auth) => {
-            if (auth){
-                //TODO: remove duplication
-                if (id){
-                    const newAuths = this.state.auths.map(storedAuth => 
-                        (storedAuth.id === id) ? auth: storedAuth);
-                    this.setState({auths: newAuths, ...this.getDefaultState()})
-                } else {
-                    this.setState({auths: [auth, ...this.state.auths], ...this.getDefaultState()});
-                }
-            }});
+        });
+        if (response.ok){
+            this.naviagateToAuths();
+        } else {
+            await this.notify(response.text())
+        }
     }
 
     onFieldInput = (name, value) => {
@@ -245,15 +194,5 @@ export class CallbackAuth extends Component {
             }
         }).then((response) => response.json())
         .then((methods) => this.setState({methods}));
-    }
-
-    getAuths = () => {
-        fetch(`${this.props.config.apiURL}/Auth/GetAll`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        }).then((response) => response.json())
-        .then((auths) => this.setState({auths}));
     }
 }

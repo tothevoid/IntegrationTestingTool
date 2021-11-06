@@ -8,6 +8,7 @@ import { Checkbox } from "../../controls/Checkbox/Checkbox"
 import { Field } from "../../controls/Field/Field";
 import { uuidv4, formatFileSize } from "../../../utils/coreExtensions"
 import { ReactComponent as FileIcon } from "./images/file.svg";
+import {HeadersModal} from "../../controls/HeadersModal/HeadersModal";
 
 export class Endpoint extends Component {
     static displayName = Endpoint.name;
@@ -19,6 +20,7 @@ export class Endpoint extends Component {
         this.state.isLoading = this.props.location.state?.endpointId;
         this.state.statusCodes = [];
         this.state.auths = [];
+        this.showHeadersModal = false;
         
         this.notification = React.createRef();
         this.outputFileControl = React.createRef();
@@ -70,7 +72,6 @@ export class Endpoint extends Component {
                 statusCode: endpoint.outputStatusCode,
                 interactionType: endpoint.callbackType,
                 method: endpoint.method,
-                useHeaders: endpoint.headers?.length !== 0,
                 callbackMethod: endpoint.callbackMethod,
                 callbackData: endpoint.callbackData,
                 callbackUrl: endpoint.callbackUrl,
@@ -98,13 +99,13 @@ export class Endpoint extends Component {
     }
 
     renderContent = () => {
-        const {theme} = this.props;
+        const {theme, config} = this.props;
         const {statusCode, outputData, statusCodes, method, methods, outputFile,
-            interactionType, useHeaders, headers, id, active} = this.state;
+            interactionType, showHeadersModal, headers, id, active} = this.state;
         return <div className={`new-endpoint ${theme}`}>
             <h1>{(id) ? "Update endpoint": "New endpoint"}</h1>
             <p className={`url ${theme}`}>
-                <span>{this.props.config?.mockURL}/</span>
+                <span>{config?.mockURL}/</span>
                 <input className={`dynamic-url ${theme}`} onChange={this.onPathChanged}
                     value={this.state.path} type="text"/>
             </p>
@@ -117,16 +118,8 @@ export class Endpoint extends Component {
                 onSelect={(active) => {this.setState({active})}}/>
             {
                 <Fragment>
-                    <Checkbox caption={`Expect headers (${headers.length})`} theme={theme} value={useHeaders} 
-                        onSelect={(useHeaders) => {this.setState({useHeaders})}}/>
-                    {
-                        (useHeaders) ?
-                            <Fragment>
-                                {this.renderHeaders()}
-                                {this.renderNewHeaderForm()}
-                            </Fragment>:
-                            null
-                    }
+                    <HeadersModal onModalClosed={()=>this.setState({showHeadersModal: false})} theme={theme} show={showHeadersModal} headers={headers} onHeaderCollectionChanged={this.onHeaderCollectionChanged}/>
+                    <Button theme={theme} caption={`Setup headers (${headers.length})`} onClick={()=>this.setState({showHeadersModal: true})}/>
                 </Fragment>
             }
             {
@@ -159,6 +152,10 @@ export class Endpoint extends Component {
             <Notification ref={this.notification}/>
             <Button theme={theme} onClick={async () => await this.addEndpoint()} caption={(id) ? "Update" : "Create"}/>
         </div>
+    }
+
+    onHeaderCollectionChanged = (newHeaders) => {
+        this.setState({headers: newHeaders})
     }
 
     getFileIcon = () => {  
@@ -330,61 +327,5 @@ export class Endpoint extends Component {
     validateExisting = async () => {
         const response = await fetch('/movies');
         const movies = await response.json();
-    }
-
-    renderHeaders = () => {
-        const {theme} = this.props;
-        const {headers} = this.state;
-        return (headers && headers.length !== 0) ?
-            headers.map(header => 
-                <div className="header-item" key={header.id}>
-                    <Field theme={theme} value={header.key} 
-                        onInput={(name, value) => this.onHeaderUpdated(header.id, "key", value)}/>
-                    <Field theme={theme} value={header.value} 
-                        onInput={(name, value) => this.onHeaderUpdated(header.id, "value", value)}/>
-                    <Button theme={theme} mode="danger" onClick={()=>this.deleteHeader(header.key)} caption="X"/>
-                </div>) :
-            <Fragment/>
-    }
-
-    onHeaderUpdated = (id, propName, propValue) => {
-        const headers = this.state.headers.map((header) => {
-            if (header.id === id){
-                header[propName] = propValue;
-            }
-            return header;
-        })
-        this.setState({headers});
-    }
-
-    renderNewHeaderForm = () => {
-        const {theme} = this.props;
-        const {headerName, headerValue} = this.state;
-        return <div className="new-header-form">
-            <Field label="Name" name="headerName" theme={theme} value={headerName} onInput={this.onFieldInput}/>
-            <Field label="Value" name="headerValue" theme={theme} value={headerValue} onInput={this.onFieldInput}/>
-            <Button theme={theme} onClick={this.addHeader} caption="Add"/>
-        </div>
-    }
-
-    onFieldInput = (name, value) => {
-        this.setState({[name]: value});
-    }
-
-    addHeader = () => {
-        const {headers, headerName, headerValue} = this.state;
-        const alreadyExists = headers.find((header) => headerName === header.key);
-        if (!alreadyExists){
-            this.setState({headers: [...headers, {id: uuidv4(),key: headerName, value: headerValue}],
-                headerName: "", headerValue: ""});
-        } else {
-            this.notify(`Header with name "${headerName}" already exists`);
-        }
-    }
-
-    deleteHeader = (key) => {
-        const filteredHeaders = this.state.headers.filter((header) =>
-            header.key !== key);
-        this.setState({headers: filteredHeaders});
     }
 }

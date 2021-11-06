@@ -3,7 +3,6 @@ import { ComboBox } from "../../controls/ComboBox/ComboBox"
 import { Field } from "../../controls/Field/Field";
 import { Button } from "../../controls/Button/Button"
 import { Checkbox } from "../../controls/Checkbox/Checkbox"
-import { uuidv4 } from "../../../utils/coreExtensions"
 import { Modal } from "../../controls/Modal/Modal"
 import { Notification } from '../../controls/Notification/Notification';
 import "./CallbackAuth.scss"
@@ -110,8 +109,7 @@ export class CallbackAuth extends Component {
                 <Field className="url" label="URL" name="url" theme={theme} value={url} onInput={this.onFieldInput}/>
             </div>
             <Field label="Data" name="data" theme={theme} value={data} onInput={this.onFieldInput} isTextarea/>
-            <div>Request headers:</div>
-            <button onClick={()=>this.setState({showHeadersModal: true})}>Test</button>
+            <Button theme={theme} caption={`Setup headers (${headers.length})`} onClick={()=>this.setState({showHeadersModal: true})}/>
             <div>Include into next Request:</div>
             <div className="used-headers">
                 {this.state.usedHeaders.map((header) =>
@@ -177,7 +175,7 @@ export class CallbackAuth extends Component {
                     this.notify(`An error occurred while deleting auth`)
                 } else {
                     this.deleteAuth(selectedAuth);
-                    this.notify(`Auth succesfully deleted`)
+                    this.notify(`Auth successfully deleted`)
                 }})
     }
 

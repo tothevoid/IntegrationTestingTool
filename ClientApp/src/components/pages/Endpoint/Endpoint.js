@@ -269,19 +269,28 @@ export class Endpoint extends Component {
 
         const operation = (id) ? "Update" : "Add";
         this.setState({isLoading: true});
-        fetch(`${this.props.config.apiURL}/Endpoint/${operation}`, {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(result => {
+
+        const processResponse = (result) => {
             if (!result) {
-                this.props.history.push("/endpoints") 
+                this.props.history.push("/endpoints")
             } else {
                 this.setState({isLoading: false});
                 this.notify(result);
             }
-        }).catch(error => {this.setState({isLoading: false}); this.notify(error.message);});
+        }
+
+        fetch(`${this.props.config.apiURL}/Endpoint/${operation}`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (response.ok){
+                response.json();
+            } else {
+                processResponse();
+            }
+        })
+        .then(result => processResponse(result)).catch(error => processResponse(error.message));
     }
 
     getStatusCodes = () => {
@@ -322,10 +331,5 @@ export class Endpoint extends Component {
             return "Callback url is not specified";
         }
         return null;
-    }
-
-    validateExisting = async () => {
-        const response = await fetch('/movies');
-        const movies = await response.json();
     }
 }

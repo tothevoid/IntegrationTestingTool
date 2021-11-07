@@ -4,10 +4,13 @@
     @include list-item-base;
     margin: 10px 0;
     min-height: 125px;
-    &.path{
-        font-size: 20px;
-        font-weight: 700;
-    }
+}
+
+.path{
+    font-size: 20px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
 }
 
 .expected-headers{
@@ -41,4 +44,20 @@
 .new-endpoint-btn{
     margin-right: 10px;
     width: 75px;
+}
+
+.activity-sign
+{
+    display: inline-block;
+    height: 15px;
+    width: 15px;
+    border-radius: 15px;
+    border: transparent 0px;
+    margin-right: 5px;
+    &.active {
+        background: #00917C;
+    }
+    &.inactive{
+        background: red;
+    }
 }

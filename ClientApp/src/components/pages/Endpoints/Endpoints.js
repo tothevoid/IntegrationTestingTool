@@ -39,14 +39,14 @@ export class Endpoints extends Component {
 
     renderEndpoint = (endpoint) =>
     {
-        const {theme} = this.props;
+        const {theme, config} = this.props;
         const {path, outputDataSize, outputStatusCode, method, callbackType, 
             callbackURL, callbackMethod, callbackData, expanded, headers, active} = endpoint;
-        const prefix = active ? "[Active]" : "[Inactive]";
+        const postfix = active ? "active" : "inactive";
 
         return <div key={endpoint.id} className={`endpoint ${theme}`}>
             <div>
-                <div className="path"><span>{prefix} </span>{this.props?.config?.mockURL}/{path}</div>
+                <div className="path"><span className={`activity-sign ${postfix}`}/>{config?.mockURL}/{path}</div>
                 <div>Method: <b>{method}</b></div>
                 <div className="returns">
                     {`Returns status code: ${outputStatusCode}. Data size: ${formatFileSize(outputDataSize)}`}

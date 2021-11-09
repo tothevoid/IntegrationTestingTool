@@ -32,5 +32,5 @@ export class ComboBox extends Component {
         const newValue = event.target.value;
         this.setState({ selectedValue: newValue });
         this.props.onSelect(newValue);
-    };
+    }
 }

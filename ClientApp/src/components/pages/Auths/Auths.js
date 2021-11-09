@@ -3,6 +3,7 @@ import { Button } from "../../controls/Button/Button"
 import { Modal } from "../../controls/Modal/Modal"
 import { Notification } from '../../controls/Notification/Notification';
 import "./Auths.scss"
+import { getAllAuths, deleteAuth } from "../../../services/rest/auth";
 
 export class Auths extends Component {
     constructor(props) {
@@ -15,9 +16,8 @@ export class Auths extends Component {
         this.notification = React.createRef();
     }
 
-    componentDidMount = () => {
-        this.getAuths();
-    }
+    componentDidMount = async () =>
+        await this.getAuths();
 
     render = () => {
         const {theme} = this.props;
@@ -37,7 +37,7 @@ export class Auths extends Component {
                 }
             </div>
             {
-                <Modal theme={theme} onSuccess={this.onDelete} onReject={() => this.setState({showModal: false})}
+                <Modal theme={theme} onSuccess={async () => await this.onDelete()} onReject={() => this.setState({showModal: false})}
                        show={showModal} title="Are you sure?" text="Do you really want to delete that auth?"/>
             }
             <Notification ref={this.notification}/>
@@ -55,25 +55,19 @@ export class Auths extends Component {
         this.notification.current.addElement(text);
     }
 
-    onNewAuthToggle = (addNewAuth) => {
-        this.setState({addNewAuth});
-    }
-
     onDecidedToDelete = (authId) => {
         this.setState({selectedAuth: authId, showModal: true})
     }
 
-    onDelete = () => {
-        const {selectedAuth} = this.state
-        fetch(`${this.props.config.apiURL}/Auth/Delete?id=${selectedAuth}`)
-            .then((response) => response.json())
-            .then((response) => {
-                if (response){
-                    this.notify(`An error occurred while deleting auth`)
-                } else {
-                    this.deleteAuth(selectedAuth);
-                    this.notify(`Auth successfully deleted`)
-                }})
+    onDelete = async () => {
+        const {selectedAuth} = this.state;
+        const response = await deleteAuth(this.props.config.apiURL, selectedAuth);
+        if (response.ok){
+            this.deleteAuth(selectedAuth);
+            this.notify(`Auth successfully deleted`)
+        } else {
+            this.notify(`An error occurred while deleting auth`)
+        }
     }
 
     deleteAuth = (authId) => {
@@ -81,13 +75,11 @@ export class Auths extends Component {
         this.setState({auths: newAuths, showModal: false});
     }
 
-    getAuths = () => {
-        fetch(`${this.props.config.apiURL}/Auth/GetAll`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        }).then((response) => response.json())
-            .then((auths) => this.setState({auths}));
+    getAuths = async () => {
+        const response = await getAllAuths(this.props.config.apiURL);
+        if (response.ok){
+            const auths = await response.json();
+            this.setState({auths});
+        }
     }
 }

@@ -30,7 +30,7 @@ namespace IntegrationTestingTool.Routing
             var urlParts = httpContext.Request.Path.Value.Split("/")
                 .Where(x => x != string.Empty)
                 .Skip(1);
-            string path = string.Join("/", urlParts);
+            var path = string.Join("/", urlParts);
             
             var endpoint = await RouteHandlerService
                 .GetEndpointByPathAndMethod(path, httpContext.Request.Method.ToUpper(), httpContext.Request.Headers);
@@ -64,13 +64,11 @@ namespace IntegrationTestingTool.Routing
             return output;
         }
 
-        private async Task<string> GetRequestBody(HttpRequest request)
+        private static async Task<string> GetRequestBody(HttpRequest request)
         {
             if (request.ContentType != MediaTypeNames.Application.Json) return string.Empty;
-            using (StreamReader stream = new StreamReader(request.Body))
-            {
-                return await stream.ReadToEndAsync();
-            }
+            using var stream = new StreamReader(request.Body);
+            return await stream.ReadToEndAsync();
         }
     }
 }

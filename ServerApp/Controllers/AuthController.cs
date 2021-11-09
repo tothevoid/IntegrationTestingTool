@@ -20,15 +20,13 @@ namespace IntegrationTestingTool.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<Auth>> GetAll()
-        {
-            var result = await AuthService.GetAll();
-            return result;
-        }
+        public async Task<IEnumerable<Auth>> GetAll() =>
+            await AuthService.GetAll();
 
         [HttpGet]
         public async Task<Auth> Get(Guid id) =>
             await AuthService.GetById(id);
+        
 
         [HttpPost]
         public async Task<Auth> Add(Auth auth) =>

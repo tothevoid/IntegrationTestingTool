@@ -36,14 +36,9 @@ namespace IntegrationTestingTool.Controllers
         public async Task<IActionResult> Get(Guid id)
         {
             var endpoint = await EndpointService.FindById(id);
-            if (endpoint == null) 
-            {
-                return new BadRequestResult();
-            }
-            else
-            {
-                return new OkObjectResult(endpoint);
-            }
+            return endpoint == null ? 
+                (IActionResult) new BadRequestResult() : 
+                new OkObjectResult(endpoint);
         }
 
         [HttpPost]

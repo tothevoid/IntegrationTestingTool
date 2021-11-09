@@ -9,9 +9,7 @@ export const Field = (props) => {
 
     return <div className={`field-container ${inlineClass} ${className ?? ""}`}>
         {
-            (label) ?
-                <div>{label}</div> :
-                <Fragment/>
+            (label) ? <div>{label}</div> : null
         }
         {
             (isTextarea) ?

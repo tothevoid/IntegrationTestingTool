@@ -43,13 +43,13 @@ namespace IntegrationTestingTool.Services
 
         public async Task<Auth> GetById(Guid id)
         {
-            BsonBinaryData binaryId = new BsonBinaryData(id, GuidRepresentation.Standard);
+            var binaryId = new BsonBinaryData(id, GuidRepresentation.Standard);
             return (await MongoCollection.FindAsync(new BsonDocument("_id", binaryId))).FirstOrDefault();
         }
 
         public async Task<Auth> Update(Auth auth)
         {
-            BsonBinaryData binaryId = new BsonBinaryData(auth.Id, GuidRepresentation.Standard);
+            var binaryId = new BsonBinaryData(auth.Id, GuidRepresentation.Standard);
             var result = await MongoCollection.ReplaceOneAsync(new BsonDocument("_id", binaryId), auth);
 
             return result.ModifiedCount != 0 ?

@@ -22,7 +22,7 @@ const getClasses = (mode, additionalClasses, theme) => [
     getCoreClass(mode),
     theme, 
     additionalClasses
-].join(" ")
+].filter(cssClass => cssClass).join(" ")
 
 const getCoreClass = (mode) => {
     switch (mode){

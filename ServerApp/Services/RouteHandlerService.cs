@@ -1,8 +1,9 @@
-﻿using IntegrationTestingTool.Model.Entities;
-using IntegrationTestingTool.Services.Inerfaces;
+﻿using IntegrationTestingTool.Services.Inerfaces;
 using IntegrationTestingTool.Services.Interfaces;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Endpoint = IntegrationTestingTool.Model.Entities.Endpoint;
 
 namespace IntegrationTestingTool.Services
 {
@@ -22,7 +23,7 @@ namespace IntegrationTestingTool.Services
             (await EndpointService.FindByParameter(nameof(Endpoint.Path), path)).FirstOrDefault();
 
         public async Task<Endpoint> GetEndpointByPathAndMethod(string path, string method,
-            Microsoft.AspNetCore.Http.IHeaderDictionary requestHeaders)
+            IHeaderDictionary requestHeaders)
         {
             var endpoints = (await EndpointService.FindByPathAndMethod(path, method));
             var suitableEndpoint = endpoints.FirstOrDefault(endpoint => ValidateEndpoint(endpoint, requestHeaders));
@@ -33,11 +34,11 @@ namespace IntegrationTestingTool.Services
             return suitableEndpoint;
         }
 
-        private bool ValidateEndpoint(Endpoint endpoint, Microsoft.AspNetCore.Http.IHeaderDictionary requestHeaders)
+        private static bool ValidateEndpoint(Endpoint endpoint, IHeaderDictionary requestHeaders)
         {
             foreach (var expectedHeader in endpoint.Headers)
             {
-                bool hasValue = requestHeaders.TryGetValue(expectedHeader.Key, out var values);
+                var hasValue = requestHeaders.TryGetValue(expectedHeader.Key, out var values);
                 if (!hasValue || !values.Contains(expectedHeader.Value))
                 {
                     return false;

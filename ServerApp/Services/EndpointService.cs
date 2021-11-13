@@ -31,6 +31,7 @@ namespace IntegrationTestingTool.Services
         public async Task<IEnumerable<Endpoint>> GetAll()
         {
             var sort = Builders<Endpoint>.Sort.Descending(endpoint => endpoint.CreatedOn);
+
             var options = new FindOptions<Endpoint, Endpoint>
             {
                 Sort = sort
@@ -142,13 +143,6 @@ namespace IntegrationTestingTool.Services
 
         public IEnumerable<int> GetStatusCodes() =>
             Enum.GetValues(typeof(HttpStatusCode)).Cast<int>();
-
-        public IEnumerable<string> GetRESTMethods()
-        {
-            var props = typeof(HttpMethod).GetProperties();
-            return props.Where(prop => prop.GetMethod?.IsStatic ?? false)
-                .Select(x => x.Name.ToUpper());
-        }
 
         private async Task<(ObjectId, int)> HandleLargeOutputData(Guid endpointId, string data)
         {

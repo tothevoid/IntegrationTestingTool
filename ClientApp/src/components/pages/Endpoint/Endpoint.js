@@ -6,9 +6,17 @@ import { ComboBox } from "../../controls/ComboBox/ComboBox"
 import { Notification } from "../../controls/Notification/Notification"
 import { Checkbox } from "../../controls/Checkbox/Checkbox"
 import { Field } from "../../controls/Field/Field";
-import { uuidv4, formatFileSize } from "../../../utils/coreExtensions"
+import { formatFileSize } from "../../../utils/coreExtensions"
 import { ReactComponent as FileIcon } from "./images/file.svg";
-import {HeadersModal} from "../../controls/HeadersModal/HeadersModal";
+import { HeadersModal } from "../../controls/HeadersModal/HeadersModal";
+import { httpMethods, interaction }  from "../../../constants/constants";
+import {
+    addEndpoint,
+    fetchStatusCodes,
+    getEndpointById,
+    updateEndpoint
+} from "../../../services/rest/endpoint";
+import { getAllAuthsAsLookup } from "../../../services/rest/auth";
 
 export class Endpoint extends Component {
     static displayName = Endpoint.name;
@@ -21,24 +29,40 @@ export class Endpoint extends Component {
         this.state.statusCodes = [];
         this.state.auths = [];
         this.showHeadersModal = false;
-        
+
         this.notification = React.createRef();
         this.outputFileControl = React.createRef();
         this.callbackFileControl = React.createRef();
     }
 
-    async componentDidMount() {
-        await this.fetchEndpoint();
-        this.getStatusCodes();
-        this.getRESTMethods();
-        this.getAuths();
-    }
-
-    fetchEndpoint = async () => {
+    componentDidMount = async () => {
+        const {apiURL} = this.props.config;
         const id = this.props.location.state?.endpointId;
         if (id){
-            const state = {...await this.getStateFromEndpoint(id)};
-            this.setState({...state, id, isLoading: false});
+            await this.getStateFromEndpoint(apiURL, id);
+        }
+        await this.getStatusCodes(apiURL);
+        await this.getAuths(apiURL);
+    }
+
+    getStatusCodes = async (apiURL) => {
+        const response = await fetchStatusCodes(apiURL);
+        if (response.ok){
+            const statusCodes = await response.json();
+            this.setState({statusCodes});
+        }
+    }
+
+    getAuths = async (apiURL) => {
+        const response = await getAllAuthsAsLookup(apiURL);
+        if (response.ok){
+            const auths = await response.json();
+            if (auths && auths.length){
+                const currentAuth = this.state.auth;
+                const emptyAuth = {key: "00000000-0000-0000-0000-000000000000", value: "None"};
+                const selectedAuth = auths.find(auth => auth.key === currentAuth) || emptyAuth;
+                this.setState({auths: [emptyAuth, ...auths], auth: selectedAuth});
+            }
         }
     }
 
@@ -62,15 +86,16 @@ export class Endpoint extends Component {
         };
     }
 
-    getStateFromEndpoint = async (id) => {
-        const fetchResult = await fetch(`${this.props.config.apiURL}/Endpoint/Get?id=${id}`);
-        if (fetchResult.ok){
-            const endpoint = await fetchResult.json();
-            return {
+    getStateFromEndpoint = async (apiURL, id) => {
+        const response = await getEndpointById(apiURL, id);
+        if (response.ok){
+            const endpoint = await response.json();
+            const state = {
+                id,
                 path: endpoint.path,
                 outputData: endpoint.outputData,
                 statusCode: endpoint.outputStatusCode,
-                interactionType: endpoint.callbackType,
+                interactionType: Object.keys(interaction)[endpoint.callbackType],
                 method: endpoint.method,
                 callbackMethod: endpoint.callbackMethod,
                 callbackData: endpoint.callbackData,
@@ -81,6 +106,7 @@ export class Endpoint extends Component {
                 outputFile: (endpoint.outputDataSize) ? {size: endpoint.outputDataSize}: null,
                 callbackFile: (endpoint.callbackDataSize) ? {size: endpoint.callbackDataSize}: null
             }
+            this.setState({...state, isLoading: false});
         }
         return null;
     }
@@ -100,19 +126,19 @@ export class Endpoint extends Component {
 
     renderContent = () => {
         const {theme, config} = this.props;
-        const {statusCode, outputData, statusCodes, method, methods, outputFile,
+        const {statusCode, outputData, statusCodes, method, outputFile,
             interactionType, showHeadersModal, headers, id, active} = this.state;
         return <div className={`new-endpoint ${theme}`}>
             <h1>{(id) ? "Update endpoint": "New endpoint"}</h1>
             <p className={`url ${theme}`}>
                 <span>{config?.mockURL}/</span>
-                <input className={`dynamic-url ${theme}`} onChange={this.onPathChanged}
+                <input className={`dynamic-url ${theme}`} onChange={({target})=>this.setState({path: target.value})}
                     value={this.state.path} type="text"/>
             </p>
             <div className="form-part-row">
-                {this.formatRowField(method, methods, "REST method", "method")}
+                {this.formatRowField(method, httpMethods, "REST method", "method")}
                 {this.formatRowField(statusCode, statusCodes, "Status code", "statusCode")}
-                {this.formatRowField(interactionType, this.getInteractions(), "Interaction", "interactionType")}
+                {this.formatRowField(interactionType, Object.keys(interaction), "Interaction", "interactionType")}
             </div>
             <Checkbox caption="Active" theme={theme} value={active} 
                 onSelect={(active) => {this.setState({active})}}/>
@@ -138,10 +164,7 @@ export class Endpoint extends Component {
                     </Fragment>
             }
             {
-                //TODO: simplify condition
-                ((typeof(interactionType) === "number") ? 
-                    interactionType === 1 : 
-                    this.getInteractions().indexOf(interactionType)) ?
+                interactionType === interaction.Asynchronous ?
                     <Fragment>
                         <div className={`callback-title ${theme}`}>Callback</div>
                         {this.renderAsyncCallbackSettings()}
@@ -174,11 +197,11 @@ export class Endpoint extends Component {
 
     renderAsyncCallbackSettings = () => {
         const { theme } = this.props;
-        const { methods, callbackMethod, callbackData, callbackUrl, auth, auths, callbackFile } = this.state;
+        const { callbackMethod, callbackData, callbackUrl, auth, auths, callbackFile } = this.state;
         return <Fragment>
             <div className="form-part-row">
                 {this.formatRowField(auth, auths, "Auth", "auth")}
-                {this.formatRowField(callbackMethod, methods, "Method", "callbackMethod")}
+                {this.formatRowField(callbackMethod, httpMethods, "Method", "callbackMethod")}
                 <Field theme={theme} name="callbackUrl" value={callbackUrl} label="URL" onInput={this.onValueUpdated} placeholder="https://test.com/api"/>
             </div>
             {
@@ -190,7 +213,7 @@ export class Endpoint extends Component {
                         <Field isTextarea theme={theme} name="callbackData" value={callbackData} label="Data:" onInput={this.onValueUpdated}/>
                         <div className="file-data" >
                             <label htmlFor="callbackFile">{this.getFileIcon()} Attach output by file</label>
-                            <input  ref={this.callbackFileControl} id="callbackFile" className="callbackFile" type='file' name="callbackFile" 
+                            <input ref={this.callbackFileControl} id="callbackFile" className="callbackFile" type='file' name="callbackFile"
                                 onChange={(e)=>this.onValueUpdated(e.target.name, e.target.files.length !== 0 ? e.target?.files[0]: null)}/>
                         </div>
                     </Fragment>
@@ -203,27 +226,17 @@ export class Endpoint extends Component {
         return (values && values.length !== 0) ?
             <div>
                 <div>{title}</div>
-                <ComboBox theme={theme} selectedValue={value} values={values} onSelect={(value) => this.onValueUpdated(name, value)}></ComboBox>
+                <ComboBox theme={theme} selectedValue={value} values={values} onSelect={(value) => this.onValueUpdated(name, value)}/>
             </div>:
             <Fragment/>
     }
-
 
     onInteractionSelected = (data) => {
         this.setState({interactionType: data})
     }
 
-    getInteractions = () => [
-        "Synchronous",
-        "Asynchronous"
-    ]
-
     onValueUpdated = (propName, value) => {
         this.setState({[propName]: value})
-    }
-
-    onPathChanged = (event) => {
-        this.setState({path: event.target.value});
     }
 
     notify = (text) => {
@@ -236,20 +249,18 @@ export class Endpoint extends Component {
             this.notify(validationResult);
             return;
         }
-        const {path, outputData, statusCode, method, interactionType, id, outputFile, callbackFile,
-            callbackData, callbackMethod, callbackUrl, auth, auths, headers, active} = this.state;
+        const {id, outputData, outputFile, callbackFile, callbackData} = this.state;
         const data = {
-            path: path,
-            outputStatusCode: parseInt(statusCode),
-            method: method,
-            callbackMethod: callbackMethod,
-            callbackUrl: callbackUrl,
-            //TODO: simplify
-            authId: auths.find(element => element.name === auth)?.id,
-            callbackType: (typeof(interactionType) === "number") ? interactionType: this.getInteractions().indexOf(interactionType),
-            headers,
             id,
-            active
+            path: this.state.path,
+            outputStatusCode: parseInt(this.state.statusCode),
+            method: this.state.method,
+            callbackMethod: this.state.callbackMethod,
+            callbackUrl: this.state.callbackUrl,
+            authId: this.state.auth?.key,
+            callbackType: this.state.interactionType,
+            headers: this.state.headers,
+            active: this.state.active
         }
 
         let formData = new FormData()
@@ -267,67 +278,26 @@ export class Endpoint extends Component {
             formData.append('callbackData', callbackData);
         }
 
-        const operation = (id) ? "Update" : "Add";
         this.setState({isLoading: true});
+        const {apiURL} = this.props.config;
 
-        const processResponse = (result) => {
-            if (!result) {
-                this.props.history.push("/endpoints")
-            } else {
-                this.setState({isLoading: false});
-                this.notify(result);
-            }
+        const response = (id) ?
+            await updateEndpoint(apiURL, formData) :
+            await addEndpoint(apiURL, formData);
+
+        if (response.ok) {
+            this.props.history.push("/endpoints")
+        } else {
+            this.setState({isLoading: false});
+            this.notify("An error occurred while processing request");
         }
-
-        fetch(`${this.props.config.apiURL}/Endpoint/${operation}`, {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => {
-            if (response.ok){
-                response.json();
-            } else {
-                processResponse();
-            }
-        })
-        .then(result => processResponse(result)).catch(error => processResponse(error.message));
-    }
-
-    getStatusCodes = () => {
-        fetch(`${this.props.config.apiURL}/Endpoint/GetStatusCodes`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        }).then((response) => response.json())
-        .then((statusCodes) => this.setState({statusCodes}));
-    }
-
-    getRESTMethods = () => {
-        fetch(`${this.props.config.apiURL}/Endpoint/GetRESTMethods`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        }).then((response) => response.json())
-        .then((methods) => this.setState({methods}));
-    }
-
-    getAuths = () => {
-        fetch(`${this.props.config.apiURL}/Auth/GetAll`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        }).then((response) => response.json())
-        .then((auths) => this.setState({auths: [{id: null, name: "None"}, ...auths]}));
     }
 
     validateEndpoint = () => {
         const {path, callbackUrl, interactionType} = this.state;
         if (!path || path.trim() === ""){
             return "Endpoint's path can't be empty";
-        } else if (this.getInteractions().indexOf(interactionType) === 1 && (!callbackUrl || callbackUrl.trim() === "")){
+        } else if (interactionType === interaction.Asynchronous && (!callbackUrl || callbackUrl.trim() === "")){
             return "Callback url is not specified";
         }
         return null;

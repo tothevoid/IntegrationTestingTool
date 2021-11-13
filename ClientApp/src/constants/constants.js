@@ -8,6 +8,11 @@ export const endpoint = {
     defaultWS: "https://localhost:44315"
 }
 
+export const interaction = {
+    Synchronous: "Synchronous",
+    Asynchronous: "Asynchronous"
+}
+
 export const httpMethods = [
     "GET",
     "PUT",

@@ -4,6 +4,7 @@ using IntegrationTestingTool.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace IntegrationTestingTool.Controllers
@@ -52,10 +53,6 @@ namespace IntegrationTestingTool.Controllers
 
         [HttpGet]
         public IEnumerable<int> GetStatusCodes() =>
-            EndpointService.GetStatusCodes();
-
-        [HttpGet]
-        public IEnumerable<string> GetRESTMethods() =>
-            EndpointService.GetRESTMethods();
+            EndpointService.GetStatusCodes().Distinct();
     }
 }

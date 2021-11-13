@@ -6,6 +6,7 @@ using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using IntegrationTestingTool.Model;
 using System.Threading.Tasks;
 
 namespace IntegrationTestingTool.Services
@@ -59,5 +60,18 @@ namespace IntegrationTestingTool.Services
 
         public async Task<IEnumerable<Auth>> GetAll() =>
             (await MongoCollection.FindAsync(new BsonDocument())).ToList();
+        
+        public async Task<IEnumerable<Option<Guid, string>>> GetAllAsLookup()
+        {
+            var projection = Builders<Auth>.Projection
+                .Include(auth => auth.Name);
+            var options = new FindOptions<Auth, Auth>
+            {
+                Projection = projection
+            };
+
+            return (await MongoCollection.FindAsync(new BsonDocument(), options))
+                .ToList().Select(x => new Option<Guid, string>(x.Id, x.Name));
+        } 
     }
 }

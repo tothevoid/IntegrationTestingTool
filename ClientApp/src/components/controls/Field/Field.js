@@ -1,5 +1,5 @@
 import "./Field.scss"
-import React, { Fragment } from 'react';
+import React from 'react';
 
 export const Field = (props) => {
     const {placeholder, onInput, value, label, theme, name, isTextarea, inline, className} = props;

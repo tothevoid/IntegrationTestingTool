@@ -16,11 +16,11 @@ export class Search extends Component {
         return <Fragment>
             <span className={`search-label ${theme}`}>Search</span>
             <input type="text" className={`search-input ${theme}`} 
-                onChange={this.handleChange} value={searchText}></input>
+                onChange={this.handleChange} value={searchText}/>
             {
                 (searchText) ?
-                    <Button mode="danger" onClick={this.onClearClick} caption={"X"}/> :
-                    <span></span>
+                    <Button additionalClasses="search-clear" mode="danger" onClick={this.onClearClick} caption={"X"}/> :
+                    null
             }
             </Fragment>
     }

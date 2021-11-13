@@ -4,7 +4,8 @@ import { Button } from "../../controls/Button/Button"
 import { Search } from "../../controls/Search/Search"
 import { formatFileSize } from "../../../utils/coreExtensions"
 import { Modal } from "../../controls/Modal/Modal";
-import { Checkbox } from "../../controls/Checkbox/Checkbox" 
+import { Checkbox } from "../../controls/Checkbox/Checkbox"
+import {deleteEndpoint, getAllEndpoints} from "../../../services/rest/endpoint";
 
 export class Endpoints extends Component {
     
@@ -16,22 +17,24 @@ export class Endpoints extends Component {
             isOnlyActive: false,
             searchText: ""
         }
-        this.fetchEndpoints("", false);
     }
+
+    componentDidMount = async () =>
+        await this.fetchEndpoints("", false);
 
     render = () => {
         const {theme} = this.props;
         const {showModal, isOnlyActive, searchText} = this.state;
         return <Fragment>
             <Button additionalClasses="new-endpoint-btn" theme={theme} caption="Add" onClick={() => this.navigateToEdit()}/>
-            <Search theme={theme} onTextChanged={this.getEndpoints}/>
+            <Search theme={theme} onTextChanged={async () => await this.getEndpoints()}/>
             <Checkbox caption="Only active" additionalClass={"checkbox-inline"} value={isOnlyActive}
-                      onSelect={(value) => {this.setState({isOnlyActive: value}); this.fetchEndpoints(searchText, value)}} theme={theme}/>
+                      onSelect={async (value) => {this.setState({isOnlyActive: value}); await this.fetchEndpoints(searchText, value)}} theme={theme}/>
             <div className="endpoints-list">
                 {this.state.endpoints.map((endpoint) => this.renderEndpoint(endpoint))}
             </div>
             {
-                <Modal theme={theme} onSuccess={this.onDecidedToDelete} onReject={()=>this.setState({showModal: false})}
+                <Modal theme={theme} onSuccess={async () => await this.onDecidedToDelete()} onReject={()=>this.setState({showModal: false})}
                        show={showModal} title="Are you sure?" text="Do you really want to delete that endpoint?"/>
             }
         </Fragment>
@@ -100,8 +103,8 @@ export class Endpoints extends Component {
     onExpand = (endpointId) => {
         const updatedEndpoints = this.state.endpoints.map((endpoint) => {
             if (endpoint.id === endpointId){
-                const expaned = endpoint?.expanded || false;
-                endpoint.expanded = !expaned;
+                const expanded = endpoint?.expanded || false;
+                endpoint.expanded = !expanded;
             }
             return endpoint;
         })
@@ -118,23 +121,29 @@ export class Endpoints extends Component {
         this.setState({endpoints: filteredEndpoints});
     }
 
-    onDecidedToDelete = () => {
+    onDecidedToDelete = async () => {
         const {selectedEndpoint} = this.state;
         this.setState({showModal: false});
-        fetch(`${this.props.config.apiURL}/Endpoint/Delete?id=${selectedEndpoint}`)
-            .then((response) => {if (response.text()) this.deleteEndpoints(selectedEndpoint)})
+        const {apiUrl} = this.props.config.apiURL;
+        const response = await deleteEndpoint(apiUrl, selectedEndpoint);
+        if (response.ok && await response.text()){
+            this.deleteEndpoints(selectedEndpoint);
+        }
     }
 
-    getEndpoints = (path) => {
+    getEndpoints = async (path) => {
         const {isOnlyActive} = this.state;
         this.setState({path});
-        this.fetchEndpoints(path, isOnlyActive);
+        await this.fetchEndpoints(path, isOnlyActive);
     }
 
-    fetchEndpoints = (path, isOnlyActive) => {
-        fetch(`${this.props.config.apiURL}/Endpoint/GetAll?path=${path}&onlyActive=${isOnlyActive}`)
-            .then((response)=> response.json())
-            .then((endpoints)=> {this.setState({endpoints: endpoints})});
+    fetchEndpoints = async (path, isOnlyActive) => {
+        const {apiURL} = this.props.config;
+        const data = {path, isOnlyActive};
+        const response = await getAllEndpoints(apiURL, data);
+        if (response.ok){
+            const endpoints = await response.json();
+            this.setState({endpoints})
+        }
     }
-      
 }    

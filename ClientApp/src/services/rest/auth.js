@@ -15,6 +15,9 @@ export const deleteAuth = async (baseUrl, id) =>
 export const getAllAuths = async (baseUrl) =>
     await fetch(getUrl(baseUrl, "GetAll"));
 
+export const getAllAuthsAsLookup = async (baseUrl) =>
+    await fetch(getUrl(baseUrl, "GetAllAsLookup"));
+
 const getUrl = (baseUrl, method) =>
     `${baseUrl}/auth/${method}`
 

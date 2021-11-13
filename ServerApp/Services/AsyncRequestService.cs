@@ -58,7 +58,7 @@ namespace IntegrationTestingTool.Services
                 }
             }
 
-            var message = new HttpRequestMessage(new HttpMethod(endpoint.CallbackMethod), endpoint.CallbackURL);
+            var message = new HttpRequestMessage(new HttpMethod(endpoint.CallbackMethod), endpoint.CallbackUrl);
             try
             {
                 var result = await client.SendAsync(message);

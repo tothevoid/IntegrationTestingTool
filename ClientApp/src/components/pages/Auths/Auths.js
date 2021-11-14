@@ -7,7 +7,6 @@ import { getAllAuths, deleteAuth } from "../../../services/rest/auth";
 
 import {ReactComponent as EditButton} from "../../../icons/edit.svg";
 import {ReactComponent as DeleteButton} from "../../../icons/delete.svg";
-import {ReactComponent as LightTheme} from "../../controls/NavMenu/images/light_mode.svg";
 
 export class Auths extends Component {
     constructor(props) {
@@ -55,8 +54,7 @@ export class Auths extends Component {
 
     navigateToEdit = (authId) => {
         this.props.history.push({
-            pathname: '/auth',
-            state: { authId }
+            pathname: (authId) ? `/auth/${authId}` : "/auth/",
         })
     }
 

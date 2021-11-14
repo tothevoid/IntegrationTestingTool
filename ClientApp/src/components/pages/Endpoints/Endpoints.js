@@ -76,8 +76,7 @@ export class Endpoints extends Component {
 
     navigateToEdit = (endpointId) => {
         this.props.history.push({
-            pathname: '/endpoint',
-            state: { endpointId }
+            pathname: (endpointId) ? `/endpoint/${endpointId}` : "/endpoint/",
         })
     }
 

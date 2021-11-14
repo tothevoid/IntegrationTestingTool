@@ -1,4 +1,5 @@
 import React, { Component, Fragment } from 'react';
+import {useParams, withRouter} from "react-router-dom"
 import { ComboBox } from "../../controls/ComboBox/ComboBox"
 import { Field } from "../../controls/Field/Field";
 import { Button } from "../../controls/Button/Button"
@@ -9,7 +10,7 @@ import {httpMethods} from "../../../constants/constants";
 import {addAuths, getAuthById, updateAuths} from "../../../services/rest/auth";
 import {isUrl} from "../../../utils/coreExtensions";
 
-export class Auth extends Component {
+class Auth extends Component {
     constructor(props) {
         super(props);
         const defaultState = this.getDefaultState();
@@ -36,7 +37,7 @@ export class Auth extends Component {
     }
 
     componentDidMount = async () => {
-        const id = this.props.location.state?.authId;
+        const {id} = this.props.match.params;
         if (id){
             await this.getEndpoint(id);
         }
@@ -169,3 +170,6 @@ export class Auth extends Component {
         this.setState({[name]: value});
     }
 }
+
+const AuthWithRouter = withRouter(Auth);
+export {AuthWithRouter as Auth}

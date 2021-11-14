@@ -3,7 +3,7 @@ import './App.scss'
 import React, { Component } from 'react';
 import { Route, Switch, HashRouter as Router } from 'react-router-dom';
 import { Endpoints } from './components/pages/Endpoints/Endpoints';
-import { Endpoint } from './components/pages/Endpoint/Endpoint';
+import { Endpoint} from './components/pages/Endpoint/Endpoint';
 import { Logs } from './components/pages/Logs/Logs';
 import { Auth } from './components/pages/Auth/Auth';
 import { NotFound } from './components/pages/NotFound/NotFound';
@@ -49,9 +49,9 @@ export default class App extends Component {
                 <Switch>
                     <Route exact path='/' render={(props) => <Endpoints {...props} {...this.state}/>}/>
                     <Route exact path='/endpoints' render={(props) => <Endpoints {...props} {...this.state}/>}/>
-                    <Route exact path='/endpoint' render={(props) => <Endpoint  {...props} {...this.state}/>}/>
+                    <Route path='/endpoint/:id?' render={(props) => <Endpoint  {...props} {...this.state}/>}/>
                     <Route exact path='/auths' render={(props) => <Auths {...props} {...this.state}/>}/>
-                    <Route exact path='/auth' render={(props) => <Auth  {...props} {...this.state}/>}/>
+                    <Route path='/auth/:id?' render={(props) => <Auth  {...props} {...this.state}/>}/>
                     <Route exact path='/logs' render={(props) => <Logs {...props} {...this.state}/>}/>
                     <Route component={NotFound} />
                 </Switch>

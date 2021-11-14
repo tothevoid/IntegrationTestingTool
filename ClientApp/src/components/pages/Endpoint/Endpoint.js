@@ -1,5 +1,6 @@
 import "./Endpoint.scss"
 import React, { Component, Fragment } from 'react';
+import { useParams, withRouter } from "react-router-dom"
 import { Button } from "../../controls/Button/Button"
 import { Spinner } from "../../controls/Spinner/Spinner"
 import { ComboBox } from "../../controls/ComboBox/ComboBox"
@@ -16,16 +17,17 @@ import {
     getEndpointById,
     updateEndpoint
 } from "../../../services/rest/endpoint";
+
 import { getAllAuthsAsLookup } from "../../../services/rest/auth";
 
-export class Endpoint extends Component {
+class Endpoint extends Component {
     static displayName = Endpoint.name;
 
     constructor(props) {
         super(props);
 
         this.state = this.getInitialState();
-        this.state.isLoading = this.props.location.state?.endpointId;
+        this.state.isLoading = this.props.match.params.id ?? false;
         this.state.statusCodes = [];
         this.state.auths = [];
         this.showHeadersModal = false;
@@ -37,7 +39,7 @@ export class Endpoint extends Component {
 
     componentDidMount = async () => {
         const {apiURL} = this.props.config;
-        const id = this.props.location.state?.endpointId;
+        const {id} = this.props.match.params;
         if (id){
             await this.getStateFromEndpoint(apiURL, id);
         }
@@ -305,3 +307,6 @@ export class Endpoint extends Component {
         return null;
     }
 }
+
+const EndpointWithRouter = withRouter(Endpoint);
+export {EndpointWithRouter as Endpoint}

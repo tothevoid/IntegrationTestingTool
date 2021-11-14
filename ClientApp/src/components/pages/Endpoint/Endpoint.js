@@ -102,18 +102,18 @@ class Endpoint extends Component {
             const state = {
                 id,
                 path: endpoint.path,
-                outputData: endpoint.outputData,
+                outputData: endpoint.outputData || "",
                 statusCode: endpoint.outputStatusCode,
                 interactionType: Object.values(this.interaction)[endpoint.callbackType],
                 method: endpoint.method,
                 callbackMethod: endpoint.callbackMethod,
-                callbackData: endpoint.callbackData,
+                callbackData: endpoint.callbackData || "",
                 callbackUrl: endpoint.callbackUrl,
                 auth: endpoint.authId,
                 headers: endpoint.headers,
                 active: endpoint.active,
-                outputFile: (endpoint.outputDataSize) ? {size: endpoint.outputDataSize}: null,
-                callbackFile: (endpoint.callbackDataSize) ? {size: endpoint.callbackDataSize}: null
+                outputFile: (endpoint.outputDataFileId?.timestamp) ? {size: endpoint.outputDataSize}: null,
+                callbackFile: (endpoint.callbackDataFileId?.timestamp) ? {size: endpoint.callbackDataSize}: null
             }
             this.setState({...state, isLoading: false});
         }
@@ -163,7 +163,7 @@ class Endpoint extends Component {
                     <Fragment>
                         <Field isTextarea theme={theme} name="outputData" value={outputData} label={t("endpoint.data")} onInput={this.onValueUpdated}/>
                         <div className="file-data">
-                            <label ref={this.outputFileControl} htmlFor="outputFile">{this.getFileIcon()} {t("endpoint.attachByFile")}</label>
+                            <label ref={this.outputFileControl} htmlFor="outputFile">{this.getFileIcon(true)} {t("endpoint.attachByFile")}</label>
                             <input id="outputFile" type='file' name="outputFile"
                                 onChange={(e) => this.onValueUpdated(e.target.name, e.target.files.length !== 0 ? e.target?.files[0]: null)}/>
                         </div>
@@ -187,8 +187,11 @@ class Endpoint extends Component {
         this.setState({headers: newHeaders})
     }
 
-    getFileIcon = () =>
-        <FileIcon fill="white"/>
+    getFileIcon = (invertColor = false) => {
+        const {theme} = this.props;
+        return <FileIcon fill={invertColor ? (theme === "dark" ? "#00917C" : "#008FFF" ): "white"}/>
+    }
+
 
     onDeleteFileClick = (propName) => {
         const propValue = this.state[propName]
@@ -212,7 +215,7 @@ class Endpoint extends Component {
                     <Fragment>
                         <Field isTextarea theme={theme} name="callbackData" value={callbackData} label={t("endpoint.data")} onInput={this.onValueUpdated}/>
                         <div className="file-data" >
-                            <label htmlFor="callbackFile">{this.getFileIcon()} {t("endpoint.attachByFile")}</label>
+                            <label htmlFor="callbackFile">{this.getFileIcon(true)} {t("endpoint.attachByFile")}</label>
                             <input ref={this.callbackFileControl} id="callbackFile" className="callbackFile" type='file' name="callbackFile"
                                 onChange={(e)=>this.onValueUpdated(e.target.name, e.target.files.length !== 0 ? e.target?.files[0]: null)}/>
                         </div>
@@ -223,10 +226,8 @@ class Endpoint extends Component {
 
     getExistingFileControl = (file, propName) => {
         const { theme } = this.props;
-        return <div className="file-container">
-            <div className={`file-control ${theme}`}
-                 onClick={() => this.setState({[propName]: null})}>{this.getFileIcon()} {formatFileSize(file.size)}
-            </div>
+        return <div className="file-container" onClick={() => this.setState({[propName]: null})}>
+            <div className={`file-control ${theme}`}>{this.getFileIcon()} {formatFileSize(file.size)}</div>
             <div className={`delete-btn ${theme}`}>x</div>
         </div>
     }
@@ -269,11 +270,10 @@ class Endpoint extends Component {
             callbackMethod: this.state.callbackMethod,
             callbackUrl: this.state.callbackUrl,
             authId: this.state.auth?.key,
-            callbackType: this.state.interactionType,
+            callbackType: Object.values(this.interaction).indexOf(this.state.interactionType),
             headers: this.state.headers,
             active: this.state.active
         }
-
         let formData = new FormData()
         Object.keys(data).forEach(key => {if (data[key] !== undefined) formData.append(key, data[key])});
        

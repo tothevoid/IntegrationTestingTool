@@ -24,7 +24,6 @@ i18n
         },
     },
     react: {
-        wait: true,
         useSuspense: false
     }
 });

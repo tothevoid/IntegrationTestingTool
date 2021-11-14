@@ -22,7 +22,7 @@
     .headers-modal-container {
         position: relative;
         padding: 10px;
-        width: 520px;
+        width: 640px;
         border-radius: 10px;
         max-height: 80vh;
         overflow-y: auto;
@@ -58,5 +58,5 @@
 }
 
 .header-btn{
-    width: 60px;
+    min-width: 60px;
 }

@@ -23,3 +23,8 @@ export const httpMethods = [
     "TRACE",
     "PATCH"
 ]
+
+export const localization = {
+    English: "en",
+    Russian: "ru"
+}

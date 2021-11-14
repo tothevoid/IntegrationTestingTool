@@ -8,8 +8,9 @@ import { Checkbox } from "../../controls/Checkbox/Checkbox"
 import {deleteEndpoint, getAllEndpoints} from "../../../services/rest/endpoint";
 import {ReactComponent as EditButton} from "../../../icons/edit.svg";
 import {ReactComponent as DeleteButton} from "../../../icons/delete.svg";
+import {withTranslation} from "react-i18next";
 
-export class Endpoints extends Component {
+class Endpoints extends Component {
     
     constructor(props) {
         super(props);
@@ -25,26 +26,26 @@ export class Endpoints extends Component {
         await this.fetchEndpoints("", false);
 
     render = () => {
-        const {theme} = this.props;
+        const {theme, t} = this.props;
         const {showModal, isOnlyActive, searchText} = this.state;
         return <Fragment>
-            <Button additionalClasses="new-endpoint-btn" theme={theme} caption="Add" onClick={() => this.navigateToEdit()}/>
-            <Search theme={theme} onTextChanged={async (path) => await this.getEndpoints(path, isOnlyActive)}/>
-            <Checkbox caption="Only active" additionalClass={"checkbox-inline"} value={isOnlyActive}
+            <Button additionalClasses="new-endpoint-btn" theme={theme} caption={t("button.add")} onClick={() => this.navigateToEdit()}/>
+            <Search caption={t("endpoints.search")} theme={theme} onTextChanged={async (path) => await this.getEndpoints(path, isOnlyActive)}/>
+            <Checkbox caption={t("endpoints.active")} additionalClass={"checkbox-inline"} value={isOnlyActive}
                       onSelect={async (value) => {this.setState({isOnlyActive: value}); await this.fetchEndpoints(searchText, value)}} theme={theme}/>
             <div className="endpoints-list">
                 {this.state.endpoints.map((endpoint) => this.renderEndpoint(endpoint))}
             </div>
             {
                 <Modal theme={theme} onSuccess={async () => await this.onDecidedToDelete()} onReject={()=>this.setState({showModal: false})}
-                       show={showModal} title="Are you sure?" text="Do you really want to delete that endpoint?"/>
+                       show={showModal} title={t("endpoints.deleteWarningTitle")} text={t("endpoints.deleteWarningText")}/>
             }
         </Fragment>
     }
 
     renderEndpoint = (endpoint) =>
     {
-        const {theme, config} = this.props;
+        const {theme, config, t} = this.props;
         const {path, outputDataSize, outputStatusCode, method, callbackType, 
             callbackUrl, callbackMethod, active, callbackDataSize} = endpoint;
         const postfix = active ? "active" : "inactive";
@@ -52,12 +53,12 @@ export class Endpoints extends Component {
         return <div key={endpoint.id} className={`endpoint ${theme}`}>
             <div>
                 <div className="path"><span className={`activity-sign ${postfix}`}/>[{method}] {config?.mockURL}/{path}</div>
-                <div className="returns">
-                    {`Returns status code: ${outputStatusCode}. Data size: ${formatFileSize(outputDataSize)}`}
-                </div>
+                <div className="returns">{t("endpoints.descriptionMain", {code: outputStatusCode, dataSize: formatFileSize(outputDataSize)})}</div>
                 {
                     (callbackType === 1) ?
-                        <div className="returns">Then calls [{callbackMethod}] {callbackUrl} ({formatFileSize(callbackDataSize)})</div> :
+                        <div className="returns">
+                            {t("endpoints.descriptionAdditional", {method: callbackMethod, url: callbackUrl, dataSize: formatFileSize(callbackDataSize)})}
+                        </div> :
                         null
                 }
             {
@@ -114,4 +115,7 @@ export class Endpoints extends Component {
             this.setState({endpoints})
         }
     }
-}    
+}
+
+const WrappedEndpoints = withTranslation()(Endpoints);
+export {WrappedEndpoints as Endpoints}

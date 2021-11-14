@@ -1,4 +1,5 @@
 import "./Endpoint.scss"
+import { withTranslation } from 'react-i18next';
 import React, { Component, Fragment } from 'react';
 import { useParams, withRouter } from "react-router-dom"
 import { Button } from "../../controls/Button/Button"
@@ -297,10 +298,10 @@ class Endpoint extends Component {
     }
 
     validateEndpoint = () => {
-        const { config } = this.props;
+        const { config, t } = this.props;
         const { path, callbackUrl, interactionType } = this.state;
         if (!isUrl(`${config?.mockURL}/${path}`)){
-            return "Endpoint url has incorrect format";
+            return t("endpoint.validation.endpointUrl");
         } else if (interactionType === interaction.Asynchronous && !isUrl(callbackUrl)){
             return "Callback url has incorrect format";
         }
@@ -308,5 +309,5 @@ class Endpoint extends Component {
     }
 }
 
-const EndpointWithRouter = withRouter(Endpoint);
-export {EndpointWithRouter as Endpoint}
+const WrappedEndpoint = withTranslation()(withRouter(Endpoint));
+export {WrappedEndpoint as Endpoint}

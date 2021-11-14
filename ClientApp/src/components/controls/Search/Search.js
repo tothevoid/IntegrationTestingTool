@@ -12,9 +12,9 @@ export class Search extends Component {
 
     render = () => {
         const { searchText } = this.state;
-        const { theme } = this.props;
+        const { theme, caption } = this.props;
         return <Fragment>
-            <span className={`search-label ${theme}`}>Search</span>
+            <span className={`search-label ${theme}`}>{caption}</span>
             <input type="text" className={`search-input ${theme}`} 
                 onChange={this.handleChange} value={searchText}/>
             {

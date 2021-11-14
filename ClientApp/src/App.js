@@ -9,10 +9,11 @@ import { Auth } from './components/pages/Auth/Auth';
 import { NotFound } from './components/pages/NotFound/NotFound';
 import { NavMenu } from "./components/controls/NavMenu/NavMenu"
 import { Container } from 'reactstrap';
-import { endpoint, theme } from "./constants/constants"
+import {endpoint, localization, theme} from "./constants/constants"
 import { Auths } from "./components/pages/Auths/Auths";
+import {withTranslation} from "react-i18next";
 
-export default class App extends Component {
+class App extends Component {
     static displayName = App.name;
 
     constructor(props){
@@ -31,8 +32,11 @@ export default class App extends Component {
             },
             theme: localStorage.getItem("theme") || theme.dark
         }
-
         document.body.classList.add(this.state.theme);
+
+        const {i18n} = props;
+        const currentLang = localStorage.getItem("lang") || localization.English;
+        i18n.changeLanguage(currentLang);
     }
 
     componentDidMount = () =>
@@ -78,3 +82,6 @@ export default class App extends Component {
             });
 
 }
+
+const WrappedApp = withTranslation()(App);
+export {WrappedApp as default}

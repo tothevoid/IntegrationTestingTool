@@ -5,6 +5,10 @@ import { Notification } from '../../controls/Notification/Notification';
 import "./Auths.scss"
 import { getAllAuths, deleteAuth } from "../../../services/rest/auth";
 
+import {ReactComponent as EditButton} from "../../../icons/edit.svg";
+import {ReactComponent as DeleteButton} from "../../../icons/delete.svg";
+import {ReactComponent as LightTheme} from "../../controls/NavMenu/images/light_mode.svg";
+
 export class Auths extends Component {
     constructor(props) {
         super(props);
@@ -23,15 +27,20 @@ export class Auths extends Component {
         const {theme} = this.props;
         const {auths, showModal} = this.state;
         return <Fragment>
-            <Button theme={theme} caption="New" onClick={this.navigateToEdit}/>
+            <Button additionalClasses="new-auth-btn" theme={theme} caption="Add" onClick={this.navigateToEdit}/>
             <div className="auths">
                 {
                     auths.map(auth => <div key={auth.id} className={`auth ${theme}`}>
-                        <div>{auth.name}</div>
-                        <div>{auth.url}</div>
-                        <div className="auth-delete">
-                            <Button onClick={async () => this.navigateToEdit(auth.id)} caption="Edit"/>
-                            <Button onClick={() => this.onDecidedToDelete(auth.id)} additionalClasses="auth-delete-btn" mode="danger" caption="Delete"/>
+                        <p className="auth-title">{auth.name}</p>
+                        <p className="auth-url">[{auth.method}] {auth.url}</p>
+                        <p className="auth-data">{auth.data}</p>
+                        <div className="auth-manipulations">
+                           <span onClick={async () => this.navigateToEdit(auth.id)} className={`auth-edit ${theme}`}>
+                              <EditButton fill={"black"} className="theme-switch"/>
+                           </span>
+                            <span onClick={async () => this.onDecidedToDelete(auth.id)} className={`auth-delete ${theme}`}>
+                              <DeleteButton fill={"white"} className="theme-switch"/>
+                           </span>
                         </div>
                     </div>)
                 }

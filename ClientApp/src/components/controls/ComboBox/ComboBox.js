@@ -5,25 +5,21 @@ export class ComboBox extends Component {
     
     constructor(props) {
         super(props);
-        const selectedValue = (this.props.selectedValue) ?
-            this.props.selectedValue:
-            this.props.values[0];
-        this.state = {selectedValue: selectedValue};
-        this.props.onSelect(selectedValue);
+
+        const {selectedValue, values} = this.props;
+
+        if (!selectedValue && values && values.length !== 0){
+            this.props.onSelect(this.props.values[0]);
+        }
     }
 
     render = () => {
-        const {theme} = this.props;
-        const {selectedValue} = this.state;
-        const {values} = this.props;
-
-        const currentValue = typeof(selectedValue) === "object" ?
+        const {theme, values, selectedValue} = this.props;
+        const preprocessedValue = typeof(selectedValue) === "object" ?
             selectedValue.value :
-            selectedValue
+            selectedValue;
 
-        console.log(values.map(x=>(typeof(x) === "object") ? x.key: x));
-
-        return <select className={`combobox ${theme}`} onChange={this.handleChange} value={currentValue}>
+        return <select className={`combobox ${theme}`} onChange={this.handleChange} value={preprocessedValue}>
             {values.map((value) => {
                     const isObject = typeof(value) === "object";
                     return isObject ?

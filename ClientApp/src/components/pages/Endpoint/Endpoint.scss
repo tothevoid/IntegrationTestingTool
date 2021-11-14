@@ -47,16 +47,10 @@
     font-size: 20px;
     display: inline-block;
     padding: 2px;
-    &.light{
-        background-color: $highlithing-light;
-    }
-    &.dark{
-        background-color: $highlithing-dark;
-    }
+    font-weight: 700;
 }
 
 .file-data{
-    display: block;
     display: flex;
     align-items: center;
     margin: 0 0 10px 0;
@@ -74,18 +68,25 @@
 
 .file-container{
     position: relative;
-    width: 200px;
+    width: 150px;
+    cursor: pointer;
 }
 
 .file-control{
-    width: 100%;
     text-overflow: clip;
     height: 35px;
     padding: 5px;
-    background: white;
     margin: 5px 0;
     border-radius: 10px;
     color:black;
+    &.dark{
+        background: $button-background-dark;
+        color: $button-foreground-dark;
+    }
+    &.light{
+        background: $button-background-light;
+        color: $button-foreground-light;
+    }
 }
 
 .delete-btn{
@@ -93,6 +94,12 @@
     color:black;
     right: 5px;
     top: 0;
+    &.dark{
+        color: $button-foreground-dark;
+    }
+    &.light{
+        color: $button-foreground-light;
+    }
 }
 
 .spinner-content{

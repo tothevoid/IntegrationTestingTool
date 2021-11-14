@@ -1,9 +1,5 @@
 @import "./globals.scss";
 
-html, body, #root{
-  height: 100%;
-}
-
 body{
   &.light{
     background-color: $app-background-light;

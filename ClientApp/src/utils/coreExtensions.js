@@ -1,4 +1,4 @@
-export const uuidv4 = () => 
+export const uuidv4 = () =>
     ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
         (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
 
@@ -18,3 +18,7 @@ export const formatFileSize = (fileSize) => {
 
     return `${fileSize.toFixed(2)} ${currentPostfix}`;
 }
+
+export const isUrl = (text) =>
+    typeof(text) === "string" && text &&
+        text.match(/https?:\/\/(?:w{1,3}\.)?[^\s.]+(?:\.[a-z]+)*(?::\d+)?((?:\/\w+)|(?:-\w+))*\/?(?![^<]*(?:<\/\w+>|\/?>))/)

@@ -6,7 +6,7 @@ import { ComboBox } from "../../controls/ComboBox/ComboBox"
 import { Notification } from "../../controls/Notification/Notification"
 import { Checkbox } from "../../controls/Checkbox/Checkbox"
 import { Field } from "../../controls/Field/Field";
-import { formatFileSize } from "../../../utils/coreExtensions"
+import {formatFileSize, isUrl} from "../../../utils/coreExtensions"
 import { ReactComponent as FileIcon } from "./images/file.svg";
 import { HeadersModal } from "../../controls/HeadersModal/HeadersModal";
 import { httpMethods, interaction }  from "../../../constants/constants";
@@ -150,10 +150,7 @@ export class Endpoint extends Component {
             }
             {
                 (outputFile) ?
-                    <div onClick={()=>this.onDeleteFileClick()} className="file-container">
-                        <div className="file-control" onClick={() => this.setState({outputFile: null})}>Output data: {formatFileSize(outputFile.size)}</div>
-                        <div className="delete-btn">x</div>
-                    </div>:
+                    this.getExistingFileControl(outputFile, "outputFile"):
                     <Fragment>
                         <Field isTextarea theme={theme} name="outputData" value={outputData} label="Response data:" onInput={this.onValueUpdated}/>
                         <div className="file-data">
@@ -181,12 +178,8 @@ export class Endpoint extends Component {
         this.setState({headers: newHeaders})
     }
 
-    getFileIcon = () => {  
-        const {theme} = this.props;
-        return (theme === "dark") ?
-            <FileIcon fill="white"/> :
-            <FileIcon/>
-    }
+    getFileIcon = () =>
+        <FileIcon fill="white"/>
 
     onDeleteFileClick = (propName) => {
         const propValue = this.state[propName]
@@ -206,9 +199,7 @@ export class Endpoint extends Component {
             </div>
             {
                 (callbackFile) ?
-                    <Fragment>
-                        <div onClick={() => this.setState({callbackFile: null})}>Callback data: {formatFileSize(callbackFile.size)}</div>
-                    </Fragment>:
+                   this.getExistingFileControl(callbackFile, "callbackFile"):
                     <Fragment>
                         <Field isTextarea theme={theme} name="callbackData" value={callbackData} label="Data:" onInput={this.onValueUpdated}/>
                         <div className="file-data" >
@@ -219,6 +210,16 @@ export class Endpoint extends Component {
                     </Fragment>
             }
         </Fragment>
+    }
+
+    getExistingFileControl = (file, propName) => {
+        const { theme } = this.props;
+        return <div className="file-container">
+            <div className={`file-control ${theme}`}
+                 onClick={() => this.setState({[propName]: null})}>{this.getFileIcon()} {formatFileSize(file.size)}
+            </div>
+            <div className={`delete-btn ${theme}`}>x</div>
+        </div>
     }
 
     formatRowField = (value, values, title, name) => {
@@ -294,11 +295,12 @@ export class Endpoint extends Component {
     }
 
     validateEndpoint = () => {
-        const {path, callbackUrl, interactionType} = this.state;
-        if (!path || path.trim() === ""){
-            return "Endpoint's path can't be empty";
-        } else if (interactionType === interaction.Asynchronous && (!callbackUrl || callbackUrl.trim() === "")){
-            return "Callback url is not specified";
+        const { config } = this.props;
+        const { path, callbackUrl, interactionType } = this.state;
+        if (!isUrl(`${config?.mockURL}/${path}`)){
+            return "Endpoint url has incorrect format";
+        } else if (interactionType === interaction.Asynchronous && !isUrl(callbackUrl)){
+            return "Callback url has incorrect format";
         }
         return null;
     }

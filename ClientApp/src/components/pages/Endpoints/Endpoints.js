@@ -6,6 +6,8 @@ import { formatFileSize } from "../../../utils/coreExtensions"
 import { Modal } from "../../controls/Modal/Modal";
 import { Checkbox } from "../../controls/Checkbox/Checkbox"
 import {deleteEndpoint, getAllEndpoints} from "../../../services/rest/endpoint";
+import {ReactComponent as EditButton} from "../../../icons/edit.svg";
+import {ReactComponent as DeleteButton} from "../../../icons/delete.svg";
 
 export class Endpoints extends Component {
     
@@ -27,7 +29,7 @@ export class Endpoints extends Component {
         const {showModal, isOnlyActive, searchText} = this.state;
         return <Fragment>
             <Button additionalClasses="new-endpoint-btn" theme={theme} caption="Add" onClick={() => this.navigateToEdit()}/>
-            <Search theme={theme} onTextChanged={async () => await this.getEndpoints()}/>
+            <Search theme={theme} onTextChanged={async (path) => await this.getEndpoints(path, isOnlyActive)}/>
             <Checkbox caption="Only active" additionalClass={"checkbox-inline"} value={isOnlyActive}
                       onSelect={async (value) => {this.setState({isOnlyActive: value}); await this.fetchEndpoints(searchText, value)}} theme={theme}/>
             <div className="endpoints-list">
@@ -44,52 +46,31 @@ export class Endpoints extends Component {
     {
         const {theme, config} = this.props;
         const {path, outputDataSize, outputStatusCode, method, callbackType, 
-            callbackURL, callbackMethod, callbackData, expanded, headers, active} = endpoint;
+            callbackUrl, callbackMethod, active, callbackDataSize} = endpoint;
         const postfix = active ? "active" : "inactive";
 
         return <div key={endpoint.id} className={`endpoint ${theme}`}>
             <div>
-                <div className="path"><span className={`activity-sign ${postfix}`}/>{config?.mockURL}/{path}</div>
-                <div>Method: <b>{method}</b></div>
+                <div className="path"><span className={`activity-sign ${postfix}`}/>[{method}] {config?.mockURL}/{path}</div>
                 <div className="returns">
                     {`Returns status code: ${outputStatusCode}. Data size: ${formatFileSize(outputDataSize)}`}
                 </div>
                 {
                     (callbackType === 1) ?
-                        <Fragment>
-                            <div className="returns">Then call</div>
-                            <div className="returns-values">
-                                <div>URL: {callbackURL}</div>
-                                <div>Method: <b>{callbackMethod}</b></div>
-                                <div>Data: {callbackData}</div>
-                            </div>
-                        </Fragment>:
+                        <div className="returns">Then calls [{callbackMethod}] {callbackUrl} ({formatFileSize(callbackDataSize)})</div> :
                         null
                 }
-                {
-                    (headers && headers.length !== 0) ?
-                        <div className="expand" onClick={() => this.onExpand(endpoint.id)}>{endpoint.expanded ? "[Hide]" : "[Expand]"}</div> :
-                        null
-                }
-                {
-                    (expanded) ? 
-                        <div>
-                            <div>Expected headers: </div>
-                            <ul className="expected-headers">
-                                {endpoint.headers
-                                    .map(header => <li>{`${header.key} : ${header.value}`}</li>)
-                                }
-                            </ul>
-                        </div> :
-                        null
-                }
-            </div>
             {
                 <div className="endpoint-manipulations">
-                    <Button onClick={() => this.navigateToEdit(endpoint.id)} caption={"Edit"}/>
-                    <Button onClick={() => this.deleteEndpoint(endpoint.id)} additionalClasses="endpoint-delete" mode="danger" caption={"Delete"}/>
+                    <span onClick={async () => this.navigateToEdit(endpoint.id)} className={`endpoint-edit ${theme}`}>
+                      <EditButton fill={"black"} className="theme-switch"/>
+                   </span>
+                    <span onClick={async () => this.deleteEndpoint(endpoint.id)} className={`endpoint-delete ${theme}`}>
+                      <DeleteButton fill={"white"} className="theme-switch"/>
+                   </span>
                 </div>
             }
+            </div>
         </div>
     }
 
@@ -98,17 +79,6 @@ export class Endpoints extends Component {
             pathname: '/endpoint',
             state: { endpointId }
         })
-    }
-
-    onExpand = (endpointId) => {
-        const updatedEndpoints = this.state.endpoints.map((endpoint) => {
-            if (endpoint.id === endpointId){
-                const expanded = endpoint?.expanded || false;
-                endpoint.expanded = !expanded;
-            }
-            return endpoint;
-        })
-        this.setState({endpoints: updatedEndpoints});
     }
 
     deleteEndpoint = (endpointId) => {
@@ -124,15 +94,14 @@ export class Endpoints extends Component {
     onDecidedToDelete = async () => {
         const {selectedEndpoint} = this.state;
         this.setState({showModal: false});
-        const {apiUrl} = this.props.config.apiURL;
-        const response = await deleteEndpoint(apiUrl, selectedEndpoint);
+        const {apiURL} = this.props.config;
+        const response = await deleteEndpoint(apiURL, selectedEndpoint);
         if (response.ok && await response.text()){
             this.deleteEndpoints(selectedEndpoint);
         }
     }
 
-    getEndpoints = async (path) => {
-        const {isOnlyActive} = this.state;
+    getEndpoints = async (path, isOnlyActive) => {
         this.setState({path});
         await this.fetchEndpoints(path, isOnlyActive);
     }

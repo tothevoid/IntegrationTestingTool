@@ -5,8 +5,9 @@ import { Button } from "../../controls/Button/Button"
 import { Notification } from '../../controls/Notification/Notification';
 import "./Auth.scss"
 import { HeadersModal } from "../../controls/HeadersModal/HeadersModal";
-import { httpMethods } from "../../../constants/constants";
+import {httpMethods} from "../../../constants/constants";
 import {addAuths, getAuthById, updateAuths} from "../../../services/rest/auth";
+import {isUrl} from "../../../utils/coreExtensions";
 
 export class Auth extends Component {
     constructor(props) {
@@ -66,13 +67,13 @@ export class Auth extends Component {
             <div className="fields-row">
                 <div className="method">
                     <div>Method</div>
-                    <ComboBox theme={theme} selectedValue={method} values={methods} onSelect={(value) => this.setState({[method]: value})}/>
+                    <ComboBox theme={theme} selectedValue={method} values={methods} onSelect={(value) => this.onFieldInput("method", value)}/>
                 </div>
                 <Field className="url" label="URL" name="url" theme={theme} value={url} onInput={this.onFieldInput}/>
             </div>
             <Field label="Data" name="data" theme={theme} value={data} onInput={this.onFieldInput} isTextarea/>
-            <Button theme={theme} caption={`Setup headers (${headers.length})`} onClick={()=>this.setState({showHeadersModal: true})}/>
-            <div>Include into next Request:</div>
+            <Button theme={theme} caption={`Request headers (${headers.length})`} onClick={()=>this.setState({showHeadersModal: true})}/>
+            <div>Headers copied into next request:</div>
             <div className="used-headers">
                 {this.state.usedResponseHeaders.map((header) =>
                     <div className={theme} onClick={() => this.deleteFromCollection(header)} key={header}>{header}</div>
@@ -125,6 +126,12 @@ export class Auth extends Component {
         const { id } = this.state;
         const { apiURL } = this.props.config;
 
+        const validationResult = this.validateAuth();
+        if (validationResult){
+            this.notify(validationResult);
+            return;
+        }
+
         const authData = {
             id: id,
             name: this.state.name,
@@ -144,6 +151,18 @@ export class Auth extends Component {
         } else {
             await this.notify(response.text())
         }
+    }
+
+    validateAuth = () => {
+        const { url, name, usedResponseHeaders} = this.state;
+        if (!name || !name.trim()){
+            return "Auth url has incorrect format";
+        } else if (!isUrl(url)){
+            return "Name can't be empty";
+        } else if (!usedResponseHeaders || usedResponseHeaders.length === 0){
+            return "At least one parameter must me included to the next request";
+        }
+        return null;
     }
 
     onFieldInput = (name, value) => {

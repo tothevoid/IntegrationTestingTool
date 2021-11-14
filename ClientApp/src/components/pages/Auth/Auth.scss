@@ -47,22 +47,6 @@
     }
 }
 
-.auth{
-    @include list-item-base;
-    margin: 10px 0;
-    height: 60px;
-}
-
-.auth-delete{
-    position: absolute;
-    right: 10px;
-    top: 10px;
-    margin-left: 10px;
-}
-
-.auth-delete-btn{
-    margin-left: 10px;
-}
 
 .cancel-btn {
     margin-left: 5px;

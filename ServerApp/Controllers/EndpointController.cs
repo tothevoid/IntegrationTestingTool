@@ -22,8 +22,8 @@ namespace IntegrationTestingTool.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<Endpoint>> GetAll(string path, bool onlyActive) =>
-             await EndpointService.GetAllByFilters(path, onlyActive);
+        public async Task<IEnumerable<Endpoint>> GetAll(string path, bool isOnlyActive) =>
+             await EndpointService.GetAllByFilters(path, isOnlyActive);
 
         [HttpPost]
         [RequestFormLimits(MultipartBodyLengthLimit = 1073741824)]

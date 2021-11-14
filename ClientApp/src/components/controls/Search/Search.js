@@ -25,14 +25,15 @@ export class Search extends Component {
             </Fragment>
     }
 
-    onClearClick = () => {
-        this.setState({searchText: ""});
-    }
+    onClearClick = () =>
+        this.handleTextChange("")
 
-    handleChange = (event) => {
+    handleChange = ({target}) =>
+        this.handleTextChange(target.value)
+
+    handleTextChange = (text) => {
         const {onTextChanged} = this.props;
-        const text = event.target.value;
         this.setState({ searchText: text });
         onTextChanged(text);
-    };
+    }
 }

@@ -1,7 +1,8 @@
 export const TRANSLATION_RU = {
 	button: {
 		add: "Добавить",
-		update: "Обновить"
+		update: "Обновить",
+		back: "Назад"
 	},
 	nav:{
 		endpoints: "Конечные точки",
@@ -38,8 +39,8 @@ export const TRANSLATION_RU = {
 		data: "Данные",
 		attachByFile: "Загрузить данные из файла",
 		action:{
-			add: "Добавить точку",
-			update: "Обновить точку"
+			add: "Добавление точки",
+			update: "Редактирование точки"
 		},
 		validation: {
 			endpointUrl: "Адрес конечной точки задан некорректно",
@@ -56,5 +57,33 @@ export const TRANSLATION_RU = {
 			success: "Авторизация успешно удалена",
 			error: "Возникла ошибка при удалении авторизации"
 		}
+	},
+	auth: {
+		name: "Название",
+		httpMethod: "HTTP метод",
+		url: "Адрес",
+		data: "Данные",
+		requestHeaders: "Настроить заголовки ({{quantity}})",
+		copiedHeaders: "Заголовки, копируемые в следующий запрос",
+		addHeader: "Добавить заголовок",
+		action:{
+			add: "Добавление авторизации",
+			update: "Редактирование авторизации"
+		},
+		validation: {
+			url: "Адрес задан некорректно",
+			name: "Название не может быть пустым",
+			headers: "Хотя бы один параметр должен быть включён в следующий запрос"
+		},
+	},
+	logs: {
+		date: "Дата",
+		newRequests: "Новых запросов: {{quantity}}",
+		received: "Получено",
+		returned: "Возвращено",
+		code: "Код ответа",
+		new: "Новый",
+		dataSize: "Размер данных",
+		error: "Ошибка при обработке запроса: {{message}}"
 	}
 }

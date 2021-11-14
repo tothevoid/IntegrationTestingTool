@@ -1,7 +1,8 @@
 export const TRANSLATION_EN = {
     button: {
         add: "Add",
-        update: "Update"
+        update: "Update",
+        back: "Back"
     },
     nav:{
         endpoints: "Endpoints",
@@ -56,5 +57,33 @@ export const TRANSLATION_EN = {
             success: "Auth successfully deleted",
             error: "An error occurred while deleting auth"
         }
+    },
+    auth: {
+        name: "Name",
+        httpMethod: "HTTP method",
+        url: "URL",
+        data: "Data",
+        requestHeaders: "Request headers ({{quantity}})",
+        copiedHeaders: "Headers copied into next request:",
+        addHeader: "Add header",
+        action:{
+            add: "Add auth",
+            update: "Update auth"
+        },
+        validation: {
+            url: "Auth url has incorrect format",
+            name: "Name can't be empty",
+            headers: "At least one parameter must me included to the next request"
+        },
+    },
+    logs: {
+        date: "Date",
+        newRequests: "New requests: {{quantity}}",
+        received: "Received",
+        returned: "Returned",
+        code: "Status code",
+        new: "New",
+        dataSize: "Data size",
+        error: "An error during request process: {{message}}"
     }
 }

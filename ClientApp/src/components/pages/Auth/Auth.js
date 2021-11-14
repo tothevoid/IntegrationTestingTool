@@ -9,6 +9,7 @@ import { HeadersModal } from "../../controls/HeadersModal/HeadersModal";
 import {httpMethods} from "../../../constants/constants";
 import {addAuths, getAuthById, updateAuths} from "../../../services/rest/auth";
 import {isUrl} from "../../../utils/coreExtensions";
+import {withTranslation} from "react-i18next";
 
 class Auth extends Component {
     constructor(props) {
@@ -60,35 +61,35 @@ class Auth extends Component {
     }
 
     renderNewAuth = () => {
-        const {theme} = this.props;
+        const {theme, t} = this.props;
         const {name, data, url, method, methods, usedHeader, id, headers, showHeadersModal} = this.state;
         return <div className={`new-auth ${theme}`}>
-            <h1>{(id) ? "Update auth" : "New auth" }</h1>
-            <Field className="auth-name" label="Name" name="name" theme={theme} value={name} onInput={this.onFieldInput}/>
+            <h1>{t((id) ? "auth.action.update" : "auth.action.add")}</h1>
+            <Field className="auth-name" label={t("auth.name")} name="name" theme={theme} value={name} onInput={this.onFieldInput}/>
             <div className="fields-row">
                 <div className="method">
-                    <div>Method</div>
+                    <div>{t("auth.httpMethod")}</div>
                     <ComboBox theme={theme} selectedValue={method} values={methods} onSelect={(value) => this.onFieldInput("method", value)}/>
                 </div>
-                <Field className="url" label="URL" name="url" theme={theme} value={url} onInput={this.onFieldInput}/>
+                <Field className="url" label={t("auth.url")} name="url" theme={theme} value={url} onInput={this.onFieldInput}/>
             </div>
-            <Field label="Data" name="data" theme={theme} value={data} onInput={this.onFieldInput} isTextarea/>
-            <Button theme={theme} caption={`Request headers (${headers.length})`} onClick={()=>this.setState({showHeadersModal: true})}/>
-            <div>Headers copied into next request:</div>
+            <Field label={t("auth.data")} name="data" theme={theme} value={data} onInput={this.onFieldInput} isTextarea/>
+            <Button theme={theme} caption={t("auth.requestHeaders", {quantity: headers.length})} onClick={()=>this.setState({showHeadersModal: true})}/>
+            <div>{t("auth.copiedHeaders")}:</div>
             <div className="used-headers">
                 {this.state.usedResponseHeaders.map((header) =>
                     <div className={theme} onClick={() => this.deleteFromCollection(header)} key={header}>{header}</div>
                 )}
             </div>
             <div className="new-collection-item">
-                <Field inline label="Add header" name="usedHeader" theme={theme} value={usedHeader} onInput={this.onFieldInput}/>
-                <Button theme={theme} onClick={() => this.addIntoCollection()} caption={"Add"}/>
+                <Field inline label={t("auth.addHeader")} name="usedHeader" theme={theme} value={usedHeader} onInput={this.onFieldInput}/>
+                <Button theme={theme} onClick={() => this.addIntoCollection()} caption={t("button.add")}/>
             </div>
             <div>
-                <Button theme={theme} onClick={async () => await this.save()} caption={(id) ? "Update": "Create"}/>
+                <Button theme={theme} onClick={async () => await this.save()} caption={t((id) ? "button.update": "button.add")}/>
                 {
                     (id) ?
-                        <Button additionalClasses="cancel-btn" theme={theme} onClick={this.navigateToAuths} caption="Back"/> :
+                        <Button additionalClasses="cancel-btn" theme={theme} onClick={this.navigateToAuths} caption={t("button.back")}/> :
                         null
                 }
             </div>
@@ -126,10 +127,11 @@ class Auth extends Component {
     save = async () => {
         const { id } = this.state;
         const { apiURL } = this.props.config;
+        const { t } = this.props;
 
         const validationResult = this.validateAuth();
         if (validationResult){
-            this.notify(validationResult);
+            this.notify(t(validationResult));
             return;
         }
 
@@ -157,11 +159,11 @@ class Auth extends Component {
     validateAuth = () => {
         const { url, name, usedResponseHeaders} = this.state;
         if (!name || !name.trim()){
-            return "Auth url has incorrect format";
+            return "auth.validation.name";
         } else if (!isUrl(url)){
-            return "Name can't be empty";
+            return "auth.validation.url";
         } else if (!usedResponseHeaders || usedResponseHeaders.length === 0){
-            return "At least one parameter must me included to the next request";
+            return "auth.validation.headers";
         }
         return null;
     }
@@ -171,5 +173,5 @@ class Auth extends Component {
     }
 }
 
-const AuthWithRouter = withRouter(Auth);
+const AuthWithRouter = withTranslation()(withRouter(Auth));
 export {AuthWithRouter as Auth}

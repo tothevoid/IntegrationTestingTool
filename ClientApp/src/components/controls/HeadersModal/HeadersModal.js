@@ -65,7 +65,7 @@ class HeadersModal extends Component {
         return <div className="new-header-form">
             <Field label={t("headers.name")} name="headerName" theme={theme} value={headerName} onInput={this.onFieldInput}/>
             <Field label={t("headers.value")} name="headerValue" theme={theme} value={headerValue} onInput={this.onFieldInput}/>
-            <Button additionalClasses="header-btn"  theme={theme} onClick={this.addHeader} caption="Add"/>
+            <Button additionalClasses="header-btn"  theme={theme} onClick={this.addHeader} caption={t("button.add")}/>
         </div>
     }
 

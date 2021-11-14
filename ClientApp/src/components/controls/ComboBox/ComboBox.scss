@@ -16,7 +16,7 @@
         color: white;
         border-color: $border-dark;
         &:focus, &:active{
-            border: solid 2px $control-focus-border-dark
+            border: solid 1px $control-focus-border-dark
         }
     }
     &.light{

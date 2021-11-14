@@ -1,42 +1,77 @@
 import "./Endpoint.scss"
+import { withTranslation } from 'react-i18next';
 import React, { Component, Fragment } from 'react';
+import { withRouter } from "react-router-dom"
 import { Button } from "../../controls/Button/Button"
 import { Spinner } from "../../controls/Spinner/Spinner"
 import { ComboBox } from "../../controls/ComboBox/ComboBox"
 import { Notification } from "../../controls/Notification/Notification"
 import { Checkbox } from "../../controls/Checkbox/Checkbox"
 import { Field } from "../../controls/Field/Field";
-import { uuidv4, formatFileSize } from "../../../utils/coreExtensions"
+import {formatFileSize, isUrl} from "../../../utils/coreExtensions"
 import { ReactComponent as FileIcon } from "./images/file.svg";
+import { HeadersModal } from "../../controls/HeadersModal/HeadersModal";
+import { httpMethods }  from "../../../constants/constants";
+import {
+    addEndpoint,
+    fetchStatusCodes,
+    getEndpointById,
+    updateEndpoint
+} from "../../../services/rest/endpoint";
 
-export class Endpoint extends Component {
+import { getAllAuthsAsLookup } from "../../../services/rest/auth";
+
+class Endpoint extends Component {
     static displayName = Endpoint.name;
 
     constructor(props) {
         super(props);
 
+        const { t } = props;
+
         this.state = this.getInitialState();
-        this.state.isLoading = this.props.location.state?.endpointId;
+        this.state.isLoading = this.props.match.params.id ?? false;
         this.state.statusCodes = [];
         this.state.auths = [];
-        
+        this.showHeadersModal = false;
+
+        this.interaction = {
+            Synchronous: t("endpoint.interactionType.sync"),
+            Asynchronous: t("endpoint.interactionType.async")
+        }
         this.notification = React.createRef();
         this.outputFileControl = React.createRef();
         this.callbackFileControl = React.createRef();
     }
 
-    async componentDidMount() {
-        await this.fetchEndpoint();
-        this.getStatusCodes();
-        this.getRESTMethods();
-        this.getAuths();
+    componentDidMount = async () => {
+        const {apiURL} = this.props.config;
+        const {id} = this.props.match.params;
+        if (id){
+            await this.getStateFromEndpoint(apiURL, id);
+        }
+        await this.getStatusCodes(apiURL);
+        await this.getAuths(apiURL);
     }
 
-    fetchEndpoint = async () => {
-        const id = this.props.location.state?.endpointId;
-        if (id){
-            const state = {...await this.getStateFromEndpoint(id)};
-            this.setState({...state, id, isLoading: false});
+    getStatusCodes = async (apiURL) => {
+        const response = await fetchStatusCodes(apiURL);
+        if (response.ok){
+            const statusCodes = await response.json();
+            this.setState({statusCodes});
+        }
+    }
+
+    getAuths = async (apiURL) => {
+        const response = await getAllAuthsAsLookup(apiURL);
+        if (response.ok){
+            const auths = await response.json();
+            if (auths && auths.length){
+                const currentAuth = this.state.auth;
+                const emptyAuth = {key: "00000000-0000-0000-0000-000000000000", value: "None"};
+                const selectedAuth = auths.find(auth => auth.key === currentAuth) || emptyAuth;
+                this.setState({auths: [emptyAuth, ...auths], auth: selectedAuth});
+            }
         }
     }
 
@@ -60,17 +95,17 @@ export class Endpoint extends Component {
         };
     }
 
-    getStateFromEndpoint = async (id) => {
-        const fetchResult = await fetch(`${this.props.config.apiURL}/Endpoint/Get?id=${id}`);
-        if (fetchResult.ok){
-            const endpoint = await fetchResult.json();
-            return {
+    getStateFromEndpoint = async (apiURL, id) => {
+        const response = await getEndpointById(apiURL, id);
+        if (response.ok){
+            const endpoint = await response.json();
+            const state = {
+                id,
                 path: endpoint.path,
                 outputData: endpoint.outputData,
                 statusCode: endpoint.outputStatusCode,
-                interactionType: endpoint.callbackType,
+                interactionType: Object.values(this.interaction)[endpoint.callbackType],
                 method: endpoint.method,
-                useHeaders: endpoint.headers?.length !== 0,
                 callbackMethod: endpoint.callbackMethod,
                 callbackData: endpoint.callbackData,
                 callbackUrl: endpoint.callbackUrl,
@@ -80,6 +115,7 @@ export class Endpoint extends Component {
                 outputFile: (endpoint.outputDataSize) ? {size: endpoint.outputDataSize}: null,
                 callbackFile: (endpoint.callbackDataSize) ? {size: endpoint.callbackDataSize}: null
             }
+            this.setState({...state, isLoading: false});
         }
         return null;
     }
@@ -98,75 +134,61 @@ export class Endpoint extends Component {
     }
 
     renderContent = () => {
-        const {theme} = this.props;
-        const {statusCode, outputData, statusCodes, method, methods, outputFile,
-            interactionType, useHeaders, headers, id, active} = this.state;
+        const {theme, config, t} = this.props;
+        const {statusCode, outputData, statusCodes, method, outputFile,
+            interactionType, showHeadersModal, headers, id, active} = this.state;
         return <div className={`new-endpoint ${theme}`}>
-            <h1>{(id) ? "Update endpoint": "New endpoint"}</h1>
+            <h1>{t((id) ? "endpoint.action.update": "endpoint.action.add")}</h1>
             <p className={`url ${theme}`}>
-                <span>{this.props.config?.mockURL}/</span>
-                <input className={`dynamic-url ${theme}`} onChange={this.onPathChanged}
+                <span>{config?.mockURL}/</span>
+                <input className={`dynamic-url ${theme}`} onChange={({target})=>this.setState({path: target.value})}
                     value={this.state.path} type="text"/>
             </p>
             <div className="form-part-row">
-                {this.formatRowField(method, methods, "REST method", "method")}
-                {this.formatRowField(statusCode, statusCodes, "Status code", "statusCode")}
-                {this.formatRowField(interactionType, this.getInteractions(), "Interaction", "interactionType")}
+                {this.formatRowField(method, httpMethods, t("endpoint.httpMethod"), "method")}
+                {this.formatRowField(statusCode, statusCodes, t("endpoint.statusCode"), "statusCode")}
+                {this.formatRowField(interactionType, Object.values(this.interaction), t("endpoint.interaction"), "interactionType")}
             </div>
-            <Checkbox caption="Active" theme={theme} value={active} 
+            <Checkbox caption={t("endpoint.active")} theme={theme} value={active}
                 onSelect={(active) => {this.setState({active})}}/>
             {
                 <Fragment>
-                    <Checkbox caption={`Expect headers (${headers.length})`} theme={theme} value={useHeaders} 
-                        onSelect={(useHeaders) => {this.setState({useHeaders})}}/>
-                    {
-                        (useHeaders) ?
-                            <Fragment>
-                                {this.renderHeaders()}
-                                {this.renderNewHeaderForm()}
-                            </Fragment>:
-                            null
-                    }
+                    <HeadersModal onModalClosed={()=>this.setState({showHeadersModal: false})} theme={theme} show={showHeadersModal} headers={headers} onHeaderCollectionChanged={this.onHeaderCollectionChanged}/>
+                    <Button theme={theme} caption={t("endpoint.configureHeaders", {quantity: headers.length})} onClick={()=>this.setState({showHeadersModal: true})}/>
                 </Fragment>
             }
             {
                 (outputFile) ?
-                    <div onClick={()=>this.onDeleteFileClick()} className="file-container">
-                        <div className="file-control" onClick={() => this.setState({outputFile: null})}>Output data: {formatFileSize(outputFile.size)}</div>
-                        <div className="delete-btn">x</div>
-                    </div>:
+                    this.getExistingFileControl(outputFile, "outputFile"):
                     <Fragment>
-                        <Field isTextarea theme={theme} name="outputData" value={outputData} label="Response data:" onInput={this.onValueUpdated}/>
+                        <Field isTextarea theme={theme} name="outputData" value={outputData} label={t("endpoint.data")} onInput={this.onValueUpdated}/>
                         <div className="file-data">
-                            <label ref={this.outputFileControl} htmlFor="outputFile">{this.getFileIcon()} Get output from file</label>
+                            <label ref={this.outputFileControl} htmlFor="outputFile">{this.getFileIcon()} {t("endpoint.attachByFile")}</label>
                             <input id="outputFile" type='file' name="outputFile"
                                 onChange={(e) => this.onValueUpdated(e.target.name, e.target.files.length !== 0 ? e.target?.files[0]: null)}/>
                         </div>
                     </Fragment>
             }
             {
-                //TODO: simplify condition
-                ((typeof(interactionType) === "number") ? 
-                    interactionType === 1 : 
-                    this.getInteractions().indexOf(interactionType)) ?
+                interactionType === this.interaction.Asynchronous ?
                     <Fragment>
-                        <div className={`callback-title ${theme}`}>Callback</div>
+                        <div className={`callback-title ${theme}`}>{t("endpoint.callback")}</div>
                         {this.renderAsyncCallbackSettings()}
                     </Fragment>: 
-                    <Fragment/> 
+                    null
                    
             }
             <Notification ref={this.notification}/>
-            <Button theme={theme} onClick={async () => await this.addEndpoint()} caption={(id) ? "Update" : "Create"}/>
+            <Button theme={theme} onClick={async () => await this.addEndpoint()} caption={t((id) ? "button.update" : "button.add")}/>
         </div>
     }
 
-    getFileIcon = () => {  
-        const {theme} = this.props;
-        return (theme === "dark") ?
-            <FileIcon fill="white"/> :
-            <FileIcon/>
+    onHeaderCollectionChanged = (newHeaders) => {
+        this.setState({headers: newHeaders})
     }
+
+    getFileIcon = () =>
+        <FileIcon fill="white"/>
 
     onDeleteFileClick = (propName) => {
         const propValue = this.state[propName]
@@ -176,24 +198,22 @@ export class Endpoint extends Component {
     }
 
     renderAsyncCallbackSettings = () => {
-        const { theme } = this.props;
-        const { methods, callbackMethod, callbackData, callbackUrl, auth, auths, callbackFile } = this.state;
+        const { theme, t } = this.props;
+        const { callbackMethod, callbackData, callbackUrl, auth, auths, callbackFile } = this.state;
         return <Fragment>
             <div className="form-part-row">
-                {this.formatRowField(auth, auths, "Auth", "auth")}
-                {this.formatRowField(callbackMethod, methods, "Method", "callbackMethod")}
-                <Field theme={theme} name="callbackUrl" value={callbackUrl} label="URL" onInput={this.onValueUpdated} placeholder="https://test.com/api"/>
+                {this.formatRowField(auth, auths, t("endpoint.auth"), "auth")}
+                {this.formatRowField(callbackMethod, httpMethods, t("endpoint.httpMethod"), "callbackMethod")}
+                <Field theme={theme} name="callbackUrl" value={callbackUrl} label={t("endpoint.url")} onInput={this.onValueUpdated} placeholder="https://test.com/api"/>
             </div>
             {
                 (callbackFile) ?
+                   this.getExistingFileControl(callbackFile, "callbackFile"):
                     <Fragment>
-                        <div onClick={() => this.setState({callbackFile: null})}>Callback data: {formatFileSize(callbackFile.size)}</div>
-                    </Fragment>:
-                    <Fragment>
-                        <Field isTextarea theme={theme} name="callbackData" value={callbackData} label="Data:" onInput={this.onValueUpdated}/>
+                        <Field isTextarea theme={theme} name="callbackData" value={callbackData} label={t("endpoint.data")} onInput={this.onValueUpdated}/>
                         <div className="file-data" >
-                            <label htmlFor="callbackFile">{this.getFileIcon()} Get output from file</label>
-                            <input  ref={this.callbackFileControl} id="callbackFile" className="callbackFile" type='file' name="callbackFile" 
+                            <label htmlFor="callbackFile">{this.getFileIcon()} {t("endpoint.attachByFile")}</label>
+                            <input ref={this.callbackFileControl} id="callbackFile" className="callbackFile" type='file' name="callbackFile"
                                 onChange={(e)=>this.onValueUpdated(e.target.name, e.target.files.length !== 0 ? e.target?.files[0]: null)}/>
                         </div>
                     </Fragment>
@@ -201,32 +221,32 @@ export class Endpoint extends Component {
         </Fragment>
     }
 
+    getExistingFileControl = (file, propName) => {
+        const { theme } = this.props;
+        return <div className="file-container">
+            <div className={`file-control ${theme}`}
+                 onClick={() => this.setState({[propName]: null})}>{this.getFileIcon()} {formatFileSize(file.size)}
+            </div>
+            <div className={`delete-btn ${theme}`}>x</div>
+        </div>
+    }
+
     formatRowField = (value, values, title, name) => {
         const {theme} = this.props;
         return (values && values.length !== 0) ?
             <div>
                 <div>{title}</div>
-                <ComboBox theme={theme} selectedValue={value} values={values} onSelect={(value) => this.onValueUpdated(name, value)}></ComboBox>
+                <ComboBox theme={theme} selectedValue={value} values={values} onSelect={(value) => this.onValueUpdated(name, value)}/>
             </div>:
             <Fragment/>
     }
-
 
     onInteractionSelected = (data) => {
         this.setState({interactionType: data})
     }
 
-    getInteractions = () => [
-        "Synchronous",
-        "Asynchronous"
-    ]
-
     onValueUpdated = (propName, value) => {
         this.setState({[propName]: value})
-    }
-
-    onPathChanged = (event) => {
-        this.setState({path: event.target.value});
     }
 
     notify = (text) => {
@@ -234,25 +254,24 @@ export class Endpoint extends Component {
     }
 
     addEndpoint = async () => {
+        const { t } = this.props;
         const validationResult = this.validateEndpoint();
         if (validationResult){
-            this.notify(validationResult);
+            this.notify(t(validationResult));
             return;
         }
-        const {path, outputData, statusCode, method, interactionType, id, outputFile, callbackFile,
-            callbackData, callbackMethod, callbackUrl, auth, auths, headers, active} = this.state;
+        const {id, outputData, outputFile, callbackFile, callbackData} = this.state;
         const data = {
-            path: path,
-            outputStatusCode: parseInt(statusCode),
-            method: method,
-            callbackMethod: callbackMethod,
-            callbackUrl: callbackUrl,
-            //TODO: simplify
-            authId: auths.find(element => element.name === auth)?.id,
-            callbackType: (typeof(interactionType) === "number") ? interactionType: this.getInteractions().indexOf(interactionType),
-            headers,
             id,
-            active
+            path: this.state.path,
+            outputStatusCode: parseInt(this.state.statusCode),
+            method: this.state.method,
+            callbackMethod: this.state.callbackMethod,
+            callbackUrl: this.state.callbackUrl,
+            authId: this.state.auth?.key,
+            callbackType: this.state.interactionType,
+            headers: this.state.headers,
+            active: this.state.active
         }
 
         let formData = new FormData()
@@ -270,121 +289,32 @@ export class Endpoint extends Component {
             formData.append('callbackData', callbackData);
         }
 
-        const operation = (id) ? "Update" : "Add";
         this.setState({isLoading: true});
-        fetch(`${this.props.config.apiURL}/Endpoint/${operation}`, {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(result => {
-            if (!result) {
-                this.props.history.push("/endpoints") 
-            } else {
-                this.setState({isLoading: false});
-                this.notify(result);
-            }
-        }).catch(error => {this.setState({isLoading: false}); this.notify(error.message);});
-    }
+        const {apiURL} = this.props.config;
 
-    getStatusCodes = () => {
-        fetch(`${this.props.config.apiURL}/Endpoint/GetStatusCodes`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        }).then((response) => response.json())
-        .then((statusCodes) => this.setState({statusCodes}));
-    }
+        const response = (id) ?
+            await updateEndpoint(apiURL, formData) :
+            await addEndpoint(apiURL, formData);
 
-    getRESTMethods = () => {
-        fetch(`${this.props.config.apiURL}/Endpoint/GetRESTMethods`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        }).then((response) => response.json())
-        .then((methods) => this.setState({methods}));
-    }
-
-    getAuths = () => {
-        fetch(`${this.props.config.apiURL}/Auth/GetAll`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        }).then((response) => response.json())
-        .then((auths) => this.setState({auths: [{id: null, name: "None"}, ...auths]}));
+        if (response.ok) {
+            this.props.history.push("/endpoints")
+        } else {
+            this.setState({isLoading: false});
+            this.notify(t("endpoint.error.save"));
+        }
     }
 
     validateEndpoint = () => {
-        const {path, callbackUrl, interactionType} = this.state;
-        if (!path || path.trim() === ""){
-            return "Endpoint's path can't be empty";
-        } else if (this.getInteractions().indexOf(interactionType) === 1 && (!callbackUrl || callbackUrl.trim() === "")){
-            return "Callback url is not specified";
+        const { config } = this.props;
+        const { path, callbackUrl, interactionType } = this.state;
+        if (!path || !isUrl(`${config?.mockURL}/${path}`)){
+            return "endpoint.validation.endpointUrl";
+        } else if (interactionType === this.interaction.Asynchronous && !isUrl(callbackUrl)){
+            return "endpoint.validation.callbackUrl";
         }
         return null;
     }
-
-    validateExisting = async () => {
-        const response = await fetch('/movies');
-        const movies = await response.json();
-    }
-
-    renderHeaders = () => {
-        const {theme} = this.props;
-        const {headers} = this.state;
-        return (headers && headers.length !== 0) ?
-            headers.map(header => 
-                <div className="header-item" key={header.id}>
-                    <Field theme={theme} value={header.key} 
-                        onInput={(name, value) => this.onHeaderUpdated(header.id, "key", value)}/>
-                    <Field theme={theme} value={header.value} 
-                        onInput={(name, value) => this.onHeaderUpdated(header.id, "value", value)}/>
-                    <Button theme={theme} mode="danger" onClick={()=>this.deleteHeader(header.key)} caption="X"/>
-                </div>) :
-            <Fragment/>
-    }
-
-    onHeaderUpdated = (id, propName, propValue) => {
-        const headers = this.state.headers.map((header) => {
-            if (header.id === id){
-                header[propName] = propValue;
-            }
-            return header;
-        })
-        this.setState({headers});
-    }
-
-    renderNewHeaderForm = () => {
-        const {theme} = this.props;
-        const {headerName, headerValue} = this.state;
-        return <div className="new-header-form">
-            <Field label="Name" name="headerName" theme={theme} value={headerName} onInput={this.onFieldInput}/>
-            <Field label="Value" name="headerValue" theme={theme} value={headerValue} onInput={this.onFieldInput}/>
-            <Button theme={theme} onClick={this.addHeader} caption="Add"/>
-        </div>
-    }
-
-    onFieldInput = (name, value) => {
-        this.setState({[name]: value});
-    }
-
-    addHeader = () => {
-        const {headers, headerName, headerValue} = this.state;
-        const alreadyExists = headers.find((header) => headerName === header.key);
-        if (!alreadyExists){
-            this.setState({headers: [...headers, {id: uuidv4(),key: headerName, value: headerValue}],
-                headerName: "", headerValue: ""});
-        } else {
-            this.notify(`Header with name "${headerName}" already exists`);
-        }
-    }
-
-    deleteHeader = (key) => {
-        const filteredHeaders = this.state.headers.filter((header) =>
-            header.key !== key);
-        this.setState({headers: filteredHeaders});
-    }
 }
+
+const WrappedEndpoint = withTranslation()(withRouter(Endpoint));
+export {WrappedEndpoint as Endpoint}

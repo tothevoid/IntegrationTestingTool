@@ -1,0 +1,62 @@
+.headers-modal-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    &.dark {
+        .headers-modal-container {
+            background: white;
+        }
+    }
+
+    &.light {
+        .headers-modal-container {
+            background-color: rgba(231, 225, 225, 0.972);
+        }
+    }
+
+    .headers-modal-container {
+        position: relative;
+        padding: 10px;
+        width: 520px;
+        border-radius: 10px;
+        max-height: 80vh;
+        overflow-y: auto;
+        box-shadow: 0px 2px 2px 0 rgba(0, 0, 0, 0.301);
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+    }
+}
+
+.close-btn{
+    position: absolute;
+    right: 10px;
+    top: 5px;
+    height: 15px;
+    width: 15px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+.new-header-form{
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    margin-bottom: 10px;
+    div{
+        margin-right: 20px;
+    }
+}
+.headers-top{
+    text-align: center;
+}
+
+.header-btn{
+    width: 60px;
+}

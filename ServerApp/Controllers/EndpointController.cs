@@ -4,6 +4,7 @@ using IntegrationTestingTool.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace IntegrationTestingTool.Controllers
@@ -21,8 +22,8 @@ namespace IntegrationTestingTool.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<Endpoint>> GetAll(string path, bool onlyActive) =>
-             await EndpointService.GetAllByFilters(path, onlyActive);
+        public async Task<IEnumerable<Endpoint>> GetAll(string path, bool isOnlyActive) =>
+             await EndpointService.GetAllByFilters(path, isOnlyActive);
 
         [HttpPost]
         [RequestFormLimits(MultipartBodyLengthLimit = 1073741824)]
@@ -36,14 +37,9 @@ namespace IntegrationTestingTool.Controllers
         public async Task<IActionResult> Get(Guid id)
         {
             var endpoint = await EndpointService.FindById(id);
-            if (endpoint == null) 
-            {
-                return new BadRequestResult();
-            }
-            else
-            {
-                return new OkObjectResult(endpoint);
-            }
+            return endpoint == null ? 
+                (IActionResult) new BadRequestResult() : 
+                new OkObjectResult(endpoint);
         }
 
         [HttpPost]
@@ -57,10 +53,6 @@ namespace IntegrationTestingTool.Controllers
 
         [HttpGet]
         public IEnumerable<int> GetStatusCodes() =>
-            EndpointService.GetStatusCodes();
-
-        [HttpGet]
-        public IEnumerable<string> GetRESTMethods() =>
-            EndpointService.GetRESTMethods();
+            EndpointService.GetStatusCodes().Distinct();
     }
 }

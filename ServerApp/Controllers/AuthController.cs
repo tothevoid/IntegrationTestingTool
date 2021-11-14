@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using IntegrationTestingTool.Model;
 
 namespace IntegrationTestingTool.Controllers
 {
@@ -20,16 +21,17 @@ namespace IntegrationTestingTool.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<Auth>> GetAll()
-        {
-            var result = await AuthService.GetAll();
-            return result;
-        }
+        public async Task<IEnumerable<Auth>> GetAll() =>
+            await AuthService.GetAll();
+
+        [HttpGet]
+        public async Task<IEnumerable<Option<Guid, string>>> GetAllAsLookup() =>
+            await AuthService.GetAllAsLookup();
 
         [HttpGet]
         public async Task<Auth> Get(Guid id) =>
             await AuthService.GetById(id);
-
+        
         [HttpPost]
         public async Task<Auth> Add(Auth auth) =>
             await AuthService.Create(auth);

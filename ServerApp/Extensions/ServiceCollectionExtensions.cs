@@ -11,21 +11,6 @@ namespace IntegrationTestingTool.Extensions
 {
     public static class ServiceCollectionExtensions
     {
-        private static void AddConfigSection<T, I>(this IServiceCollection services, IConfiguration configuration, 
-            string sectionName = null) 
-            where T: class, I, new()
-            where I: class
-        {
-            if (string.IsNullOrEmpty(sectionName))
-            {
-                sectionName = typeof(T).Name;
-            }
-
-            services.Configure<T>(configuration.GetSection(sectionName));
-
-            services.AddSingleton<I>(sp => sp.GetRequiredService<IOptions<T>>().Value);
-        }
-
         public static void BindServices(this IServiceCollection services)
         {
             services.AddTransient<IRouteHandlerService, RouteHandlerService>();
@@ -42,6 +27,21 @@ namespace IntegrationTestingTool.Extensions
             services.AddConfigSection<DatabaseSettings, IDatabaseSettings>(configuration);
             services.AddConfigSection<ServerSettings, IServerSettings>(configuration);
             services.AddConfigSection<ClientSettings, IClientSettings>(configuration);
+        }
+        
+        private static void AddConfigSection<T, I>(this IServiceCollection services, IConfiguration configuration, 
+            string sectionName = null) 
+            where T: class, I, new()
+            where I: class
+        {
+            if (string.IsNullOrEmpty(sectionName))
+            {
+                sectionName = typeof(T).Name;
+            }
+
+            services.Configure<T>(configuration.GetSection(sectionName));
+
+            services.AddSingleton<I>(sp => sp.GetRequiredService<IOptions<T>>().Value);
         }
     }
 }

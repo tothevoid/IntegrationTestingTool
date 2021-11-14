@@ -3,11 +3,10 @@ using IntegrationTestingTool.Services.Interfaces;
 using IntegrationTestingTool.Settings;
 using IntegrationTestingTool.Socket;
 using Microsoft.AspNetCore.SignalR;
-using MongoDB.Bson;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace IntegrationTestingTool.Services
@@ -26,17 +25,14 @@ namespace IntegrationTestingTool.Services
 
         public async Task<IEnumerable<RequestLog>> GetAll(DateTime date)
         {
-            var filter = new BsonDocument("$and", new BsonArray 
-            { 
-                new BsonDocument(nameof(RequestLog.CreatedOn), new BsonDocument("$gte", date.Date)),
-                new BsonDocument(nameof(RequestLog.CreatedOn), new BsonDocument("$lt", date.Date.AddDays(1)))
-            });
-
-            var sort = Builders<RequestLog>.Sort.Descending(endpoint => endpoint.CreatedOn);
             var options = new FindOptions<RequestLog, RequestLog>
             {
-                Sort = sort
+                Sort = Builders<RequestLog>.Sort.Descending(endpoint => endpoint.CreatedOn)
             };
+
+            Expression<Func<RequestLog, bool>> filter = endpoint =>
+                endpoint.CreatedOn >= date.Date && endpoint.CreatedOn < date.Date.AddDays(1);
+            
             return (await MongoCollection.FindAsync(filter, options)).ToList();
         }
         

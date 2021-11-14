@@ -21,30 +21,26 @@ namespace IntegrationTestingTool.Services
 
         public async Task Call(Endpoint endpoint)
         {
-            Auth auth = null;
+            using var client = new HttpClient();
             if (endpoint.AuthId != null)
             {
-                auth = await AuthService.GetById(endpoint.AuthId.Value);
-            }
-            using var client = new HttpClient();
-
-            if (auth != null)
-            {
+                var auth = await AuthService.GetById(endpoint.AuthId.Value);
                 var authResult = await CallAuthRequest(auth);
                 var possibleValues = new Dictionary<string, IEnumerable<string>>();
-                foreach (var header in authResult.Headers)
+                foreach (var (key, value) in authResult.Headers)
                 {
-                    possibleValues.TryAdd(header.Key, header.Value);
+                    possibleValues.TryAdd(key, value);
                 }
 
                 if (authResult.Headers.TryGetValues("Set-Cookie", out var cookies))
                 {
-                    var allCookies = cookies.Select(cookie => cookie.Split(";").First());
+                    var enumerable = cookies.ToList();
+                    var allCookies = enumerable.Select(cookie => cookie.Split(";").First()).ToArray();
                     possibleValues.Add("Cookie", new List<string> { string.Join(";", allCookies) });
-                    foreach (var cookie in cookies.Select(cookie => cookie.Split(";").First().Split("=")))
+                    foreach (var cookie in allCookies.Select(x=>x.Split("=")))
                     {
                         var values = new List<string>();
-                        if (cookie.Count() >= 1)
+                        if (cookie.Any())
                         {
                             values.Add(cookie[1]);
                         }
@@ -62,7 +58,7 @@ namespace IntegrationTestingTool.Services
                 }
             }
 
-            var message = new HttpRequestMessage(new HttpMethod(endpoint.CallbackMethod), endpoint.CallbackURL);
+            var message = new HttpRequestMessage(new HttpMethod(endpoint.CallbackMethod), endpoint.CallbackUrl);
             try
             {
                 var result = await client.SendAsync(message);

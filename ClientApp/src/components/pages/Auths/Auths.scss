@@ -1,0 +1,43 @@
+@import "./globals.scss";
+
+.auth{
+    @include list-item-base;
+    margin: 10px 0;
+    min-height: 125px;
+}
+
+.auth-manipulations{
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.auth-delete-btn{
+    margin-left: 10px;
+}
+
+.auth-title{
+    font-size: 20px;
+    margin: 0;
+    font-weight: 800;
+}
+
+.auth-url, .auth-data{
+    margin: 0;
+}
+
+.new-auth-btn{
+    min-width: 75px;
+}
+
+.auth-edit{
+    @include button-container(#fff, #fff);
+    margin-bottom: 10px;
+}
+
+.auth-delete{
+    @include button-container(#bd2130, #bd2130);
+}

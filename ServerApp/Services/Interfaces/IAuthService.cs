@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using IntegrationTestingTool.Model;
 
 namespace IntegrationTestingTool.Services.Interfaces
 {
@@ -16,5 +17,7 @@ namespace IntegrationTestingTool.Services.Interfaces
         Task<Auth> Create(Auth endpoint);
 
         Task<string> Delete(Guid id);
+
+        Task<IEnumerable<Option<Guid, string>>> GetAllAsLookup();
     }
 }

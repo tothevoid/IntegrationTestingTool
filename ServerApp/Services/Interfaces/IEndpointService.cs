@@ -20,9 +20,7 @@ namespace IntegrationTestingTool.Services.Interfaces
         Task<IEnumerable<Endpoint>> FindByPathAndMethod(string path, string method);
 
         IEnumerable<int> GetStatusCodes();
-
-        IEnumerable<string> GetRESTMethods();
-
+        
         Task<Endpoint> Update(Endpoint endpoint);
 
         Task<IEnumerable<Endpoint>> FindLinkedByAuth(Guid authId);

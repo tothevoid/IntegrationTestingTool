@@ -19,7 +19,7 @@ namespace IntegrationTestingTool.Model.Entities
 
         public CallbackType CallbackType { get; set; } = CallbackType.Synchronous;
 
-        public string CallbackURL { get; set; }
+        public string CallbackUrl { get; set; }
 
         public string CallbackMethod { get; set; } = "POST";
 

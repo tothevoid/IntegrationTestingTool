@@ -12,27 +12,28 @@ export class Search extends Component {
 
     render = () => {
         const { searchText } = this.state;
-        const { theme } = this.props;
+        const { theme, caption } = this.props;
         return <Fragment>
-            <span className={`search-label ${theme}`}>Search</span>
+            <span className={`search-label ${theme}`}>{caption}</span>
             <input type="text" className={`search-input ${theme}`} 
-                onChange={this.handleChange} value={searchText}></input>
+                onChange={this.handleChange} value={searchText}/>
             {
                 (searchText) ?
-                    <Button mode="danger" onClick={this.onClearClick} caption={"X"}/> :
-                    <span></span>
+                    <Button additionalClasses="search-clear" mode="danger" onClick={this.onClearClick} caption={"X"}/> :
+                    null
             }
             </Fragment>
     }
 
-    onClearClick = () => {
-        this.setState({searchText: ""});
-    }
+    onClearClick = () =>
+        this.handleTextChange("")
 
-    handleChange = (event) => {
+    handleChange = ({target}) =>
+        this.handleTextChange(target.value)
+
+    handleTextChange = (text) => {
         const {onTextChanged} = this.props;
-        const text = event.target.value;
         this.setState({ searchText: text });
         onTextChanged(text);
-    };
+    }
 }

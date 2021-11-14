@@ -5,32 +5,39 @@ export class ComboBox extends Component {
     
     constructor(props) {
         super(props);
-        const selectedValue = (this.props.selectedValue) ?
-            this.props.selectedValue:
-            this.props.values[0];
-        
-        this.state = {selectedValue: selectedValue};
-        this.props.onSelect(selectedValue);
+
+        const {selectedValue, values} = this.props;
+
+        if (!selectedValue && values && values.length !== 0){
+            this.props.onSelect(this.props.values[0]);
+        }
     }
 
     render = () => {
-        const {theme} = this.props;
-        const {selectedValue} = this.state;
-        const {values} = this.props;
-        return <select className={`combobox ${theme}`} onChange={this.handleChange} value={selectedValue}>
-            {values.map((value, ix) => {
+        const {theme, values, selectedValue} = this.props;
+        const preprocessedValue = typeof(selectedValue) === "object" ?
+            selectedValue.value :
+            selectedValue;
+
+        return <select className={`combobox ${theme}`} onChange={this.handleChange} value={preprocessedValue}>
+            {values.map((value) => {
                     const isObject = typeof(value) === "object";
                     return isObject ?
-                        <option key={value.id}>{value.name}</option> :
-                        <option key={ix}>{value}</option>
+                        <option data-key={value.key} key={value.key}>{value.value}</option> :
+                        <option data-key={value} key={value}>{value}</option>
                 })
             }
         </select>
     }
 
-    handleChange = (event) => {
-        const newValue = event.target.value;
-        this.setState({ selectedValue: newValue });
-        this.props.onSelect(newValue);
-    };
+    handleChange = ({target}) => {
+        const option = target[target.selectedIndex];
+        this.setState({ selectedValue: target.value });
+        const key = option.getAttribute("data-key");
+        if (key === target.value){
+            this.props.onSelect(target.value);
+        } else {
+            this.props.onSelect({key, value: target.value});
+        }
+    }
 }

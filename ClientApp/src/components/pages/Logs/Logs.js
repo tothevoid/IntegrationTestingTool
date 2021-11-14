@@ -4,20 +4,21 @@ import { HubConnectionBuilder } from '@microsoft/signalr';
 import { Button } from "../../controls/Button/Button"
 import { formatDate, getCurrentDate } from "../../../utils/dateExtensions"
 import { formatFileSize } from "../../../utils/coreExtensions"
+import {withTranslation} from "react-i18next";
 
-export class Logs extends Component {
+class Logs extends Component {
     constructor(props) {
         super(props);
-        const date = getCurrentDate();
         this.state = {
             logs: [],
-            dateFilter: date,
             newLogs: []
         }
-        this.fetchLogs(date);
     }
 
-    componentDidMount = () => {
+    componentDidMount = async () => {
+        const date = getCurrentDate();
+        await this.fetchLogs(date);
+
         const hubConnection = new HubConnectionBuilder()
             .withUrl(`${this.props.config.wsURL}/hubs/logs`)
             .withAutomaticReconnect()
@@ -33,38 +34,38 @@ export class Logs extends Component {
             }))
         });
 
-        this.setState({ hubConnection }, () => {
+        this.setState({ hubConnection, dateFilter: date }, () =>
             this.state.hubConnection.start()
-                .then(() => console.log("connected"))
-                .catch(() => console.log("not connected"));
-        });
+        );
     } 
 
-    renderLog = (log, theme) =>
-        <div onMouseEnter={() => this.onMouseEnter(log)} key={log.id} className={`log ${theme}`}>
+    renderLog = (log, theme) => {
+        const { t } = this.props;
+        return <div onMouseEnter={() => this.onMouseEnter(log)} key={log.id} className={`log ${theme}`}>
             <span className="log-date">{formatDate(new Date(log.createdOn))}</span>
             {
                 (log.isError) ? 
-                    <div>{`An error during request process: ${log.returned}`}</div> : 
+                    <div>{t("auths.error", {message: log.returned})}</div> :
                     <Fragment/>
             }
             <div className="log-url">[{log.endpoint.method}] {this.props?.config?.mockURL}/{log.endpoint.path}</div>
-            <div>Got data: {log.received}</div>
+            <div>{t("logs.received")}: {log.received}</div>
             {
                 (!log.isError) ?
                     <Fragment>
-                        <b>Returned:</b>
-                        <div>Code: {log.endpoint.outputStatusCode}</div>
-                        <div>Data size: {formatFileSize(log.endpoint.outputDataSize)}</div>
+                        <b>{t("logs.returned")}:</b>
+                        <div>{t("logs.code")}: {log.endpoint.outputStatusCode}</div>
+                        <div>{t("logs.dataSize")}: {formatFileSize(log.endpoint.outputDataSize)}</div>
                         {
                             log.isNew ? 
-                                <span className="new-label">New</span> :
-                                <span></span>
+                                <span className="new-label">{t("logs.new")}</span> :
+                                null
                         }
                     </Fragment>:
-                    <Fragment/>
+                    null
             }
         </div>
+    }
 
     onMouseEnter = ({isNew, id}) => {
         if (isNew){
@@ -84,41 +85,46 @@ export class Logs extends Component {
         }
     }
 
-    onDateFilterChanghed = (event) => {
+    onDateFilterChanged = async (event) => {
         const date = event.target.value;
         this.setState({dateFilter: date});
-        this.fetchLogs(date);
+        await this.fetchLogs(date);
     }
 
-    onNewRequestsClick = () => {
+    onNewRequestsClick = async () => {
         const date = getCurrentDate();
         this.setState({dateFilter: date});
-        this.fetchLogs(date);
+        await this.fetchLogs(date);
     }
 
     render = () => {
-        const {theme} = this.props;
+        const {theme, t} = this.props;
         return <div>
             <span>
                 <div className={`datepicker ${theme}`}>
-                    <span className="datepicker-label">Date:  </span>
-                    <input className="datepicker-value" value={this.state.dateFilter} onChange={this.onDateFilterChanghed} type="date"/>
+                    <span className="datepicker-label">{t("logs.date")}:  </span>
+                    <input className="datepicker-value" value={this.state.dateFilter} onChange={this.onDateFilterChanged} type="date"/>
                     {
                         (this.state.newLogs.length) ?
-                            <Button onClick={this.onNewRequestsClick} mode="danger" caption={`New requests: ${this.state.newLogs.length}`}/> :
-                            <span></span>
+                            <Button onClick={async () => await this.onNewRequestsClick} mode="danger" caption={t("logs.newRequests", {quantity: this.state.newLogs.length})}/> :
+                            null
                     }
                 </div>
             </span>
             {this.state.logs.map((log) => this.renderLog(log, theme))}
         </div>
     }
-        
 
-    fetchLogs = (date) => 
-        fetch(`${this.props.config.apiURL}/RequestLog?date=${date}`)
-            .then((response) => response.json())
-            .then((logs) => {this.setState({
+    fetchLogs = async (date) => {
+        const response = await fetch(`${this.props.config.apiURL}/RequestLog?date=${date}`);
+        if (response.ok){
+            const logs = await response.json();
+            this.setState({
                 logs: logs.map(log => {return {...log, isNew: this.state.newLogs.find(newLog => newLog === log.id)}})
-            })});
+            });
+        }
+    }
 }
+
+const WrappedLogs = withTranslation()(Logs);
+export {WrappedLogs as Logs}

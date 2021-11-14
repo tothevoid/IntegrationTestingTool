@@ -4,18 +4,17 @@
     @include list-item-base;
     margin: 10px 0;
     min-height: 125px;
-    &.path{
-        font-size: 20px;
-        font-weight: 700;
-    }
 }
 
-.expected-headers{
-    margin-bottom: 0px;
+.path{
+    font-size: 20px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
 }
 
-.returns-values div{
-    margin-left: 20px;
+.endpoints-list{
+    margin-bottom: 40px;
 }
 
 .expand{
@@ -29,11 +28,38 @@
     padding: 10px;
     display: flex;
     flex-direction: column;
-    button{
-        margin-bottom: 5px;
-    }
 }
 
 .checkbox-inline{
     display: inline;
 }
+
+.new-endpoint-btn{
+    margin-right: 10px;
+    min-width: 75px;
+}
+
+.activity-sign
+{
+    display: inline-block;
+    height: 15px;
+    width: 15px;
+    border-radius: 15px;
+    border: transparent 0px;
+    margin-right: 5px;
+    &.active {
+        background: #00917C;
+    }
+    &.inactive{
+        background: red;
+    }
+}
+.endpoint-edit{
+    @include button-container(#fff, #fff);
+    margin-bottom: 10px;
+}
+
+.endpoint-delete{
+    @include button-container(#bd2130, #bd2130);
+}
+

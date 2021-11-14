@@ -6,6 +6,7 @@ using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using IntegrationTestingTool.Model;
 using System.Threading.Tasks;
 
 namespace IntegrationTestingTool.Services
@@ -31,7 +32,7 @@ namespace IntegrationTestingTool.Services
         public async Task<string> Delete(Guid id)
         {
             var linkedEndpoints = await EndpointService.FindLinkedByAuth(id);
-            IEnumerable<Endpoint> endpoints = linkedEndpoints.ToList();
+            IEnumerable<Endpoint> endpoints = linkedEndpoints.ToArray();
             if (endpoints.Any())
                 return
                     $"There are some endpoints which use that auth:\n{string.Join("\n", endpoints.Select(x => x.Path))}";
@@ -43,13 +44,13 @@ namespace IntegrationTestingTool.Services
 
         public async Task<Auth> GetById(Guid id)
         {
-            BsonBinaryData binaryId = new BsonBinaryData(id, GuidRepresentation.Standard);
+            var binaryId = new BsonBinaryData(id, GuidRepresentation.Standard);
             return (await MongoCollection.FindAsync(new BsonDocument("_id", binaryId))).FirstOrDefault();
         }
 
         public async Task<Auth> Update(Auth auth)
         {
-            BsonBinaryData binaryId = new BsonBinaryData(auth.Id, GuidRepresentation.Standard);
+            var binaryId = new BsonBinaryData(auth.Id, GuidRepresentation.Standard);
             var result = await MongoCollection.ReplaceOneAsync(new BsonDocument("_id", binaryId), auth);
 
             return result.ModifiedCount != 0 ?
@@ -59,5 +60,18 @@ namespace IntegrationTestingTool.Services
 
         public async Task<IEnumerable<Auth>> GetAll() =>
             (await MongoCollection.FindAsync(new BsonDocument())).ToList();
+        
+        public async Task<IEnumerable<Option<Guid, string>>> GetAllAsLookup()
+        {
+            var projection = Builders<Auth>.Projection
+                .Include(auth => auth.Name);
+            var options = new FindOptions<Auth, Auth>
+            {
+                Projection = projection
+            };
+
+            return (await MongoCollection.FindAsync(new BsonDocument(), options))
+                .ToList().Select(x => new Option<Guid, string>(x.Id, x.Name));
+        } 
     }
 }

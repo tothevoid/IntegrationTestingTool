@@ -8,7 +8,7 @@ $control-focus-border-light: transparent;
 $button-background-light: #f0b90b;
 $highlithing-light: rgb(146, 2, 2);
 $button-foreground-light: white;
-$block-background-light:#f0b90b;
+$block-background-light: #f3f3f3;
 $nav-light: white;
 /*dark theme*/
 $app-background-dark: #333333;
@@ -47,5 +47,21 @@ $nav-dark: #00917C;
     &.light{
         background-color: $block-background-light;
         color: $control-foreground-light;
+    }
+}
+
+@mixin button-container($light-clr, $dark-clr){
+    display: flex;
+    cursor: pointer;
+    justify-content: center;
+    align-items: center;
+    border: solid transparent 5px;
+    border-radius: 5px;
+    box-shadow: rgba(0, 0, 0, 0.5) 0px 4px 4px 0px;
+    &.dark{
+        background-color: $dark-clr;
+    }
+    &.light{
+        background-color: $light-clr;
     }
 }

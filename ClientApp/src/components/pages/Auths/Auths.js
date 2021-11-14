@@ -7,8 +7,10 @@ import { getAllAuths, deleteAuth } from "../../../services/rest/auth";
 
 import {ReactComponent as EditButton} from "../../../icons/edit.svg";
 import {ReactComponent as DeleteButton} from "../../../icons/delete.svg";
+import {withTranslation} from "react-i18next";
+import {withRouter} from "react-router-dom";
 
-export class Auths extends Component {
+class Auths extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -23,10 +25,10 @@ export class Auths extends Component {
         await this.getAuths();
 
     render = () => {
-        const {theme} = this.props;
+        const {theme, t} = this.props;
         const {auths, showModal} = this.state;
         return <Fragment>
-            <Button additionalClasses="new-auth-btn" theme={theme} caption="Add" onClick={this.navigateToEdit}/>
+            <Button additionalClasses="new-auth-btn" theme={theme} caption={t("button.add")} onClick={this.navigateToEdit}/>
             <div className="auths">
                 {
                     auths.map(auth => <div key={auth.id} className={`auth ${theme}`}>
@@ -44,10 +46,8 @@ export class Auths extends Component {
                     </div>)
                 }
             </div>
-            {
-                <Modal theme={theme} onSuccess={async () => await this.onDelete()} onReject={() => this.setState({showModal: false})}
-                       show={showModal} title="Are you sure?" text="Do you really want to delete that auth?"/>
-            }
+            <Modal theme={theme} onSuccess={async () => await this.onDelete()} onReject={() => this.setState({showModal: false})}
+                   show={showModal} title={t("auths.deleteWarningTitle")} text={t("auths.deleteWarningText")}/>
             <Notification ref={this.notification}/>
         </Fragment>
     }
@@ -67,13 +67,14 @@ export class Auths extends Component {
     }
 
     onDelete = async () => {
+        const { t } = this.props;
         const {selectedAuth} = this.state;
         const response = await deleteAuth(this.props.config.apiURL, selectedAuth);
         if (response.ok){
             this.deleteAuth(selectedAuth);
-            this.notify(`Auth successfully deleted`)
+            this.notify(t("auths.deletion.success"))
         } else {
-            this.notify(`An error occurred while deleting auth`)
+            this.notify(t("auths.deletion.error"))
         }
     }
 
@@ -90,3 +91,6 @@ export class Auths extends Component {
         }
     }
 }
+
+const WrappedAuth = withTranslation()(withRouter(Auths));
+export {WrappedAuth as Auths}

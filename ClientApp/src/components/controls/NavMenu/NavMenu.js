@@ -29,13 +29,13 @@ export const NavMenu = (props) => {
 				<NavbarBrand className={theme} tag={Link} to="/">IntegrationTestingTool</NavbarBrand>
 				<ul className="navbar-nav flex-grow">
 					<NavItem>
-						<NavLink tag={Link} className={theme} to="/">Endpoints</NavLink>
+						<NavLink tag={Link} className={theme} to="/">{t("nav.endpoints")}</NavLink>
 					</NavItem>
 					<NavItem>
-						<NavLink tag={Link} className={theme} to="/auths">Auths</NavLink>
+						<NavLink tag={Link} className={theme} to="/auths">{t("nav.auths")}</NavLink>
 					</NavItem>
 					<NavItem>
-						<NavLink tag={Link} className={theme} to="/logs">Logs</NavLink>
+						<NavLink tag={Link} className={theme} to="/logs">{t("nav.logs")}</NavLink>
 					</NavItem>
 					<span onClick={() => onThemeSwitched()} className={`nav-btn-container ${theme}`}>
 						{getThemeSwitchButton(theme)}

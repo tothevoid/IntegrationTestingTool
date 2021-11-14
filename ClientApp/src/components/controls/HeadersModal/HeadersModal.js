@@ -4,8 +4,10 @@ import { Field } from "../Field/Field";
 import { Button } from "../Button/Button"
 import ReactDOM from "react-dom";
 import { uuidv4 } from "../../../utils/coreExtensions";
+import {withTranslation} from "react-i18next";
+import {withRouter} from "react-router-dom";
 
-export class HeadersModal extends Component {
+class HeadersModal extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -15,7 +17,7 @@ export class HeadersModal extends Component {
     }
 
     render = () => {
-        const {show, theme, headers, onModalClosed} = this.props;
+        const {show, theme, headers, onModalClosed, t} = this.props;
         if (!show){
             return null;
         }
@@ -24,13 +26,13 @@ export class HeadersModal extends Component {
             <div className={`headers-modal-wrapper ${theme}`}>
                 <div className="headers-modal-container">
                     <button onClick={() => onModalClosed()} className="close-btn">X</button>
-                    <div className="headers-top">Configure headers</div>
+                    <div className="headers-top">{t("headers.configure")}</div>
                     <div className="headers-controls">
                         {this.renderNewHeaderForm()}
                     </div>
                     {
                         (headers?.length) ?
-                            <div className="headers-top">Headers list</div>:
+                            <div className="headers-top">{t("headers.list")}</div>:
                             null
                     }
                     <div className="headers-list">
@@ -58,11 +60,11 @@ export class HeadersModal extends Component {
     }
 
     renderNewHeaderForm = () => {
-        const {theme} = this.props;
+        const {theme, t} = this.props;
         const {headerName, headerValue} = this.state;
         return <div className="new-header-form">
-            <Field label="Name" name="headerName" theme={theme} value={headerName} onInput={this.onFieldInput}/>
-            <Field label="Value" name="headerValue" theme={theme} value={headerValue} onInput={this.onFieldInput}/>
+            <Field label={t("headers.name")} name="headerName" theme={theme} value={headerName} onInput={this.onFieldInput}/>
+            <Field label={t("headers.value")} name="headerValue" theme={theme} value={headerValue} onInput={this.onFieldInput}/>
             <Button additionalClasses="header-btn"  theme={theme} onClick={this.addHeader} caption="Add"/>
         </div>
     }
@@ -107,3 +109,7 @@ export class HeadersModal extends Component {
         }
     }
 }
+
+
+const WrappedHeaders = withTranslation()(withRouter(HeadersModal));
+export {WrappedHeaders as HeadersModal}

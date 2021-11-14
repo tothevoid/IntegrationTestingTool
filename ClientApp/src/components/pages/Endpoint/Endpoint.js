@@ -179,7 +179,7 @@ class Endpoint extends Component {
                    
             }
             <Notification ref={this.notification}/>
-            <Button theme={theme} onClick={async () => await this.addEndpoint()} caption={t((id) ? "endpoint.button.update" : "endpoint.button.add")}/>
+            <Button theme={theme} onClick={async () => await this.addEndpoint()} caption={t((id) ? "button.update" : "button.add")}/>
         </div>
     }
 

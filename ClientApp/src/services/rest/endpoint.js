@@ -7,6 +7,9 @@ export const updateEndpoint = async (baseUrl, formData) =>
 export const getEndpointById = async (baseUrl, id) =>
     await fetch(`${getUrl(baseUrl, "Get")}?id=${id}`);
 
+export const switchActivity = async (baseUrl, id, isActive) =>
+    await fetch(`${getUrl(baseUrl, "SwitchActivity")}?id=${id}&isActive=${isActive}`);
+
 export const deleteEndpoint = async (baseUrl, id) =>
     await fetch(`${getUrl(baseUrl, "Delete")}?id=${id}`);
 

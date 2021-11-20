@@ -52,6 +52,10 @@ namespace IntegrationTestingTool.Controllers
             await EndpointService.Delete(id);
 
         [HttpGet]
+        public async Task<bool> SwitchActivity(Guid id, bool isActive) =>
+            await EndpointService.SwitchActivity(id, isActive);
+        
+        [HttpGet]
         public IEnumerable<int> GetStatusCodes() =>
             EndpointService.GetStatusCodes().Distinct();
     }

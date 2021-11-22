@@ -180,8 +180,17 @@ class Endpoint extends Component {
             }
             <Notification ref={this.notification}/>
             <Button theme={theme} onClick={async () => await this.addEndpoint()} caption={t((id) ? "button.update" : "button.add")}/>
+            {
+                (id) ?
+                    <Button additionalClasses="cancel-btn" theme={theme} onClick={this.navigateToAuths} caption={t("button.back")}/> :
+                    null
+            }
         </div>
     }
+
+    navigateToAuths = () =>
+        this.props.history.push({pathname: '/endpoints',})
+
 
     onHeaderCollectionChanged = (newHeaders) => {
         this.setState({headers: newHeaders})
@@ -190,14 +199,6 @@ class Endpoint extends Component {
     getFileIcon = (invertColor = false) => {
         const {theme} = this.props;
         return <FileIcon fill={invertColor ? (theme === "dark" ? "#00917C" : "#008FFF" ): "white"}/>
-    }
-
-
-    onDeleteFileClick = (propName) => {
-        const propValue = this.state[propName]
-        if (propValue && !propValue.lastModified){
-            this.setState({[propName]: null});
-        }
     }
 
     renderAsyncCallbackSettings = () => {

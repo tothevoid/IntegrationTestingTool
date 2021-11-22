@@ -82,15 +82,24 @@ class Endpoints extends Component {
         const {apiURL} = this.props.config;
         const response = await switchActivity(apiURL, id, isActive);
         if (response.ok && await response.text()){
-            const endpoints = this.state.endpoints.map((endpoint) => {
-                if (endpoint.id === id){
-                    endpoint.active = isActive;
-                }
-                return endpoint;
-            });
+            const {isOnlyActive} = this.state;
+            const endpoints = isOnlyActive && !isActive ?
+                this.excludeEndpoint(id) :
+                this.updateEndpoint(id, isActive);
             this.setState({endpoints})
         }
     }
+
+    updateEndpoint = (id, isActive) =>
+        this.state.endpoints.map((endpoint) => {
+            if (endpoint.id === id){
+                endpoint.active = isActive;
+            }
+            return endpoint;
+        });
+
+    excludeEndpoint = (id) =>
+        this.state.endpoints.filter((endpoint) => endpoint.id !== id);
 
     navigateToEdit = (endpointId) => {
         this.props.history.push({

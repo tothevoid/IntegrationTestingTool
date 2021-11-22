@@ -19,6 +19,9 @@
         opacity: 50%;
         color: white;
     }
+    &:hover{
+        box-shadow: 0px 3px 3px 0 rgba(0, 0, 0, 0.301);
+    }
 }
 
 .button-danger{

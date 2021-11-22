@@ -20,6 +20,11 @@ nav.dark{
 	border: none !important;
 }
 
+.nav-link{
+	font-family: 'Roboto';
+	font-weight: 400;
+}
+
 .navbar-brand.dark, a.nav-link.dark{
 	color: white;
 }
@@ -61,4 +66,5 @@ nav.dark{
 
 .nav-btn{
 	width: 50px;
+	user-select: none;
 }

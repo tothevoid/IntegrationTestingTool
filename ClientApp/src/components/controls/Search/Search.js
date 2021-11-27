@@ -1,5 +1,4 @@
-import React, { Component, Fragment } from 'react';
-import { Button } from '../Button/Button';
+import React, { Component } from 'react';
 import "./Search.scss"
 
 export class Search extends Component {
@@ -13,16 +12,15 @@ export class Search extends Component {
     render = () => {
         const { searchText } = this.state;
         const { theme, caption } = this.props;
-        return <Fragment>
-            <span className={`search-label ${theme}`}>{caption}</span>
-            <input type="text" className={`search-input ${theme}`} 
+        return <div className={`search-input-container ${theme}`}>
+            <input placeholder={caption} type="text" className={`search-input ${theme}`}
                 onChange={this.handleChange} value={searchText}/>
             {
                 (searchText) ?
-                    <Button additionalClasses="search-clear" mode="danger" onClick={this.onClearClick} caption={"X"}/> :
+                    <span className={`search-clear ${theme}`} onClick={this.onClearClick}>x</span> :
                     null
             }
-            </Fragment>
+            </div>
     }
 
     onClearClick = () =>

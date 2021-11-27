@@ -26,5 +26,7 @@ namespace IntegrationTestingTool.Services.Interfaces
         Task<IEnumerable<Endpoint>> FindLinkedByAuth(Guid authId);
 
         Task<Endpoint> FindById(Guid id, bool loadFile = false);
+
+        Task<bool> SwitchActivity(Guid id, bool isActive);
     }
 }

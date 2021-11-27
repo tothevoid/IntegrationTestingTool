@@ -184,7 +184,7 @@ namespace IntegrationTestingTool.Services
                 {
                     using (var reader = new StreamReader(endpoint.OutputDataFile.OpenReadStream()))
                     {
-                        endpoint.OutputData = reader.ReadToEnd();
+                        endpoint.OutputData = await reader.ReadToEndAsync();
                     }
                 }
             }
@@ -206,7 +206,7 @@ namespace IntegrationTestingTool.Services
                 {
                     using (var reader = new StreamReader(endpoint.CallbackDataFile.OpenReadStream()))
                     {
-                        endpoint.CallbackData = reader.ReadToEnd();
+                        endpoint.CallbackData = await reader.ReadToEndAsync();
                     }
                 }
             }
@@ -233,6 +233,14 @@ namespace IntegrationTestingTool.Services
                 endpoint.CallbackDataSize = callbackSize;
             }
             return endpoint;
+        }
+
+        public async Task<bool> SwitchActivity(Guid id, bool isActive)
+        {
+            var idFilter = Builders<Endpoint>.Filter.Eq(nameof(Endpoint.Id), id);
+            var update = Builders<Endpoint>.Update.Set((update)=>update.Active, isActive);
+            var result = await MongoCollection.UpdateOneAsync(idFilter, update);
+            return result.ModifiedCount == 1;
         }
 
         private bool IsFileShouldBeStoredInGridFS(long size) =>

@@ -5,7 +5,7 @@ import { Search } from "../../controls/Search/Search"
 import { formatFileSize } from "../../../utils/coreExtensions"
 import { Modal } from "../../controls/Modal/Modal";
 import { Checkbox } from "../../controls/Checkbox/Checkbox"
-import {deleteEndpoint, getAllEndpoints} from "../../../services/rest/endpoint";
+import {deleteEndpoint, getAllEndpoints, switchActivity} from "../../../services/rest/endpoint";
 import {ReactComponent as EditButton} from "../../../icons/edit.svg";
 import {ReactComponent as DeleteButton} from "../../../icons/delete.svg";
 import {withTranslation} from "react-i18next";
@@ -29,10 +29,12 @@ class Endpoints extends Component {
         const {theme, t} = this.props;
         const {showModal, isOnlyActive, searchText} = this.state;
         return <Fragment>
-            <Button additionalClasses="new-endpoint-btn" theme={theme} caption={t("button.add")} onClick={() => this.navigateToEdit()}/>
-            <Search caption={t("endpoints.search")} theme={theme} onTextChanged={async (path) => await this.getEndpoints(path, isOnlyActive)}/>
-            <Checkbox caption={t("endpoints.active")} additionalClass={"checkbox-inline"} value={isOnlyActive}
-                      onSelect={async (value) => {this.setState({isOnlyActive: value}); await this.fetchEndpoints(searchText, value)}} theme={theme}/>
+            <div className="header-form">
+                <Button additionalClasses="new-endpoint-btn" theme={theme} caption={t("button.add")} onClick={() => this.navigateToEdit()}/>
+                <Search caption={t("endpoints.search")} theme={theme} onTextChanged={async (path) => await this.getEndpoints(path, isOnlyActive)}/>
+                <Checkbox caption={t("endpoints.active")} additionalClass={"checkbox-inline"} value={isOnlyActive}
+                          onSelect={async (value) => {this.setState({isOnlyActive: value}); await this.fetchEndpoints(searchText, value)}} theme={theme}/>
+            </div>
             <div className="endpoints-list">
                 {this.state.endpoints.map((endpoint) => this.renderEndpoint(endpoint))}
             </div>
@@ -47,12 +49,13 @@ class Endpoints extends Component {
     {
         const {theme, config, t} = this.props;
         const {path, outputDataSize, outputStatusCode, method, callbackType, 
-            callbackUrl, callbackMethod, active, callbackDataSize} = endpoint;
-        const postfix = active ? "active" : "inactive";
+            callbackUrl, callbackMethod, active, callbackDataSize, id} = endpoint;
 
         return <div key={endpoint.id} className={`endpoint ${theme}`}>
             <div>
-                <div className="path"><span className={`activity-sign ${postfix}`}/>[{method}] {config?.mockURL}/{path}</div>
+                <div className="path">
+                    <Checkbox toggle value={active} onSelect={async (active) => await this.changeEndpointActivity(id, active)} additionalClass={"checkbox-inline"} theme={theme}/>
+                    [{method}] {config?.mockURL}/{path}</div>
                 <div className="returns">{t("endpoints.descriptionMain", {code: outputStatusCode, dataSize: formatFileSize(outputDataSize)})}</div>
                 {
                     (callbackType === 1) ?
@@ -74,6 +77,29 @@ class Endpoints extends Component {
             </div>
         </div>
     }
+
+    changeEndpointActivity = async (id, isActive) => {
+        const {apiURL} = this.props.config;
+        const response = await switchActivity(apiURL, id, isActive);
+        if (response.ok && await response.text()){
+            const {isOnlyActive} = this.state;
+            const endpoints = isOnlyActive && !isActive ?
+                this.excludeEndpoint(id) :
+                this.updateEndpoint(id, isActive);
+            this.setState({endpoints})
+        }
+    }
+
+    updateEndpoint = (id, isActive) =>
+        this.state.endpoints.map((endpoint) => {
+            if (endpoint.id === id){
+                endpoint.active = isActive;
+            }
+            return endpoint;
+        });
+
+    excludeEndpoint = (id) =>
+        this.state.endpoints.filter((endpoint) => endpoint.id !== id);
 
     navigateToEdit = (endpointId) => {
         this.props.history.push({

@@ -27,17 +27,28 @@
     border-radius: 5px;
 }
 
-.datepicker.dark>.datepicker-value{
-    border: solid 1px $highlithing-dark;
+.datepicker>.datepicker-value {
+    border: solid 2px;
+    font-family: Roboto, sans-serif;
     &::-webkit-calendar-picker-indicator{
         cursor: pointer;
         border-radius: 4px;
         margin-right: 2px;
         opacity: 0.8;
-        filter: invert(1);
     }
     &:hover{
         opacity: 1
+    }
+}
+
+.datepicker.light>.datepicker-value{
+    border-color: #6200ee;
+}
+
+.datepicker.dark>.datepicker-value{
+    border-color: $highlithing-dark;
+    &::-webkit-calendar-picker-indicator{
+        filter: invert(1);
     }
 }
 

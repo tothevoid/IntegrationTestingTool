@@ -1,5 +1,4 @@
 ﻿using IntegrationTestingTool.Services.Interfaces;
-using IntegrationTestingTool.Settings;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
@@ -14,12 +13,15 @@ namespace IntegrationTestingTool.Services
     public class FileService: IFileService
     {
         private IGridFSBucket GridFs { get; }
+        
+        private IMongoCollection<BsonDocument> ChunksCollection { get; }
 
         public FileService(IDatabaseSettings settings)
         {
             var client = new MongoClient(settings.ConnectionString);
-            var collection = client.GetDatabase(settings.DatabaseName);
-            GridFs = new GridFSBucket(collection);
+            var database = client.GetDatabase(settings.DatabaseName);
+            ChunksCollection = database.GetCollection<BsonDocument>("fs.chunks");
+            GridFs = new GridFSBucket(database);
         }
 
         public async Task<ObjectId> Create(Guid id, string data) =>
@@ -36,7 +38,8 @@ namespace IntegrationTestingTool.Services
 
         public async Task Delete(ObjectId fileId)
         {
-            await GridFs.DeleteAsync(fileId);
+            var fileIdFilter = Builders<BsonDocument>.Filter.Eq("files_id", fileId);
+            await Task.WhenAll(GridFs.DeleteAsync(fileId), ChunksCollection.DeleteManyAsync(fileIdFilter));
         }
     }
 }

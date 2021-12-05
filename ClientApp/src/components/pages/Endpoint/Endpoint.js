@@ -164,7 +164,7 @@ class Endpoint extends Component {
             }
             {
                 (outputFile) ?
-                    this.getExistingFileControl(outputFile, "outputFile"):
+                    this.getExistingFileControl(outputFile, "outputFile", "outputDataFileId", "outputDataSize"):
                     <Fragment>
                         <Field isTextarea theme={theme} name="outputData" value={outputData} label={t("endpoint.data")} onInput={this.onValueUpdated}/>
                         <div className="file-data">
@@ -217,7 +217,7 @@ class Endpoint extends Component {
             </div>
             {
                 (callbackFile) ?
-                   this.getExistingFileControl(callbackFile, "callbackFile"):
+                   this.getExistingFileControl(callbackFile, "callbackFile", "callbackDataFileId", "callbackDataSize"):
                     <Fragment>
                         <Field isTextarea theme={theme} name="callbackData" value={callbackData} label={t("endpoint.data")} onInput={this.onValueUpdated}/>
                         <div className="file-data" >
@@ -230,9 +230,10 @@ class Endpoint extends Component {
         </Fragment>
     }
 
-    getExistingFileControl = (file, propName) => {
+    getExistingFileControl = (file, fileProp, idProp, sizeProp) => {
         const { theme } = this.props;
-        return <div className="file-container" onClick={() => this.setState({[propName]: null})}>
+        return <div className="file-container" onClick={() => this.setState(
+                {[fileProp]: null, [idProp]: null, [sizeProp]: null})}>
             <div className={`file-control ${theme}`}>{this.getFileIcon()} {formatFileSize(file.size)}</div>
             <div className={`delete-btn ${theme}`}>x</div>
         </div>

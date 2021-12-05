@@ -95,16 +95,16 @@ namespace IntegrationTestingTool.Services
             if (endpoint.CallbackDataFileId != default) 
                 fileFields.Add((nameof(Endpoint.CallbackDataFileId), endpoint.CallbackDataFileId));
 
-            if (fileFields.Any()) return true; 
+            if (!fileFields.Any()) return true; 
             
             var deletionTasks = new List<Task>();
             var existsTasks = fileFields.Select(field =>
-                CheckIsFileCopied(nameof(Endpoint.OutputDataFileId), endpoint.OutputDataFileId));
+                CheckIsFileCopied(field.Item1, field.Item2));
             var isCopiedFilesExists = await Task.WhenAll(existsTasks);
 
             for (var i = 0; i < fileFields.Count; i++)
             {
-                if (isCopiedFilesExists[i])
+                if (!isCopiedFilesExists[i])
                 {
                     deletionTasks.Add(FileService.Delete(fileFields[i].Item2));
                 }
@@ -120,7 +120,7 @@ namespace IntegrationTestingTool.Services
         private async Task<bool> CheckIsFileCopied(string fieldName, ObjectId fileId)
         {
             var fileFilter = Builders<Endpoint>.Filter.Eq(fieldName, fileId);
-            return (await MongoCollection.CountDocumentsAsync(fileFilter)) > 1;
+            return await MongoCollection.CountDocumentsAsync(fileFilter) != 0;
         } 
 
         public async Task<IEnumerable<Endpoint>> FindByPathAndMethod(string path, string method)

@@ -18,7 +18,8 @@
     "react-router-dom": "^5.2.0",
     "react-scripts": "^3.4.4",
     "reactstrap": "^8.9.0",
-    "rimraf": "^2.6.2"
+    "rimraf": "^2.6.2",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "ajv": "^6.12.6",

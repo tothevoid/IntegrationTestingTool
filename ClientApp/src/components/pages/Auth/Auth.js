@@ -64,7 +64,6 @@ class Auth extends Component {
         const {theme, t} = this.props;
         const {name, data, url, method, methods, usedHeader, id, headers, showHeadersModal} = this.state;
         return <div className={`new-auth ${theme}`}>
-            <h1>{t((id) ? "auth.action.update" : "auth.action.add")}</h1>
             <Field className="auth-name" label={t("auth.name")} name="name" theme={theme} value={name} onInput={this.onFieldInput}/>
             <div className="fields-row">
                 <div className="method">

@@ -12,6 +12,8 @@ namespace IntegrationTestingTool.Services.Interfaces
         Task<IEnumerable<Endpoint>> GetAllByFilters(string path, bool onlyActive);
 
         Task<Endpoint> Create(Endpoint endpoint);
+        
+        Task<Endpoint> Copy(Endpoint endpoint);
 
         Task<bool> Delete(Guid id);
 

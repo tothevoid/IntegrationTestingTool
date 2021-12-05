@@ -3,7 +3,10 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace IntegrationTestingTool.Model.Entities
 {
@@ -27,12 +30,36 @@ namespace IntegrationTestingTool.Model.Entities
 
         public long CallbackDataSize { get; set; }
 
+        [System.Text.Json.Serialization.JsonIgnore]
         public ObjectId CallbackDataFileId { get; set; }
+
+        [JsonPropertyName("callbackDataFileId")]
+        [FromForm(Name = "callbackDataFileId")]
+        public string CallbackDataFileConverted
+        {
+            get => CallbackDataFileId != default ? CallbackDataFileId.ToString() : null;
+            set
+            {
+                if (!string.IsNullOrEmpty(value)) CallbackDataFileId = new ObjectId(value);
+            }
+        }
 
         public int OutputStatusCode { get; set; } = 200;
 
+        [System.Text.Json.Serialization.JsonIgnore]
         public ObjectId OutputDataFileId { get; set; }
 
+        [JsonPropertyName("outputDataFileId")]
+        [FromForm(Name = "outputDataFileId")]
+        public string OutputDataFileIdConverted
+        {
+            get => OutputDataFileId != default ? OutputDataFileId.ToString() : null;
+            set
+            {
+                if (!string.IsNullOrEmpty(value)) OutputDataFileId = new ObjectId(value);
+            }
+        }
+        
         public long OutputDataSize { get; set; }
 
         public Guid? AuthId { get; set; }

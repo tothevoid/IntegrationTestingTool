@@ -8,31 +8,6 @@
     color: $text-dark;
 }
 
-.dynamic-url-validation-error{
-    color: rgb(146, 2, 2);
-}
-
-.dynamic-url{
-    border: none;
-    background: transparent;
-    border-bottom: 2px solid;
-    &.light{
-        color: $control-foreground-light;
-        &:focus, &:active{
-            border-color: $highlithing-light;
-        }
-    }
-    &.dark{
-        color: $control-foreground-dark;
-        &:focus, &:active{
-            border-color: $highlithing-dark;
-        }
-    }
-    &:focus, &:active{
-        outline: none;
-    }
-}
-
 .form-part-row{
     display: flex;
     flex-direction: row;
@@ -104,4 +79,21 @@
 
 .spinner-content{
     opacity: 0.5;
+}
+
+.dynamic-url{
+    width: 600px;
+    border: none;
+    background: transparent;
+    border-bottom: 2px solid;
+    &.light{
+        border-color: $main-color-light;
+    }
+    &.dark{
+        color: white;
+        border-color: $main-color-dark;
+    }
+    &:focus, &:active{
+        outline: none;
+    }
 }

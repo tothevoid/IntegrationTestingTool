@@ -4,6 +4,9 @@ export const addEndpoint = async (baseUrl, formData) =>
 export const updateEndpoint = async (baseUrl, formData) =>
     await generateFormRequest(getUrl(baseUrl, "Update"), formData);
 
+export const copyEndpoint = async (baseUrl, formData) =>
+    await generateFormRequest(getUrl(baseUrl, "Copy"), formData);
+
 export const getEndpointById = async (baseUrl, id) =>
     await fetch(`${getUrl(baseUrl, "Get")}?id=${id}`);
 

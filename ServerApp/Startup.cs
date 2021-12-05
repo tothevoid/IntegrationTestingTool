@@ -28,7 +28,6 @@ namespace IntegrationTestingTool
 
             services.AddSignalR();
             services.AddControllersWithViews();
-
             services.AddSpaStaticFiles(configuration =>
             {
                 configuration.RootPath = "ClientApp/build";
@@ -51,9 +50,9 @@ namespace IntegrationTestingTool
             else
             {
                 var clientConfig = Configuration.GetSection(nameof(ClientSettings)).Get<ClientSettings>();
-                if (clientConfig != null && !string.IsNullOrEmpty(clientConfig.ClientURL))
+                if (clientConfig != null && !string.IsNullOrEmpty(clientConfig.ClientUrl))
                 {
-                    app.UseCors(builder => builder.WithOrigins(clientConfig.ClientURL)
+                    app.UseCors(builder => builder.WithOrigins(clientConfig.ClientUrl)
                         .AllowAnyMethod().AllowAnyHeader().AllowCredentials());
                 }
              
@@ -71,14 +70,14 @@ namespace IntegrationTestingTool
             {
                 endpoints.MapHub<LogsHub>("/hubs/logs");
                 var serverConfig = Configuration.GetSection(nameof(ServerSettings)).Get<ServerSettings>();
-                if (serverConfig != null && !string.IsNullOrEmpty(serverConfig.APIName))
+                if (serverConfig != null && !string.IsNullOrEmpty(serverConfig.ApiName))
                 {
-                    string dataPart = "{**data}";
-                    endpoints.MapDynamicControllerRoute<DynamicRouter>($"{serverConfig.APIName}/{dataPart}");
+                    var dataPart = "{**data}";
+                    endpoints.MapDynamicControllerRoute<DynamicRouter>($"{serverConfig.ApiName}/{dataPart}");
                 }
                 else
                 {
-                    throw new Exception("There is no APIName parameter at the appsetings 'ServerSettings' section");
+                    throw new Exception($"There is no {nameof(ServerSettings.ApiName)} parameter at the appsetings {nameof(ServerSettings)} section");
                 }
                 
                 endpoints.MapControllers();

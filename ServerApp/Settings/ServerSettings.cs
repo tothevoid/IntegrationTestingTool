@@ -4,6 +4,6 @@ namespace IntegrationTestingTool.Settings
 {
     public class ServerSettings: IServerSettings
     {
-        public string APIName { get; set; }
+        public string ApiName { get; set; }
     }
 }

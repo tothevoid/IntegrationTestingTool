@@ -2,6 +2,6 @@
 {
     public interface IServerSettings
     {
-        public string APIName { get; set; }
+        public string ApiName { get; set; }
     }
 }

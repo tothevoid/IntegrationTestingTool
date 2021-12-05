@@ -4,7 +4,7 @@ export const theme = {
 }
 
 export const endpoint = {
-    defaultServer: "http://localhost:44314",
+    defaultServer: "https://localhost:44315",
     defaultWS: "https://localhost:44315"
 }
 
@@ -18,6 +18,11 @@ export const httpMethods = [
     "TRACE",
     "PATCH"
 ]
+
+export const pageMode = {
+    Edit: "edit",
+    Copy: "copy"
+}
 
 export const localization = {
     English: "en",

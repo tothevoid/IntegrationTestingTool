@@ -11,13 +11,14 @@ class Logs extends Component {
         super(props);
         this.state = {
             logs: [],
-            newLogs: []
+            newLogs: [],
+            dateFilter: getCurrentDate()
         }
     }
 
     componentDidMount = async () => {
-        const date = getCurrentDate();
-        await this.fetchLogs(date);
+        const { dateFilter } = this.state;
+        await this.fetchLogs(dateFilter);
 
         const hubConnection = new HubConnectionBuilder()
             .withUrl(`${this.props.config.wsURL}/hubs/logs`)
@@ -34,7 +35,7 @@ class Logs extends Component {
             }))
         });
 
-        this.setState({ hubConnection, dateFilter: date }, () =>
+        this.setState({ hubConnection }, () =>
             this.state.hubConnection.start()
         );
     } 
@@ -45,7 +46,7 @@ class Logs extends Component {
             <span className="log-date">{formatDate(new Date(log.createdOn))}</span>
             {
                 (log.isError) ? 
-                    <div>{t("auths.error", {message: log.returned})}</div> :
+                    <div>{t("logs.error", {message: log.returned})}</div> :
                     <Fragment/>
             }
             <div className="log-url">[{log.endpoint.method}] {this.props?.config?.mockURL}/{log.endpoint.path}</div>
@@ -56,12 +57,12 @@ class Logs extends Component {
                         <b>{t("logs.returned")}:</b>
                         <div>{t("logs.code")}: {log.endpoint.outputStatusCode}</div>
                         <div>{t("logs.dataSize")}: {formatFileSize(log.endpoint.outputDataSize)}</div>
-                        {
-                            log.isNew ? 
-                                <span className="new-label">{t("logs.new")}</span> :
-                                null
-                        }
                     </Fragment>:
+                    null
+            }
+            {
+                log.isNew ?
+                    <span className="new-label">{t("logs.new")}</span> :
                     null
             }
         </div>

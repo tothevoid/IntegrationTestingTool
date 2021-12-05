@@ -3,7 +3,7 @@ import React, { Component, Fragment } from 'react';
 import { Field } from "../Field/Field";
 import { Button } from "../Button/Button"
 import ReactDOM from "react-dom";
-import { uuidv4 } from "../../../utils/coreExtensions";
+import { v4 as uuidv4 } from 'uuid';
 import {withTranslation} from "react-i18next";
 import {withRouter} from "react-router-dom";
 
@@ -23,8 +23,8 @@ class HeadersModal extends Component {
         }
 
         const modal =
-            <div className={`headers-modal-wrapper ${theme}`}>
-                <div className="headers-modal-container">
+            <div className={`headers-modal-wrapper ${theme}`} onClick={() => onModalClosed()}>
+                <div className="headers-modal-container" onClick={e => e.stopPropagation()}>
                     <button onClick={() => onModalClosed()} className="close-btn">X</button>
                     <div className="headers-top">{t("headers.configure")}</div>
                     <div className="headers-controls">

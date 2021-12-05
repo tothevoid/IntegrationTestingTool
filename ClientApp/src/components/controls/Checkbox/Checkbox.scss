@@ -51,13 +51,13 @@
 }
 
 .checkbox-switch.dark:checked+.checkbox-text::before {
-    border-color: #00917C;
-    background-color: #00917C;
+    border-color: $main-color-dark;
+    background-color: $main-color-dark;
 }
 
 .checkbox-switch.light:checked+.checkbox-text::before {
-    border-color: #6200ee;
-    background-color: #6200ee;
+    border-color: $main-color-light;
+    background-color: $main-color-light;
 }
 
 .checkbox-switch.dark:not(:disabled):not(:checked)+.checkbox-text:hover::before{
@@ -65,7 +65,7 @@
 }
 
 .checkbox-switch.light:not(:disabled):not(:checked)+.checkbox-text:hover::before{
-    border-color: #6200ee;
+    border-color: $main-color-light;
 }
 
 .toggle {
@@ -98,12 +98,12 @@
         border-color: #bd2130;
     }
     &.dark:checked{
-        box-shadow: inset 20px 0 0 0 #00917C;
-        border-color: #00917C;
+        box-shadow: inset 20px 0 0 0 $main-color-dark;
+        border-color: $main-color-dark;
     }
     &.light:checked{
-        box-shadow: inset 20px 0 0 0 #6200ee;
-        border-color: #6200ee;
+        box-shadow: inset 20px 0 0 0 $main-color-light;
+        border-color: $main-color-light;
 
     }
     &:checked:after{

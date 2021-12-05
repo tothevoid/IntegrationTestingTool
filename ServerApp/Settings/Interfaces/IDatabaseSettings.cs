@@ -1,4 +1,4 @@
-﻿namespace IntegrationTestingTool.Settings
+﻿namespace IntegrationTestingTool.Settings.Interfaces
 {
     public interface IDatabaseSettings
     {

@@ -2,7 +2,8 @@ export const TRANSLATION_RU = {
 	button: {
 		add: "Добавить",
 		update: "Обновить",
-		back: "Назад"
+		back: "Назад",
+		save: "Сохранить"
 	},
 	nav:{
 		endpoints: "Конечные точки",
@@ -38,10 +39,6 @@ export const TRANSLATION_RU = {
 		url: "Адрес",
 		data: "Данные",
 		attachByFile: "Загрузить данные из файла",
-		action:{
-			add: "Добавление точки",
-			update: "Редактирование точки"
-		},
 		validation: {
 			endpointUrl: "Адрес конечной точки задан некорректно",
 			callbackUrl: "Адрес точки обратного вызова задан некорректно"
@@ -59,6 +56,7 @@ export const TRANSLATION_RU = {
 		}
 	},
 	auth: {
+		default: "Нет",
 		name: "Название",
 		httpMethod: "HTTP метод",
 		url: "Адрес",

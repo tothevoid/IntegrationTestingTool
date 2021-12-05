@@ -13,6 +13,7 @@ using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using IntegrationTestingTool.Settings.Interfaces;
 
 namespace IntegrationTestingTool.Services
 {
@@ -70,29 +71,63 @@ namespace IntegrationTestingTool.Services
             await MongoCollection.InsertOneAsync(updatedEndpoint);
             return updatedEndpoint;
         }
+        
+        public async Task<Endpoint> Copy(Endpoint endpoint)
+        {
+            endpoint.Id = Guid.NewGuid();
+            var copiedEndpoint = await PreprocessEndpointData(endpoint);
+            await MongoCollection.InsertOneAsync(copiedEndpoint);
+            return copiedEndpoint;
+        }
 
         public async Task<bool> Delete(Guid id)
         {
+            //TODO: minimize requested fields
             var endpoint = await FindById(id);
             if (endpoint == null) return false;
             var deletionFilter = Builders<Endpoint>.Filter.Eq(nameof(Endpoint.Id), id);
             var result = await MongoCollection.DeleteOneAsync(deletionFilter);
             if (result.DeletedCount == 0) return false;
             
-            List<Task> tasks = new List<Task>();
-            if (endpoint.OutputDataFileId != default)
-            {
-                tasks.Add(FileService.Delete(endpoint.OutputDataFileId));
-            }
+            var fileFields = new List<(string, ObjectId)>() { };
 
-            if (endpoint.CallbackDataFileId != default)
-            {
-                tasks.Add(FileService.Delete(endpoint.CallbackDataFileId));
-            }
-
-            await Task.WhenAll(tasks);
+            if (endpoint.OutputDataFileId != default) 
+                fileFields.Add((nameof(Endpoint.OutputDataFileId), endpoint.OutputDataFileId));
+            if (endpoint.CallbackDataFileId != default) 
+                fileFields.Add((nameof(Endpoint.CallbackDataFileId), endpoint.CallbackDataFileId));
+            
+            await DeleteLinkedFiles(fileFields);
             return true;
         }
+
+        private async Task DeleteLinkedFiles(List<(string, ObjectId)> fileFields)
+        {
+            if (!fileFields.Any()) return;
+
+            var deletionTasks = new List<Task>();
+            var existsTasks = fileFields.Select(field =>
+                CheckIsFileCopied(field.Item1, field.Item2));
+            var isCopiedFilesExists = await Task.WhenAll(existsTasks);
+
+            for (var i = 0; i < fileFields.Count; i++)
+            {
+                if (!isCopiedFilesExists[i])
+                {
+                    deletionTasks.Add(FileService.Delete(fileFields[i].Item2));
+                }
+            }
+            
+            if (deletionTasks.Any())
+            {
+                await Task.WhenAll(deletionTasks);
+            }
+        }
+
+        private async Task<bool> CheckIsFileCopied(string fieldName, ObjectId fileId)
+        {
+            var fileFilter = Builders<Endpoint>.Filter.Eq(fieldName, fileId);
+            return await MongoCollection.CountDocumentsAsync(fileFilter) != 0;
+        } 
 
         public async Task<IEnumerable<Endpoint>> FindByPathAndMethod(string path, string method)
         {
@@ -131,14 +166,19 @@ namespace IntegrationTestingTool.Services
         }
         public async Task<Endpoint> Update(Endpoint endpoint)
         {
+            var storedEndpoint = await FindById(endpoint.Id);
             var updatedEndpoint = await PreprocessEndpointData(endpoint);
-
             BsonBinaryData binaryId = new BsonBinaryData(updatedEndpoint.Id, GuidRepresentation.Standard);
             var result = await MongoCollection.ReplaceOneAsync(new BsonDocument("_id", binaryId), updatedEndpoint);
+            if (result.ModifiedCount == 0) return updatedEndpoint;
 
-            return result.ModifiedCount != 0 ?
-                updatedEndpoint :
-                null;
+            var fileFields = new List<(string, ObjectId)>() { };
+            if (endpoint.OutputDataFileId != default && storedEndpoint.OutputDataFileId != updatedEndpoint.OutputDataFileId) 
+                fileFields.Add((nameof(Endpoint.OutputDataFileId), storedEndpoint.OutputDataFileId));
+            if (endpoint.CallbackDataFileId != default && storedEndpoint.CallbackDataFileId != updatedEndpoint.CallbackDataFileId) 
+                fileFields.Add((nameof(Endpoint.CallbackDataFileId), storedEndpoint.CallbackDataFileId));
+            await DeleteLinkedFiles(fileFields);
+            return updatedEndpoint;
         }
 
         public IEnumerable<int> GetStatusCodes() =>
@@ -154,11 +194,11 @@ namespace IntegrationTestingTool.Services
             var size = Encoding.UTF8.GetBytes(data).Length;
 
             //Store data into file it has size more than 10MB
-            return IsFileShouldBeStoredInGridFS(size) ? 
+            return IsFileShouldBeStoredInGridFs(size) ? 
                 (await FileService.Create(endpointId, data), size) : 
                 (default, size);
         }
-
+        
         private async Task<Endpoint> PreprocessEndpointData(Endpoint endpoint)
         {
             if (!string.IsNullOrEmpty((endpoint.OutputData)))
@@ -167,9 +207,9 @@ namespace IntegrationTestingTool.Services
             }
 
             //TODO: Remove code duplication
-            if (endpoint.OutputDataFile != null)
+            if (endpoint.OutputDataFile != null && endpoint.OutputDataFileId == default)
             {
-                var isShouldBeStored = IsFileShouldBeStoredInGridFS(endpoint.OutputDataFile.Length);
+                var isShouldBeStored = IsFileShouldBeStoredInGridFs(endpoint.OutputDataFile.Length);
                 if (isShouldBeStored)
                 {
                     using (var stream = endpoint.OutputDataFile.OpenReadStream())
@@ -189,9 +229,9 @@ namespace IntegrationTestingTool.Services
                 }
             }
 
-            if (endpoint.CallbackDataFile != null)
+            if (endpoint.CallbackDataFile != null && endpoint.CallbackDataFileId == default)
             {
-                var isShouldBeStored = IsFileShouldBeStoredInGridFS(endpoint.CallbackDataFile.Length);
+                var isShouldBeStored = IsFileShouldBeStoredInGridFs(endpoint.CallbackDataFile.Length);
                 if (isShouldBeStored)
                 {
                     using (var stream = endpoint.CallbackDataFile.OpenReadStream())
@@ -243,7 +283,7 @@ namespace IntegrationTestingTool.Services
             return result.ModifiedCount == 1;
         }
 
-        private bool IsFileShouldBeStoredInGridFS(long size) =>
+        private static bool IsFileShouldBeStoredInGridFs(long size) =>
             size > 10 * Math.Pow(2, 20);
     }
 }

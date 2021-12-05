@@ -8,6 +8,8 @@ import { Checkbox } from "../../controls/Checkbox/Checkbox"
 import {deleteEndpoint, getAllEndpoints, switchActivity} from "../../../services/rest/endpoint";
 import {ReactComponent as EditButton} from "../../../icons/edit.svg";
 import {ReactComponent as DeleteButton} from "../../../icons/delete.svg";
+import {ReactComponent as CopyButton} from "../../../icons/copy.svg";
+import { pageMode } from "../../../constants/constants"
 import {withTranslation} from "react-i18next";
 
 class Endpoints extends Component {
@@ -66,12 +68,15 @@ class Endpoints extends Component {
                 }
             {
                 <div className="endpoint-manipulations">
-                    <span onClick={async () => this.navigateToEdit(endpoint.id)} className={`endpoint-edit ${theme}`}>
+                    <span onClick={async () => this.navigateToEdit(endpoint.id, pageMode.Copy)} className={`endpoint-edit ${theme}`}>
+                      <CopyButton fill={"black"} className="theme-switch"/>
+                    </span>
+                    <span onClick={async () => this.navigateToEdit(endpoint.id, pageMode.Edit)} className={`endpoint-edit ${theme}`}>
                       <EditButton fill={"black"} className="theme-switch"/>
-                   </span>
+                    </span>
                     <span onClick={async () => this.deleteEndpoint(endpoint.id)} className={`endpoint-delete ${theme}`}>
                       <DeleteButton fill={"white"} className="theme-switch"/>
-                   </span>
+                    </span>
                 </div>
             }
             </div>
@@ -101,9 +106,9 @@ class Endpoints extends Component {
     excludeEndpoint = (id) =>
         this.state.endpoints.filter((endpoint) => endpoint.id !== id);
 
-    navigateToEdit = (endpointId) => {
+    navigateToEdit = (endpointId, mode) => {
         this.props.history.push({
-            pathname: (endpointId) ? `/endpoint/${endpointId}` : "/endpoint/",
+            pathname: (endpointId) ? `/endpoint/${mode}/${endpointId}` : "/endpoint/",
         })
     }
 

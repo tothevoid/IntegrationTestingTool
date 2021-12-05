@@ -87,16 +87,22 @@ namespace IntegrationTestingTool.Services
             var deletionFilter = Builders<Endpoint>.Filter.Eq(nameof(Endpoint.Id), id);
             var result = await MongoCollection.DeleteOneAsync(deletionFilter);
             if (result.DeletedCount == 0) return false;
-
+            
             var fileFields = new List<(string, ObjectId)>() { };
 
             if (endpoint.OutputDataFileId != default) 
                 fileFields.Add((nameof(Endpoint.OutputDataFileId), endpoint.OutputDataFileId));
             if (endpoint.CallbackDataFileId != default) 
                 fileFields.Add((nameof(Endpoint.CallbackDataFileId), endpoint.CallbackDataFileId));
-
-            if (!fileFields.Any()) return true; 
             
+            await DeleteLinkedFiles(fileFields);
+            return true;
+        }
+
+        private async Task DeleteLinkedFiles(List<(string, ObjectId)> fileFields)
+        {
+            if (!fileFields.Any()) return;
+
             var deletionTasks = new List<Task>();
             var existsTasks = fileFields.Select(field =>
                 CheckIsFileCopied(field.Item1, field.Item2));
@@ -109,12 +115,11 @@ namespace IntegrationTestingTool.Services
                     deletionTasks.Add(FileService.Delete(fileFields[i].Item2));
                 }
             }
-
+            
             if (deletionTasks.Any())
             {
                 await Task.WhenAll(deletionTasks);
             }
-            return true;
         }
 
         private async Task<bool> CheckIsFileCopied(string fieldName, ObjectId fileId)
@@ -160,14 +165,19 @@ namespace IntegrationTestingTool.Services
         }
         public async Task<Endpoint> Update(Endpoint endpoint)
         {
+            var storedEndpoint = await FindById(endpoint.Id);
             var updatedEndpoint = await PreprocessEndpointData(endpoint);
-
             BsonBinaryData binaryId = new BsonBinaryData(updatedEndpoint.Id, GuidRepresentation.Standard);
             var result = await MongoCollection.ReplaceOneAsync(new BsonDocument("_id", binaryId), updatedEndpoint);
+            if (result.ModifiedCount == 0) return updatedEndpoint;
 
-            return result.ModifiedCount != 0 ?
-                updatedEndpoint :
-                null;
+            var fileFields = new List<(string, ObjectId)>() { };
+            if (endpoint.OutputDataFileId != default && storedEndpoint.OutputDataFileId != updatedEndpoint.OutputDataFileId) 
+                fileFields.Add((nameof(Endpoint.OutputDataFileId), storedEndpoint.OutputDataFileId));
+            if (endpoint.CallbackDataFileId != default && storedEndpoint.CallbackDataFileId != updatedEndpoint.CallbackDataFileId) 
+                fileFields.Add((nameof(Endpoint.CallbackDataFileId), storedEndpoint.CallbackDataFileId));
+            await DeleteLinkedFiles(fileFields);
+            return updatedEndpoint;
         }
 
         public IEnumerable<int> GetStatusCodes() =>

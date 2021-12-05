@@ -27,7 +27,7 @@ namespace IntegrationTestingTool
             services.AddCors();
 
             services.AddSignalR();
-            services.AddControllersWithViews().AddNewtonsoftJson();
+            services.AddControllersWithViews();
             services.AddSpaStaticFiles(configuration =>
             {
                 configuration.RootPath = "ClientApp/build";

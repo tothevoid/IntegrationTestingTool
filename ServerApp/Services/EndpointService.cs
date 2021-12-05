@@ -82,6 +82,7 @@ namespace IntegrationTestingTool.Services
 
         public async Task<bool> Delete(Guid id)
         {
+            //TODO: minimize requested fields
             var endpoint = await FindById(id);
             if (endpoint == null) return false;
             var deletionFilter = Builders<Endpoint>.Filter.Eq(nameof(Endpoint.Id), id);

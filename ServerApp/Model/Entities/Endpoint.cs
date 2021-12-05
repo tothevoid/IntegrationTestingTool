@@ -30,10 +30,10 @@ namespace IntegrationTestingTool.Model.Entities
 
         public long CallbackDataSize { get; set; }
 
-        [Newtonsoft.Json.JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
         public ObjectId CallbackDataFileId { get; set; }
 
-        [JsonProperty("callbackDataFileId")]
+        [JsonPropertyName("callbackDataFileId")]
         [FromForm(Name = "callbackDataFileId")]
         public string CallbackDataFileConverted
         {
@@ -46,10 +46,10 @@ namespace IntegrationTestingTool.Model.Entities
 
         public int OutputStatusCode { get; set; } = 200;
 
-        [Newtonsoft.Json.JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
         public ObjectId OutputDataFileId { get; set; }
 
-        [JsonProperty("outputDataFileId")]
+        [JsonPropertyName("outputDataFileId")]
         [FromForm(Name = "outputDataFileId")]
         public string OutputDataFileIdConverted
         {

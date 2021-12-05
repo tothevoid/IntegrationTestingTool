@@ -19,6 +19,11 @@ export const httpMethods = [
     "PATCH"
 ]
 
+export const pageMode = {
+    Edit: "edit",
+    Copy: "copy"
+}
+
 export const localization = {
     English: "en",
     Russian: "ru"

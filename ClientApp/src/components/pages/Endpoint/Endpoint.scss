@@ -13,20 +13,16 @@
 }
 
 .dynamic-url{
+    width: 300px;
     border: none;
     background: transparent;
     border-bottom: 2px solid;
     &.light{
-        color: $control-foreground-light;
-        &:focus, &:active{
-            border-color: $highlithing-light;
-        }
+        border-color: $main-color-light;
     }
     &.dark{
-        color: $control-foreground-dark;
-        &:focus, &:active{
-            border-color: $highlithing-dark;
-        }
+        color: white;
+        border-color: $main-color-dark;
     }
     &:focus, &:active{
         outline: none;

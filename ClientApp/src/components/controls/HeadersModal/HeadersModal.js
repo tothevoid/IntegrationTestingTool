@@ -23,8 +23,8 @@ class HeadersModal extends Component {
         }
 
         const modal =
-            <div className={`headers-modal-wrapper ${theme}`}>
-                <div className="headers-modal-container">
+            <div className={`headers-modal-wrapper ${theme}`} onClick={() => onModalClosed()}>
+                <div className="headers-modal-container" onClick={e => e.stopPropagation()}>
                     <button onClick={() => onModalClosed()} className="close-btn">X</button>
                     <div className="headers-top">{t("headers.configure")}</div>
                     <div className="headers-controls">

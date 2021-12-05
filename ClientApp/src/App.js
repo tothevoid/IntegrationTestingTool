@@ -53,7 +53,7 @@ class App extends Component {
                 <Switch>
                     <Route exact path='/' render={(props) => <Endpoints {...props} {...this.state}/>}/>
                     <Route exact path='/endpoints' render={(props) => <Endpoints {...props} {...this.state}/>}/>
-                    <Route path='/endpoint/:id?' render={(props) => <Endpoint  {...props} {...this.state}/>}/>
+                    <Route path='/endpoint/:mode?/:id?' render={(props) => <Endpoint  {...props} {...this.state}/>}/>
                     <Route exact path='/auths' render={(props) => <Auths {...props} {...this.state}/>}/>
                     <Route path='/auth/:id?' render={(props) => <Auth  {...props} {...this.state}/>}/>
                     <Route exact path='/logs' render={(props) => <Logs {...props} {...this.state}/>}/>

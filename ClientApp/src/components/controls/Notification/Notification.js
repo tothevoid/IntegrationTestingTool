@@ -33,9 +33,9 @@ export class Notification extends Component {
 
     addElement = (text, duration = 10) => {
         const id = uuidv4();
-        const newNotication = {id, text};
+        const newNotification = {id, text};
         setTimeout(this.onTimerEnded, duration * 1000, id);
-        const notifications = [newNotication, ...this.state.notifications]
+        const notifications = [newNotification, ...this.state.notifications]
         this.setState({notifications});
     }
 

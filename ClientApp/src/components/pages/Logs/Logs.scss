@@ -42,11 +42,11 @@
 }
 
 .datepicker.light>.datepicker-value{
-    border-color: #6200ee;
+    border-color: $main-color-light;
 }
 
 .datepicker.dark>.datepicker-value{
-    border-color: $highlithing-dark;
+    border-color: $main-color-dark;
     &::-webkit-calendar-picker-indicator{
         filter: invert(1);
     }
@@ -56,10 +56,10 @@
     @include list-item-base;
     margin: 20px 0;
     &.dark .log-date{
-        background-color:$highlithing-dark;
+        background-color:$main-color-dark;
     }
     &.light .log-date{
-        background-color:$highlithing-light;
+        background-color:$main-color-light;
         color: white;
     }
 }

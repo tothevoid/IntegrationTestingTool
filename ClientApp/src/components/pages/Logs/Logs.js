@@ -45,7 +45,7 @@ class Logs extends Component {
             <span className="log-date">{formatDate(new Date(log.createdOn))}</span>
             {
                 (log.isError) ? 
-                    <div>{t("auths.error", {message: log.returned})}</div> :
+                    <div>{t("logs.error", {message: log.returned})}</div> :
                     <Fragment/>
             }
             <div className="log-url">[{log.endpoint.method}] {this.props?.config?.mockURL}/{log.endpoint.path}</div>
@@ -56,12 +56,12 @@ class Logs extends Component {
                         <b>{t("logs.returned")}:</b>
                         <div>{t("logs.code")}: {log.endpoint.outputStatusCode}</div>
                         <div>{t("logs.dataSize")}: {formatFileSize(log.endpoint.outputDataSize)}</div>
-                        {
-                            log.isNew ? 
-                                <span className="new-label">{t("logs.new")}</span> :
-                                null
-                        }
                     </Fragment>:
+                    null
+            }
+            {
+                log.isNew ?
+                    <span className="new-label">{t("logs.new")}</span> :
                     null
             }
         </div>

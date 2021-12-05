@@ -2,8 +2,8 @@
 
 namespace IntegrationTestingTool.Settings
 {
-    public class ClientSettings: IClientSettings
+    public class ClientSettings
     {
-        public string ClientURL { get; set; }
+        public string ClientUrl { get; set; }
     }
 }

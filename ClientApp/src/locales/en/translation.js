@@ -2,7 +2,8 @@ export const TRANSLATION_EN = {
     button: {
         add: "Add",
         update: "Update",
-        back: "Back"
+        back: "Back",
+        save: "Save"
     },
     nav:{
         endpoints: "Endpoints",
@@ -38,10 +39,6 @@ export const TRANSLATION_EN = {
         url: "URL",
         data: "Data",
         attachByFile: "Attach by file",
-        action:{
-            add: "Add endpoint",
-            update: "Update endpoint"
-        },
         validation: {
             endpointUrl: "Endpoint url has incorrect format",
             callbackUrl: "Callback url has incorrect format"
@@ -59,6 +56,7 @@ export const TRANSLATION_EN = {
         }
     },
     auth: {
+        default: "None",
         name: "Name",
         httpMethod: "HTTP method",
         url: "URL",

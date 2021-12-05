@@ -26,7 +26,6 @@ namespace IntegrationTestingTool.Extensions
         {
             services.AddConfigSection<DatabaseSettings, IDatabaseSettings>(configuration);
             services.AddConfigSection<ServerSettings, IServerSettings>(configuration);
-            services.AddConfigSection<ClientSettings, IClientSettings>(configuration);
         }
         
         private static void AddConfigSection<T, I>(this IServiceCollection services, IConfiguration configuration, 

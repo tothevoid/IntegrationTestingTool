@@ -10,10 +10,10 @@
     border-radius: 5px 5px 0 0;
     position: relative;
     &.dark{
-        border-bottom-color: $highlithing-dark;
+        border-bottom-color: $main-color-dark;
     }
     &.light{
-        border-bottom-color: #6200ee;
+        border-bottom-color: $main-color-light;
     }
 }
 
@@ -44,9 +44,9 @@
     margin-right: 5px;
     color: #767676;
     &.dark:hover{
-        color: $highlithing-dark;
+        color: $main-color-dark;
     }
     &.light:hover{
-        color: #6200ee;
+        color: $main-color-light;
     }
 }

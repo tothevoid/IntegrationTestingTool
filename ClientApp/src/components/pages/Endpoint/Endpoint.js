@@ -11,9 +11,9 @@ import { Field } from "../../controls/Field/Field";
 import {formatFileSize, isUrl} from "../../../utils/coreExtensions"
 import { ReactComponent as FileIcon } from "./images/file.svg";
 import { HeadersModal } from "../../controls/HeadersModal/HeadersModal";
-import { httpMethods }  from "../../../constants/constants";
+import {httpMethods, pageMode} from "../../../constants/constants";
 import {
-    addEndpoint,
+    addEndpoint, copyEndpoint,
     fetchStatusCodes,
     getEndpointById,
     updateEndpoint
@@ -46,9 +46,9 @@ class Endpoint extends Component {
 
     componentDidMount = async () => {
         const {apiURL} = this.props.config;
-        const {id} = this.props.match.params;
+        const {id, mode} = this.props.match.params;
         if (id){
-            await this.getStateFromEndpoint(apiURL, id);
+            await this.getStateFromEndpoint(apiURL, id, mode);
         }
         await this.getStatusCodes(apiURL);
         await this.getAuths(apiURL);
@@ -63,12 +63,13 @@ class Endpoint extends Component {
     }
 
     getAuths = async (apiURL) => {
+        const {t} = this.props;
         const response = await getAllAuthsAsLookup(apiURL);
         if (response.ok){
             const auths = await response.json();
             if (auths && auths.length){
                 const currentAuth = this.state.auth;
-                const emptyAuth = {key: "00000000-0000-0000-0000-000000000000", value: "None"};
+                const emptyAuth = {key: "00000000-0000-0000-0000-000000000000", value: t("auth.default")};
                 const selectedAuth = auths.find(auth => auth.key === currentAuth) || emptyAuth;
                 this.setState({auths: [emptyAuth, ...auths], auth: selectedAuth});
             }
@@ -95,12 +96,13 @@ class Endpoint extends Component {
         };
     }
 
-    getStateFromEndpoint = async (apiURL, id) => {
+    getStateFromEndpoint = async (apiURL, id, mode) => {
         const response = await getEndpointById(apiURL, id);
         if (response.ok){
             const endpoint = await response.json();
             const state = {
                 id,
+                mode,
                 path: endpoint.path,
                 outputData: endpoint.outputData || "",
                 statusCode: endpoint.outputStatusCode,
@@ -112,8 +114,12 @@ class Endpoint extends Component {
                 auth: endpoint.authId,
                 headers: endpoint.headers,
                 active: endpoint.active,
-                outputFile: (endpoint.outputDataFileId?.timestamp) ? {size: endpoint.outputDataSize}: null,
-                callbackFile: (endpoint.callbackDataFileId?.timestamp) ? {size: endpoint.callbackDataSize}: null
+                outputDataFileId: endpoint.outputDataFileId,
+                callbackDataFileId: endpoint.callbackDataFileId,
+                outputDataSize: endpoint.outputDataSize,
+                callbackDataSize: endpoint.outputDataSize,
+                outputFile: (endpoint.outputDataFileId) ? {size: endpoint.outputDataSize}: null,
+                callbackFile: (endpoint.callbackDataFileId) ? {size: endpoint.callbackDataSize}: null
             }
             this.setState({...state, isLoading: false});
         }
@@ -136,9 +142,8 @@ class Endpoint extends Component {
     renderContent = () => {
         const {theme, config, t} = this.props;
         const {statusCode, outputData, statusCodes, method, outputFile,
-            interactionType, showHeadersModal, headers, id, active} = this.state;
+            interactionType, showHeadersModal, headers, id, active, mode} = this.state;
         return <div className={`new-endpoint ${theme}`}>
-            <h1>{t((id) ? "endpoint.action.update": "endpoint.action.add")}</h1>
             <p className={`url ${theme}`}>
                 <span>{config?.mockURL}/</span>
                 <input className={`dynamic-url ${theme}`} onChange={({target})=>this.setState({path: target.value})}
@@ -179,7 +184,7 @@ class Endpoint extends Component {
                    
             }
             <Notification ref={this.notification}/>
-            <Button theme={theme} onClick={async () => await this.addEndpoint()} caption={t((id) ? "button.update" : "button.add")}/>
+            <Button theme={theme} onClick={async () => await this.addEndpoint()} caption={t((id && mode !== pageMode.Copy) ? "button.update" : "button.add")}/>
             {
                 (id) ?
                     <Button additionalClasses="cancel-btn" theme={theme} onClick={this.navigateToAuths} caption={t("button.back")}/> :
@@ -198,7 +203,7 @@ class Endpoint extends Component {
 
     getFileIcon = (invertColor = false) => {
         const {theme} = this.props;
-        return <FileIcon fill={invertColor ? (theme === "dark" ? "#00917C" : "#008FFF" ): "white"}/>
+        return <FileIcon fill={invertColor ? (theme === "dark" ? "#00917C" : "#6200ee" ): "white"}/>
     }
 
     renderAsyncCallbackSettings = () => {
@@ -262,7 +267,8 @@ class Endpoint extends Component {
             this.notify(t(validationResult));
             return;
         }
-        const {id, outputData, outputFile, callbackFile, callbackData} = this.state;
+        const {id, outputData, outputFile, callbackFile, callbackData, mode,
+            outputDataFileId, callbackDataFileId} = this.state;
         const data = {
             id,
             path: this.state.path,
@@ -275,6 +281,16 @@ class Endpoint extends Component {
             headers: this.state.headers,
             active: this.state.active
         }
+
+        if (outputDataFileId){
+            data.outputDataFileId = this.state.outputDataFileId;
+            data.outputDataSize = this.state.outputDataSize;
+        }
+        if (callbackDataFileId){
+            data.callbackDataFileId = this.state.outputDataFileId;
+            data.callbackDataSize = this.state.outputDataSize;
+        }
+
         let formData = new FormData()
         Object.keys(data).forEach(key => {if (data[key] !== undefined) formData.append(key, data[key])});
        
@@ -294,9 +310,10 @@ class Endpoint extends Component {
         const {apiURL} = this.props.config;
 
         const response = (id) ?
-            await updateEndpoint(apiURL, formData) :
+            (mode == pageMode.Copy) ?
+                await copyEndpoint(apiURL, formData) :
+                await updateEndpoint(apiURL, formData) :
             await addEndpoint(apiURL, formData);
-
         if (response.ok) {
             this.props.history.push("/endpoints")
         } else {

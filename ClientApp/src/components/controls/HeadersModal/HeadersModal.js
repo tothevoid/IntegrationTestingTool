@@ -3,7 +3,7 @@ import React, { Component, Fragment } from 'react';
 import { Field } from "../Field/Field";
 import { Button } from "../Button/Button"
 import ReactDOM from "react-dom";
-import { uuidv4 } from "../../../utils/coreExtensions";
+import { v4 as uuidv4 } from 'uuid';
 import {withTranslation} from "react-i18next";
 import {withRouter} from "react-router-dom";
 

@@ -11,13 +11,14 @@ class Logs extends Component {
         super(props);
         this.state = {
             logs: [],
-            newLogs: []
+            newLogs: [],
+            dateFilter: getCurrentDate()
         }
     }
 
     componentDidMount = async () => {
-        const date = getCurrentDate();
-        await this.fetchLogs(date);
+        const { dateFilter } = this.state;
+        await this.fetchLogs(dateFilter);
 
         const hubConnection = new HubConnectionBuilder()
             .withUrl(`${this.props.config.wsURL}/hubs/logs`)
@@ -34,7 +35,7 @@ class Logs extends Component {
             }))
         });
 
-        this.setState({ hubConnection, dateFilter: date }, () =>
+        this.setState({ hubConnection }, () =>
             this.state.hubConnection.start()
         );
     } 

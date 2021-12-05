@@ -13,7 +13,7 @@ export const Field = (props) => {
         }
         {
             (isTextarea) ?
-                <textarea className={`field textarea ${theme}`} {...fieldProps}/> :
+                <textarea className={`field textarea ${theme}`} {...fieldProps} value={value || ""}/> :
                 <input autoComplete="off" className={`field ${theme}`} {...fieldProps}/>
         }
     </div>

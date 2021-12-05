@@ -12,6 +12,8 @@ import {formatFileSize, isUrl} from "../../../utils/coreExtensions"
 import { ReactComponent as FileIcon } from "./images/file.svg";
 import { HeadersModal } from "../../controls/HeadersModal/HeadersModal";
 import {httpMethods, pageMode} from "../../../constants/constants";
+import {NIL} from "uuid"
+
 import {
     addEndpoint, copyEndpoint,
     fetchStatusCodes,
@@ -69,7 +71,7 @@ class Endpoint extends Component {
             const auths = await response.json();
             if (auths && auths.length){
                 const currentAuth = this.state.auth;
-                const emptyAuth = {key: "00000000-0000-0000-0000-000000000000", value: t("auth.default")};
+                const emptyAuth = {key: NIL, value: t("auth.default")};
                 const selectedAuth = auths.find(auth => auth.key === currentAuth) || emptyAuth;
                 this.setState({auths: [emptyAuth, ...auths], auth: selectedAuth});
             }
@@ -311,7 +313,7 @@ class Endpoint extends Component {
         const {apiURL} = this.props.config;
 
         const response = (id) ?
-            (mode == pageMode.Copy) ?
+            (mode === pageMode.Copy) ?
                 await copyEndpoint(apiURL, formData) :
                 await updateEndpoint(apiURL, formData) :
             await addEndpoint(apiURL, formData);

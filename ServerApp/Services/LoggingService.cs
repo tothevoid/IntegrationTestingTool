@@ -1,6 +1,5 @@
 ﻿using IntegrationTestingTool.Model.Entities;
 using IntegrationTestingTool.Services.Interfaces;
-using IntegrationTestingTool.Settings;
 using IntegrationTestingTool.Socket;
 using Microsoft.AspNetCore.SignalR;
 using MongoDB.Driver;

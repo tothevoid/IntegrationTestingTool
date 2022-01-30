@@ -37,9 +37,9 @@
     "extends": "react-app"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "start:server": "http-server -p 3000 ./dist"
+    "start": "SET NODE_OPTIONS=--openssl-legacy-provider && react-scripts start",
+    "build": "SET NODE_OPTIONS=--openssl-legacy-provider && react-scripts build",
+    "start:server": "SET NODE_OPTIONS=--openssl-legacy-provider && http-server -p 3000 ./dist"
   },
   "browserslist": {
     "production": [

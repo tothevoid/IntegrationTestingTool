@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 
 namespace IntegrationTestingTool.Model.Entities
 {
@@ -46,7 +45,7 @@ namespace IntegrationTestingTool.Model.Entities
 
         public int OutputStatusCode { get; set; } = 200;
 
-        [System.Text.Json.Serialization.JsonIgnore]
+        [JsonIgnore]
         public ObjectId OutputDataFileId { get; set; }
 
         [JsonPropertyName("outputDataFileId")]
@@ -74,5 +73,10 @@ namespace IntegrationTestingTool.Model.Entities
 
         [BsonIgnore]
         public IFormFile OutputDataFile { get; set; }
+
+        public Guid? GroupId { get; set; }
+
+        [BsonIgnore]
+        public Group Group { get; set; }
     }
 }

@@ -5,6 +5,7 @@ using IntegrationTestingTool.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace IntegrationTestingTool.Controllers
@@ -14,24 +15,23 @@ namespace IntegrationTestingTool.Controllers
     [Produces("application/json")]
     public class GenericController: Controller
     {
-        private IRouteHandlerService RouteHandlerService { get; }
         private ILoggingService LoggingService { get; }
         private IAsyncRequestService AsyncRequestService { get; }
         private IEndpointService EndpointService { get; }
-        private IFileService FileService { get; }
 
         public GenericController(IRouteHandlerService routeHandlerService, ILoggingService loggingService, 
             IAsyncRequestService asyncRequestService, IEndpointService endpointService, IFileService fileService)
         {
-            RouteHandlerService = routeHandlerService;
             LoggingService = loggingService;
             AsyncRequestService = asyncRequestService;
             EndpointService = endpointService;
-            FileService = fileService;
         }
 
-        public async Task<IActionResult> Get([FromRoute(Name = "data")] string data, [FromRoute(Name = "endpoint")] Guid endpointId)
+        public async Task<IActionResult> Get([FromRoute(Name = "data")] string data, 
+            [FromRoute(Name = "endpoint")] Guid endpointId)
         {
+            var caller = HttpContext.Request.Host;
+
             var endpoint = await EndpointService.FindById(endpointId, true);
             var outputData = endpoint.OutputData;
             //TODO: get rid of try/catch
@@ -43,17 +43,21 @@ namespace IntegrationTestingTool.Controllers
             catch { }
             HttpContext.Response.StatusCode = endpoint.OutputStatusCode;
             endpoint.OutputData = null;
-            await LoggingService.Create(new RequestLog 
+            var tasks = new List<Task>
             {
-                Received = data,
-                Endpoint = endpoint
-            });
+                LoggingService.Create(new RequestLog
+                {
+                    Received = data,
+                    Endpoint = endpoint
+                })
+            };
 
             if (endpoint.CallbackType == CallbackType.Asynchronous)
             {
-                await Task.Run(async () => await AsyncRequestService.Call(endpoint));
+                tasks.Add(Task.Run(async () => await AsyncRequestService.Call(endpoint)));
             }
 
+            await Task.WhenAll(tasks);
             return Content(outputData);
         }
 

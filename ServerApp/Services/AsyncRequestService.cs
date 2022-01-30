@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -37,10 +38,10 @@ namespace IntegrationTestingTool.Services
                     var enumerable = cookies.ToList();
                     var allCookies = enumerable.Select(cookie => cookie.Split(";").First()).ToArray();
                     possibleValues.Add("Cookie", new List<string> { string.Join(";", allCookies) });
-                    foreach (var cookie in allCookies.Select(x=>x.Split("=")))
+                    foreach (var cookie in allCookies.Select(x => x.Split("=")))
                     {
                         var values = new List<string>();
-                        if (cookie.Any())
+                        if (cookie.Length >= 1)
                         {
                             values.Add(cookie[1]);
                         }
@@ -82,7 +83,7 @@ namespace IntegrationTestingTool.Services
             var message = new HttpRequestMessage(new HttpMethod(auth.Method), auth.URL);
             if (!string.IsNullOrEmpty(auth.Data))
             {
-                message.Content = new StringContent(auth.Data, Encoding.UTF8, "application/json");
+                message.Content = new StringContent(auth.Data, Encoding.UTF8, MediaTypeNames.Application.Json);
             }
 
             return await client.SendAsync(message);

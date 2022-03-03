@@ -25,7 +25,7 @@ namespace IntegrationTestingTool.Services
         public async Task<Endpoint> GetEndpointByPathAndMethod(string path, string method,
             IHeaderDictionary requestHeaders)
         {
-            var endpoints = (await EndpointService.FindByPathAndMethod(path, method));
+            var endpoints = await EndpointService.FindByPathAndMethod(path, method);
             var suitableEndpoint = endpoints.FirstOrDefault(endpoint => ValidateEndpoint(endpoint, requestHeaders));
 
             if (suitableEndpoint?.OutputDataFile == null) return suitableEndpoint;

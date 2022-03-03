@@ -19,7 +19,7 @@ namespace IntegrationTestingTool.Controllers
         private IAsyncRequestService AsyncRequestService { get; }
         private IEndpointService EndpointService { get; }
 
-        public GenericController(IRouteHandlerService routeHandlerService, ILoggingService loggingService, 
+        public GenericController(ILoggingService loggingService, 
             IAsyncRequestService asyncRequestService, IEndpointService endpointService, IFileService fileService)
         {
             LoggingService = loggingService;
@@ -61,8 +61,9 @@ namespace IntegrationTestingTool.Controllers
             return Content(outputData);
         }
 
-        public async Task<IActionResult> Error([FromRoute(Name = "data")] string data, [FromRoute(Name = "endpoint")] string endpointRaw, 
-            [FromRoute(Name = "errorMessage")] string errorMessage)
+        public async Task<IActionResult> Error([FromRoute(Name = "data")] string data, 
+            [FromRoute(Name = "endpoint")] string endpointRaw, 
+            [FromRoute(Name = "errorMessage")] string errorMessage) 
         {
             var settings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
             var endpoint = JsonConvert.DeserializeObject<Endpoint>(endpointRaw, settings);

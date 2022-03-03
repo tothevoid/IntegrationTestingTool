@@ -156,8 +156,13 @@ namespace IntegrationTestingTool.Services
             return endpoint;
         }
 
-        public async Task<IEnumerable<Endpoint>> FindByParameter(string parameterName, string value) =>
-            (await MongoCollection.FindAsync(new BsonDocument(parameterName, value))).ToList();
+        public async Task<IEnumerable<Endpoint>> FindByParameter(string parameterName, string value, int limit = 1)
+        {
+            var options = new FindOptions<Endpoint>() { Limit = limit };
+
+            var endpoints = await MongoCollection.FindAsync(new BsonDocument(parameterName, value), options);
+            return endpoints.ToList();
+        }
 
         public async Task<IEnumerable<Endpoint>> FindLinkedByAuth(Guid authId)
         {

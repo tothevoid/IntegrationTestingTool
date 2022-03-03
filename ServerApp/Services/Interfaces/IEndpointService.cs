@@ -17,7 +17,7 @@ namespace IntegrationTestingTool.Services.Interfaces
 
         Task<bool> Delete(Guid id);
 
-        Task<IEnumerable<Endpoint>> FindByParameter(string parameterName, string value);
+        Task<IEnumerable<Endpoint>> FindByParameter(string parameterName, string value, int limit = 1);
 
         Task<IEnumerable<Endpoint>> FindByPathAndMethod(string path, string method);
 

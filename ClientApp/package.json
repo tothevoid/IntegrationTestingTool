@@ -9,7 +9,6 @@
     "i18next-xhr-backend": "^3.2.2",
     "jquery": "^3.6.0",
     "merge": "^1.2.1",
-    "node-sass": "^4.14.1",
     "oidc-client": "^1.11.5",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
@@ -31,6 +30,7 @@
     "eslint-plugin-jsx-a11y": "^6.4.1",
     "eslint-plugin-react": "^7.24.0",
     "nan": "^2.14.2",
+    "sass": "^1.49.9",
     "typescript": "^3.9.10"
   },
   "eslintConfig": {

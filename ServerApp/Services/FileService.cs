@@ -35,7 +35,6 @@ namespace IntegrationTestingTool.Services
             var file = await GridFs.DownloadAsBytesAsync(fileId);
             return Encoding.UTF8.GetString(file);
         }
-
         public async Task Delete(ObjectId fileId)
         {
             var fileIdFilter = Builders<BsonDocument>.Filter.Eq("files_id", fileId);

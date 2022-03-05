@@ -13,11 +13,13 @@ namespace IntegrationTestingTool.UnitOfWork
             Settings = settings;
         }
 
-        public IMongoCollection<TEntity> GetCollection<TEntity>()
+        public IMongoCollection<TEntity> GetCollection<TEntity>(string alias = null)
             where TEntity : BaseEntity
         {
             var client = new MongoClient(Settings.ConnectionString);
-            return client.GetDatabase(Settings.DatabaseName).GetCollection<TEntity>(typeof(TEntity).Name);
+            alias ??= typeof(TEntity).Name;
+
+            return client.GetDatabase(Settings.DatabaseName).GetCollection<TEntity>(alias);
         }
     }
 }

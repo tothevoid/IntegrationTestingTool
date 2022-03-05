@@ -1,6 +1,5 @@
 ﻿using IntegrationTestingTool.Model.Entities;
 using IntegrationTestingTool.UnitOfWork.Interfaces;
-using System;
 using System.Collections.Generic;
 
 namespace IntegrationTestingTool.UnitOfWork
@@ -16,7 +15,7 @@ namespace IntegrationTestingTool.UnitOfWork
             Context = context;
         }
 
-        public IRepository<T> CreateRepository<T>() where T : BaseEntity
+        public IRepository<T> CreateRepository<T>(string alias) where T : BaseEntity
         {
             var type = typeof(T).Name;
 

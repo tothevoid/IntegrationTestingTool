@@ -1,7 +1,5 @@
-﻿using IntegrationTestingTool.Model;
-using IntegrationTestingTool.Model.Entities;
+﻿using IntegrationTestingTool.Model.Entities;
 using IntegrationTestingTool.Services.Interfaces;
-using IntegrationTestingTool.Settings;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using System;
@@ -9,35 +7,28 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using IntegrationTestingTool.Settings.Interfaces;
+using IntegrationTestingTool.UnitOfWork.Interfaces;
 
 namespace IntegrationTestingTool.Services
 {
     public class EndpointService: IEndpointService
     {
-        private IMongoCollection<Endpoint> MongoCollection { get; }
+        private IRepository<Endpoint> EndpointRepository { get; }
         private IFileService FileService { get; }
 
-        public EndpointService(IDatabaseSettings settings, IFileService fileService)
+        public EndpointService(IUnitOfWork unitOfWorkService, IFileService fileService)
         {
-            var client = new MongoClient(settings.ConnectionString);
-            MongoCollection = client.GetDatabase(settings.DatabaseName).GetCollection<Endpoint>("Endpoints");
+            EndpointRepository = unitOfWorkService.CreateRepository<Endpoint>("Endpoints");
             FileService = fileService;
         }
 
         public async Task<IEnumerable<Endpoint>> GetAll()
         {
             var sort = Builders<Endpoint>.Sort.Descending(endpoint => endpoint.CreatedOn);
-
-            var options = new FindOptions<Endpoint, Endpoint>
-            {
-                Sort = sort
-            };
-            return (await MongoCollection.FindAsync(new BsonDocument(), options)).ToList();
+            return (await EndpointRepository.GetAll(orderBy: sort)).ToList();
         }
 
         public async Task<IEnumerable<Endpoint>> GetAllByFilters(string path, bool onlyActive)
@@ -61,14 +52,18 @@ namespace IntegrationTestingTool.Services
             var filters = list.Count > 1 ?
                 Builders<Endpoint>.Filter.And(list) :
                 list.First();
-            return MongoCollection.Find(filters).SortByDescending(bson => bson.CreatedOn).ToList();
+
+            var sort = Builders<Endpoint>.Sort.Descending(endpoint => endpoint.CreatedOn);
+
+            return (await EndpointRepository.GetAll(filters, orderBy: sort)).ToList();
         }
 
         public async Task<Endpoint> Create(Endpoint endpoint)
         {
             endpoint.Id = Guid.NewGuid();
             var updatedEndpoint = await PreprocessEndpointData(endpoint);
-            await MongoCollection.InsertOneAsync(updatedEndpoint);
+            await EndpointRepository.Insert(updatedEndpoint);
+
             return updatedEndpoint;
         }
         
@@ -76,7 +71,8 @@ namespace IntegrationTestingTool.Services
         {
             endpoint.Id = Guid.NewGuid();
             var copiedEndpoint = await PreprocessEndpointData(endpoint);
-            await MongoCollection.InsertOneAsync(copiedEndpoint);
+            await EndpointRepository.Insert(copiedEndpoint);
+
             return copiedEndpoint;
         }
 
@@ -85,8 +81,9 @@ namespace IntegrationTestingTool.Services
             //TODO: minimize requested fields
             var endpoint = await FindById(id);
             if (endpoint == null) return false;
-            var deletionFilter = Builders<Endpoint>.Filter.Eq(nameof(Endpoint.Id), id);
-            var result = await MongoCollection.DeleteOneAsync(deletionFilter);
+
+            var result = await EndpointRepository.Delete(id);
+
             if (result.DeletedCount == 0) return false;
             
             var fileFields = new List<(string, ObjectId)>() { };
@@ -126,7 +123,7 @@ namespace IntegrationTestingTool.Services
         private async Task<bool> CheckIsFileCopied(string fieldName, ObjectId fileId)
         {
             var fileFilter = Builders<Endpoint>.Filter.Eq(fieldName, fileId);
-            return await MongoCollection.CountDocumentsAsync(fileFilter) != 0;
+            return await EndpointRepository.GetCount(fileFilter) != 0;
         } 
 
         public async Task<IEnumerable<Endpoint>> FindByPathAndMethod(string path, string method)
@@ -141,13 +138,13 @@ namespace IntegrationTestingTool.Services
             var activeFilter = Builders<Endpoint>.Filter.Eq(nameof(Endpoint.Active), true);
             var methodFilter = Builders<Endpoint>.Filter.Eq(nameof(Endpoint.Method), method);
             var filters = Builders<Endpoint>.Filter.And(pathFilter, methodFilter, activeFilter);
-            return (await MongoCollection.FindAsync(filters, options)).ToList();
+
+            return (await EndpointRepository.GetAll(filters, orderBy: sort)).ToList();
         }
 
         public async Task<Endpoint> FindById(Guid id, bool loadFile = false)
         {
-            BsonBinaryData binaryId = new BsonBinaryData(id, GuidRepresentation.Standard);
-            var endpoint = (await MongoCollection.FindAsync(new BsonDocument("_id", binaryId))).FirstOrDefault();
+            var endpoint = await EndpointRepository.GetById(id);
 
             if (loadFile && endpoint.OutputDataFileId != default)
             {
@@ -158,23 +155,24 @@ namespace IntegrationTestingTool.Services
 
         public async Task<IEnumerable<Endpoint>> FindByParameter(string parameterName, string value, int limit = 1)
         {
-            var options = new FindOptions<Endpoint>() { Limit = limit };
-
-            var endpoints = await MongoCollection.FindAsync(new BsonDocument(parameterName, value), options);
+            var pathFilter = Builders<Endpoint>.Filter.Eq(parameterName, value);
+            var endpoints = await EndpointRepository.GetAll(pathFilter, limit: limit);
             return endpoints.ToList();
         }
 
         public async Task<IEnumerable<Endpoint>> FindLinkedByAuth(Guid authId)
         {
             BsonBinaryData binaryId = new BsonBinaryData(authId, GuidRepresentation.Standard);
-            return (await MongoCollection.FindAsync(new BsonDocument(nameof(Endpoint.AuthId), binaryId))).ToList();
+            var pathFilter = Builders<Endpoint>.Filter.Eq(nameof(Endpoint.AuthId), binaryId);
+            return (await EndpointRepository.GetAll(pathFilter)).ToList();
         }
         public async Task<Endpoint> Update(Endpoint endpoint)
         {
             var storedEndpoint = await FindById(endpoint.Id);
             var updatedEndpoint = await PreprocessEndpointData(endpoint);
-            BsonBinaryData binaryId = new BsonBinaryData(updatedEndpoint.Id, GuidRepresentation.Standard);
-            var result = await MongoCollection.ReplaceOneAsync(new BsonDocument("_id", binaryId), updatedEndpoint);
+           
+            var result = await EndpointRepository.Update(updatedEndpoint);
+
             if (result.ModifiedCount == 0) return updatedEndpoint;
 
             var fileFields = new List<(string, ObjectId)>() { };
@@ -283,8 +281,8 @@ namespace IntegrationTestingTool.Services
         public async Task<bool> SwitchActivity(Guid id, bool isActive)
         {
             var idFilter = Builders<Endpoint>.Filter.Eq(nameof(Endpoint.Id), id);
-            var update = Builders<Endpoint>.Update.Set((update)=>update.Active, isActive);
-            var result = await MongoCollection.UpdateOneAsync(idFilter, update);
+            var update = Builders<Endpoint>.Update.Set((update) => update.Active, isActive);
+            var result = await EndpointRepository.UpdateFields(idFilter, update);
             return result.ModifiedCount == 1;
         }
 

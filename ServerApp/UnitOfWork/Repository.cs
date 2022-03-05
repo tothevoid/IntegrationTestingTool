@@ -13,21 +13,45 @@ namespace IntegrationTestingTool.UnitOfWork
     {
         private IMongoCollection<TEntity> MongoCollection { get; }
 
-        public Repository(DatabaseContext databaseContext)
+        public Repository(DatabaseContext databaseContext, string alias = null)
         {
-            MongoCollection = databaseContext.GetCollection<TEntity>();
+            MongoCollection = !string.IsNullOrEmpty(alias) ?
+                databaseContext.GetCollection<TEntity>(alias) :
+                databaseContext.GetCollection<TEntity>();
         }
 
-        public async Task<IEnumerable<TEntity>> GetAll(FieldDefinition<TEntity> orderBy = null)
+        public async Task<IEnumerable<TEntity>> GetAll()
         {
-            var sort = Builders<TEntity>.Sort.Descending(orderBy);
+            return (await MongoCollection.FindAsync(new BsonDocument())).ToList();
+        }
+
+        public async Task<IEnumerable<TEntity>> GetAll(FilterDefinition<TEntity> filter = null, 
+            ProjectionDefinition<TEntity> projection = null, 
+            SortDefinition<TEntity> orderBy = null,
+            int limit = 0)
+        {
+            filter ??= new BsonDocument();
 
             var options = new FindOptions<TEntity, TEntity>
             {
-                Sort = sort
+                Sort = orderBy,
+                Projection = projection,
             };
-            return (await MongoCollection.FindAsync(new BsonDocument(), options)).ToList();
+
+            if (limit > 0)
+            {
+                options.Limit = limit;
+            }
+
+            var result = options != null ?
+                await MongoCollection.FindAsync(filter, options):
+                await MongoCollection.FindAsync(filter);
+
+            return result.ToList();
         }
+
+        public async Task<long> GetCount(FilterDefinition<TEntity> filter) =>
+            await MongoCollection.CountDocumentsAsync(filter);
 
         public async Task<TEntity> GetById(Guid id)
         {
@@ -47,6 +71,11 @@ namespace IntegrationTestingTool.UnitOfWork
         {
             var binaryId = new BsonBinaryData(entity.Id, GuidRepresentation.Standard);
             return await MongoCollection.ReplaceOneAsync(new BsonDocument("_id", binaryId), entity);
+        }
+
+        public async Task<UpdateResult> UpdateFields(FilterDefinition<TEntity> filter, UpdateDefinition<TEntity> update)
+        {
+            return await MongoCollection.UpdateManyAsync(filter, update);
         }
 
         public async Task<DeleteResult> Delete(Guid id)

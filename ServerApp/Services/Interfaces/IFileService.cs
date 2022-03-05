@@ -1,6 +1,6 @@
 ﻿using MongoDB.Bson;
-using MongoDB.Driver.GridFS;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -15,5 +15,7 @@ namespace IntegrationTestingTool.Services.Interfaces
         Task<string> Get(ObjectId fileId);
 
         Task Delete(ObjectId fileId);
+
+        Task DeleteLinkedFiles(IEnumerable<ObjectId> fileIds);
     }   
 }

@@ -78,12 +78,14 @@ namespace IntegrationTestingTool.Services
 
         public async Task<bool> Delete(Guid id)
         {
-            //TODO: minimize requested fields
-            var endpoint = await FindById(id);
+            var projection = Builders<Endpoint>.Projection
+                .Include(endpoint => endpoint.OutputDataFileId)
+                .Include(endpoint => endpoint.CallbackDataFileId);
+
+            var endpoint = await EndpointRepository.GetById(id, projection);
             if (endpoint == null) return false;
 
             var result = await EndpointRepository.Delete(id);
-
             if (result.DeletedCount == 0) return false;
             
             var fileFields = new List<(string, ObjectId)>() { };
@@ -99,32 +101,19 @@ namespace IntegrationTestingTool.Services
 
         private async Task DeleteLinkedFiles(List<(string, ObjectId)> fileFields)
         {
-            if (!fileFields.Any()) return;
-
-            var deletionTasks = new List<Task>();
-            var existsTasks = fileFields.Select(field =>
-                CheckIsFileCopied(field.Item1, field.Item2));
+            var existsTasks = fileFields.Select(field => CheckIsFileCopied(field.Item1, field.Item2));
             var isCopiedFilesExists = await Task.WhenAll(existsTasks);
 
-            for (var i = 0; i < fileFields.Count; i++)
-            {
-                if (!isCopiedFilesExists[i])
-                {
-                    deletionTasks.Add(FileService.Delete(fileFields[i].Item2));
-                }
-            }
-            
-            if (deletionTasks.Any())
-            {
-                await Task.WhenAll(deletionTasks);
-            }
+            var fileToDelete = fileFields.Where((element, index) => isCopiedFilesExists[index])
+                .Select(element => element.Item2);
+            await FileService.DeleteLinkedFiles(fileToDelete);
         }
 
         private async Task<bool> CheckIsFileCopied(string fieldName, ObjectId fileId)
         {
             var fileFilter = Builders<Endpoint>.Filter.Eq(fieldName, fileId);
             return await EndpointRepository.GetCount(fileFilter) != 0;
-        } 
+        }
 
         public async Task<IEnumerable<Endpoint>> FindByPathAndMethod(string path, string method)
         {
@@ -166,6 +155,7 @@ namespace IntegrationTestingTool.Services
             var pathFilter = Builders<Endpoint>.Filter.Eq(nameof(Endpoint.AuthId), binaryId);
             return (await EndpointRepository.GetAll(pathFilter)).ToList();
         }
+
         public async Task<Endpoint> Update(Endpoint endpoint)
         {
             var storedEndpoint = await FindById(endpoint.Id);

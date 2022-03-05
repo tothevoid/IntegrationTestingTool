@@ -15,7 +15,7 @@ namespace IntegrationTestingTool.UnitOfWork.Interfaces
             SortDefinition<TEntity> orderBy = null,
             int limit = 0);
 
-        Task<TEntity> GetById(Guid id);
+        Task<TEntity> GetById(Guid id, ProjectionDefinition<TEntity> projection = null);
 
         Task Insert(TEntity entity);
 

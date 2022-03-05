@@ -53,13 +53,21 @@ namespace IntegrationTestingTool.UnitOfWork
         public async Task<long> GetCount(FilterDefinition<TEntity> filter) =>
             await MongoCollection.CountDocumentsAsync(filter);
 
-        public async Task<TEntity> GetById(Guid id)
+        public async Task<TEntity> GetById(Guid id, ProjectionDefinition<TEntity> projection = null)
         {
-            BsonBinaryData binaryId = new BsonBinaryData(id, GuidRepresentation.Standard);
-            var entities = await MongoCollection.FindAsync(new BsonDocument("_id", binaryId));
-            var entity = entities.FirstOrDefault();
+            var options = new FindOptions<TEntity, TEntity>
+            {
+                Limit = 1,
+                Projection = projection
+            };
 
-            return entity;
+            if (projection != null)
+            {
+                options.Projection = projection;
+            }
+
+            var entities = await MongoCollection.FindAsync(GetIdFilter(id), options);
+            return entities.FirstOrDefault();
         }
 
         public async Task Insert(TEntity entity)
@@ -67,22 +75,20 @@ namespace IntegrationTestingTool.UnitOfWork
             await MongoCollection.InsertOneAsync(entity);
         }
 
-        public async Task<ReplaceOneResult> Update(TEntity entity)
-        {
-            var binaryId = new BsonBinaryData(entity.Id, GuidRepresentation.Standard);
-            return await MongoCollection.ReplaceOneAsync(new BsonDocument("_id", binaryId), entity);
-        }
+        public async Task<ReplaceOneResult> Update(TEntity entity) =>
+            await MongoCollection.ReplaceOneAsync(GetIdFilter(entity.Id), entity);
+        
 
-        public async Task<UpdateResult> UpdateFields(FilterDefinition<TEntity> filter, UpdateDefinition<TEntity> update)
-        {
-            return await MongoCollection.UpdateManyAsync(filter, update);
-        }
+        public async Task<UpdateResult> UpdateFields(FilterDefinition<TEntity> filter, UpdateDefinition<TEntity> update) =>
+            await MongoCollection.UpdateManyAsync(filter, update);
+        
+        public async Task<DeleteResult> Delete(Guid id) =>
+            await MongoCollection.DeleteOneAsync(GetIdFilter(id));
 
-        public async Task<DeleteResult> Delete(Guid id)
-        {
-            var idFilter = Builders<TEntity>.Filter.Eq(nameof(BaseEntity.Id), id);
-            DeleteResult deletionResult = await MongoCollection.DeleteOneAsync(idFilter);
-            return deletionResult;
-        }
+        private static BsonBinaryData GetBinaryId(Guid id) =>
+            new BsonBinaryData(id, GuidRepresentation.Standard);
+
+        private static BsonDocument GetIdFilter(Guid id) =>
+            new BsonDocument("_id", GetBinaryId(id));
     }
 }

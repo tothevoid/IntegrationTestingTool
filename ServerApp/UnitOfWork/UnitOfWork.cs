@@ -10,9 +10,20 @@ namespace IntegrationTestingTool.UnitOfWork
 
         private Dictionary<string, object> Repositories { get; } = new Dictionary<string, object>();
 
+        private IFileRepository FileRepository { get; set; }
+
         public UnitOfWork(DatabaseContext context)
         {
             Context = context;
+        }
+
+        public IFileRepository CreateFileRepository()
+        {
+            if (FileRepository == null)
+            {
+                FileRepository = new FileRepository(Context);
+            }
+            return FileRepository;
         }
 
         public IRepository<T> CreateRepository<T>(string alias) where T : BaseEntity

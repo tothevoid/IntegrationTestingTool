@@ -1,19 +1,19 @@
-﻿using IntegrationTestingTool.Model.Entities;
-using IntegrationTestingTool.UnitOfWork.Interfaces;
+﻿using IntegrationTestingTool.Domain.Interfaces;
+using IntegrationTestingTool.Model.Entities;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace IntegrationTestingTool.UnitOfWork
+namespace IntegrationTestingTool.Domain
 {
     public class Repository<TEntity> : IRepository<TEntity>
         where TEntity : BaseEntity
     {
         private IMongoCollection<TEntity> MongoCollection { get; }
 
-        public Repository(DatabaseContext databaseContext, string alias = null)
+        public Repository(IDatabaseContext databaseContext, string alias = null)
         {
             MongoCollection = !string.IsNullOrEmpty(alias) ?
                 databaseContext.GetCollection<TEntity>(alias) :
@@ -31,17 +31,11 @@ namespace IntegrationTestingTool.UnitOfWork
             int limit = 0)
         {
             filter ??= new BsonDocument();
+            var options = new FindOptions<TEntity, TEntity>();
 
-            var options = new FindOptions<TEntity, TEntity>
-            {
-                Sort = orderBy,
-                Projection = projection,
-            };
-
-            if (limit > 0)
-            {
-                options.Limit = limit;
-            }
+            if (orderBy != null) options.Sort = orderBy;
+            if (projection != null) options.Projection = projection;
+            if (limit > 0) options.Limit = limit;
 
             var result = options != null ?
                 await MongoCollection.FindAsync(filter, options):
@@ -58,7 +52,6 @@ namespace IntegrationTestingTool.UnitOfWork
             var options = new FindOptions<TEntity, TEntity>
             {
                 Limit = 1,
-                Projection = projection
             };
 
             if (projection != null)
@@ -77,7 +70,6 @@ namespace IntegrationTestingTool.UnitOfWork
 
         public async Task<ReplaceOneResult> Update(TEntity entity) =>
             await MongoCollection.ReplaceOneAsync(GetIdFilter(entity.Id), entity);
-        
 
         public async Task<UpdateResult> UpdateFields(FilterDefinition<TEntity> filter, UpdateDefinition<TEntity> update) =>
             await MongoCollection.UpdateManyAsync(filter, update);

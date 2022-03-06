@@ -1,4 +1,7 @@
-﻿using IntegrationTestingTool.Services;
+﻿using IntegrationTestingTool.Domain;
+using IntegrationTestingTool.Domain.Interfaces;
+using IntegrationTestingTool.Services;
+using IntegrationTestingTool.Services.Entity;
 using IntegrationTestingTool.Services.Inerfaces;
 using IntegrationTestingTool.Services.Interfaces;
 using IntegrationTestingTool.Settings;
@@ -20,6 +23,8 @@ namespace IntegrationTestingTool.Extensions
             services.AddTransient<IAsyncRequestService, AsyncRequestService>();
             services.AddTransient<IAuthService, AuthService>();
             services.AddTransient<IFileService, FileService>();
+            services.AddTransient<IUnitOfWork, UnitOfWork>();
+            services.AddTransient<IDatabaseContext, DatabaseContext>();
         }
 
         public static void BindSettings(this IServiceCollection services, IConfiguration configuration)

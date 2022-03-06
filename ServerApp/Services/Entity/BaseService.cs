@@ -4,9 +4,9 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using IntegrationTestingTool.UnitOfWork.Interfaces;
+using IntegrationTestingTool.Domain.Interfaces;
 
-namespace IntegrationTestingTool.Services
+namespace IntegrationTestingTool.Services.Entity
 {
     public abstract class BaseService<TEntity>
         where TEntity: BaseEntity

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using IntegrationTestingTool.Model;
 using System.Threading.Tasks;
-using IntegrationTestingTool.UnitOfWork.Interfaces;
+using IntegrationTestingTool.Domain.Interfaces;
 
 namespace IntegrationTestingTool.Services.Entity
 {

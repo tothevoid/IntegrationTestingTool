@@ -4,7 +4,7 @@ namespace IntegrationTestingTool.Utils
 {
     public static class UrlUtils
     {
-        private const string Separator = "";
+        private const string Separator = "/";
 
         public static string TrimLastPart(string url)
         {

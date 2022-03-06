@@ -1,12 +1,13 @@
-﻿using IntegrationTestingTool.Model.Entities;
+﻿using IntegrationTestingTool.Domain.Interfaces;
+using IntegrationTestingTool.Model.Entities;
 using IntegrationTestingTool.Settings.Interfaces;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
 
-namespace IntegrationTestingTool.UnitOfWork
+namespace IntegrationTestingTool.Domain
 {
-    public class DatabaseContext
+    public class DatabaseContext: IDatabaseContext
     {
         private IDatabaseSettings Settings { get; }
 

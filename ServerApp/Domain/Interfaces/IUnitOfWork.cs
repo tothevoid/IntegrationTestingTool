@@ -1,6 +1,6 @@
 ﻿using IntegrationTestingTool.Model.Entities;
 
-namespace IntegrationTestingTool.UnitOfWork.Interfaces
+namespace IntegrationTestingTool.Domain.Interfaces
 {
     public interface IUnitOfWork
     {

@@ -1,4 +1,5 @@
-﻿using IntegrationTestingTool.Model.Entities;
+﻿using IntegrationTestingTool.Domain.Interfaces;
+using IntegrationTestingTool.Model.Entities;
 using IntegrationTestingTool.Services.Interfaces;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -10,9 +11,8 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using IntegrationTestingTool.UnitOfWork.Interfaces;
 
-namespace IntegrationTestingTool.Services
+namespace IntegrationTestingTool.Services.Entity
 {
     public class EndpointService: IEndpointService
     {
@@ -186,12 +186,13 @@ namespace IntegrationTestingTool.Services
 
             var size = Encoding.UTF8.GetBytes(data).Length;
 
-            //Store data into file it has size more than 10MB
+            //Store data into file if it has size more than 10MB
             return IsFileShouldBeStoredInGridFs(size) ? 
                 (await FileService.Create(endpointId, data), size) : 
                 (default, size);
         }
-        
+
+        //TODO: Remove code duplication, 
         private async Task<Endpoint> PreprocessEndpointData(Endpoint endpoint)
         {
             if (!string.IsNullOrEmpty((endpoint.OutputData)))
@@ -199,26 +200,19 @@ namespace IntegrationTestingTool.Services
                 endpoint.OutputData = Regex.Replace(endpoint.OutputData, @"\""", @"""");
             }
 
-            //TODO: Remove code duplication
             if (endpoint.OutputDataFile != null && endpoint.OutputDataFileId == default)
             {
                 var isShouldBeStored = IsFileShouldBeStoredInGridFs(endpoint.OutputDataFile.Length);
                 if (isShouldBeStored)
                 {
-                    using (var stream = endpoint.OutputDataFile.OpenReadStream())
-                    {
-                        ObjectId fileId = await FileService.Create(endpoint.Id, stream);
-                        endpoint.OutputDataFileId = fileId;
-                    }
+                    endpoint.OutputDataFileId = await StoreFile(endpoint.Id, endpoint.OutputDataFile);
                     endpoint.OutputDataSize = endpoint.OutputDataFile.Length;
                     endpoint.OutputDataFile = null;
                 }
                 else
                 {
-                    using (var reader = new StreamReader(endpoint.OutputDataFile.OpenReadStream()))
-                    {
-                        endpoint.OutputData = await reader.ReadToEndAsync();
-                    }
+                    using var reader = new StreamReader(endpoint.OutputDataFile.OpenReadStream());
+                    endpoint.OutputData = await reader.ReadToEndAsync();
                 }
             }
 
@@ -227,20 +221,14 @@ namespace IntegrationTestingTool.Services
                 var isShouldBeStored = IsFileShouldBeStoredInGridFs(endpoint.CallbackDataFile.Length);
                 if (isShouldBeStored)
                 {
-                    using (var stream = endpoint.CallbackDataFile.OpenReadStream())
-                    {
-                        ObjectId fileId = await FileService.Create(endpoint.Id, stream);
-                        endpoint.CallbackDataFileId = fileId;
-                    }
+                    endpoint.CallbackDataFileId = await StoreFile(endpoint.Id, endpoint.CallbackDataFile);
                     endpoint.CallbackDataSize = endpoint.CallbackDataFile.Length;
                     endpoint.CallbackDataFile = null;
                 }
                 else
                 {
-                    using (var reader = new StreamReader(endpoint.CallbackDataFile.OpenReadStream()))
-                    {
-                        endpoint.CallbackData = await reader.ReadToEndAsync();
-                    }
+                    using var reader = new StreamReader(endpoint.CallbackDataFile.OpenReadStream());
+                    endpoint.CallbackData = await reader.ReadToEndAsync();
                 }
             }
 
@@ -266,6 +254,12 @@ namespace IntegrationTestingTool.Services
                 endpoint.CallbackDataSize = callbackSize;
             }
             return endpoint;
+        }
+
+        private async Task<ObjectId> StoreFile(Guid endpointId, Microsoft.AspNetCore.Http.IFormFile formFile)
+        {
+            using var stream = formFile.OpenReadStream();
+            return await FileService.Create(endpointId, stream);
         }
 
         public async Task<bool> SwitchActivity(Guid id, bool isActive)

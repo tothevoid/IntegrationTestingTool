@@ -4,9 +4,9 @@ using MongoDB.Driver;
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using IntegrationTestingTool.UnitOfWork.Interfaces;
 using System.Linq;
 using System.Collections.Generic;
+using IntegrationTestingTool.Domain.Interfaces;
 
 namespace IntegrationTestingTool.Services
 {

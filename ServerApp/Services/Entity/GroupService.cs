@@ -1,11 +1,11 @@
-﻿using IntegrationTestingTool.Model.Entities;
+﻿using IntegrationTestingTool.Domain.Interfaces;
+using IntegrationTestingTool.Model.Entities;
 using IntegrationTestingTool.Services.Interfaces;
-using IntegrationTestingTool.UnitOfWork.Interfaces;
 using MongoDB.Driver;
 using System;
 using System.Threading.Tasks;
 
-namespace IntegrationTestingTool.Services
+namespace IntegrationTestingTool.Services.Entity
 {
     public class GroupService: BaseService<Group>, IGroupService
     {

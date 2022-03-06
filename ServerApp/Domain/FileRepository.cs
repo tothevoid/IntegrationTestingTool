@@ -1,5 +1,4 @@
-﻿using IntegrationTestingTool.Settings.Interfaces;
-using IntegrationTestingTool.UnitOfWork.Interfaces;
+﻿using IntegrationTestingTool.Domain.Interfaces;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
@@ -8,7 +7,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace IntegrationTestingTool.UnitOfWork
+namespace IntegrationTestingTool.Domain
 {
     public class FileRepository: IFileRepository
     {
@@ -16,7 +15,7 @@ namespace IntegrationTestingTool.UnitOfWork
 
         private IMongoCollection<BsonDocument> ChunksCollection { get; }
 
-        public FileRepository(DatabaseContext context)
+        public FileRepository(IDatabaseContext context)
         {
             (ChunksCollection, GridFs) = context.GetFileCollection();
         }

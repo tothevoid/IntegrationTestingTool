@@ -1,18 +1,18 @@
-﻿using IntegrationTestingTool.Model.Entities;
-using IntegrationTestingTool.UnitOfWork.Interfaces;
+﻿using IntegrationTestingTool.Domain.Interfaces;
+using IntegrationTestingTool.Model.Entities;
 using System.Collections.Generic;
 
-namespace IntegrationTestingTool.UnitOfWork
+namespace IntegrationTestingTool.Domain
 {
     public class UnitOfWork: IUnitOfWork
     {
-        private DatabaseContext Context { get; }
+        private IDatabaseContext Context { get; }
 
         private Dictionary<string, object> Repositories { get; } = new Dictionary<string, object>();
 
         private IFileRepository FileRepository { get; set; }
 
-        public UnitOfWork(DatabaseContext context)
+        public UnitOfWork(IDatabaseContext context)
         {
             Context = context;
         }

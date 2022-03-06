@@ -7,10 +7,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using IntegrationTestingTool.UnitOfWork.Interfaces;
 using System.Linq;
+using IntegrationTestingTool.Domain.Interfaces;
 
-namespace IntegrationTestingTool.Services
+namespace IntegrationTestingTool.Services.Entity
 {
     public class LoggingService: ILoggingService
     {
@@ -32,7 +32,7 @@ namespace IntegrationTestingTool.Services
 
             return (await LoggingRepository.GetAll(filter, orderBy: sort)).ToList();
         }
-        
+
         public async Task<RequestLog> Create(RequestLog log)
         {
             var insertTask = LoggingRepository.Insert(log);

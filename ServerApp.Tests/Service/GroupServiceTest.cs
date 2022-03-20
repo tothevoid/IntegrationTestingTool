@@ -23,8 +23,8 @@ namespace ServerApp.Tests
         {
             var groupsBefore = await GroupService.GetAll();
 
-            var firstGroup = GetGroup();
-            var secondGroup = GetGroup();
+            var firstGroup = EntityFactory.GetGroup();
+            var secondGroup = EntityFactory.GetGroup();
             var elements = new Task[] { GroupService.Add(firstGroup), GroupService.Add(secondGroup) };
             await Task.WhenAll(elements);
 
@@ -38,7 +38,7 @@ namespace ServerApp.Tests
         [TestMethod]
         public async Task AddTest()
         {
-            var group = GetGroup();
+            var group = EntityFactory.GetGroup();
             await GroupService.Add(group);
             var groupSearchResult = await GroupService.GetOne(group.Id);
 
@@ -51,7 +51,7 @@ namespace ServerApp.Tests
         [TestMethod]
         public async Task DeleteTest()
         {
-            var group = GetGroup();
+            var group = EntityFactory.GetGroup();
             await GroupService.Add(group);
             var searchAfterAddResult = await GroupService.GetOne(group.Id);
             var deleteResult = await GroupService.Delete(group.Id);
@@ -65,7 +65,7 @@ namespace ServerApp.Tests
         [TestMethod]
         public async Task RenameTest()
         {
-            var group = GetGroup();
+            var group = EntityFactory.GetGroup();
             await GroupService.Add(group);
             var addedGroup = await GroupService.GetOne(group.Id);
             var newName = "RenameTest";
@@ -76,11 +76,5 @@ namespace ServerApp.Tests
             Assert.AreEqual(newName, updatedGroup.Name);
             Assert.AreEqual(addedGroup.CreatedOn, updatedGroup.CreatedOn);
         }
-
-        private Group GetGroup() =>
-            new Group()
-            {
-                Name = "Test"
-            };
     }
 }

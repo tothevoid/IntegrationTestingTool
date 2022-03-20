@@ -295,8 +295,13 @@ class Endpoint extends Component {
         }
 
         let formData = new FormData()
-        Object.keys(data).forEach(key => {if (data[key] !== undefined) formData.append(key, data[key])});
+        Object.keys(data).forEach(key => {if (data[key] !== undefined && key != "headers") formData.append(key, data[key])});
        
+        if (data.headers && data.headers.length > 0){
+            data.headers.forEach((header, index) => Object.keys(header)
+                .forEach(headerKey => formData.append(`headers[][${index}][${headerKey}]`, header[headerKey])))
+        }
+
         if (outputFile){
             formData.append('outputDataFile', outputFile);
         } else {

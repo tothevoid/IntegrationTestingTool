@@ -4,6 +4,22 @@ namespace IntegrationTestingTool.Settings
 {
     public class DatabaseSettings : IDatabaseSettings
     {
+        public DatabaseSettings() {}
+
+        public DatabaseSettings(string dbName, string host, string port)
+        {
+            DatabaseName = dbName;
+            Host = host;
+            Port = port;
+        }
+
+        public DatabaseSettings(string dbName, string host, string port, string login, string password)
+            :this(dbName, host, port)
+        {
+            Login = login;
+            Password = password;
+        }
+
         public string DatabaseName { get; set; }
 
         public string Host { get; set; }

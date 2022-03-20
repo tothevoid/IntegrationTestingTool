@@ -29,7 +29,7 @@ namespace IntegrationTestingTool.Model.Entities
 
         public long CallbackDataSize { get; set; }
 
-        [System.Text.Json.Serialization.JsonIgnore]
+        [JsonIgnore]
         public ObjectId CallbackDataFileId { get; set; }
 
         [JsonPropertyName("callbackDataFileId")]

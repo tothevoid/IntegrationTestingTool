@@ -66,7 +66,7 @@ namespace IntegrationTestingTool.Model.Entities
         [BsonIgnore]
         public Auth Auth { get; set; }
 
-        public IEnumerable<Header> Headers { get; set; }
+        public IEnumerable<Header> Headers { get; set; } = new List<Header>();
         
         [BsonIgnore]
         public IFormFile CallbackDataFile { get; set; }

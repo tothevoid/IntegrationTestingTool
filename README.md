@@ -29,3 +29,4 @@ Web application that allows you to imitate endpoints of server when you have no 
 * .NET Core 3.1
 * React 16.14
 * MongoDB 4.0
+* NodeJS 16.14.2

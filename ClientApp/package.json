@@ -15,31 +15,26 @@
     "react-i18next": "^11.14.2",
     "react-router-bootstrap": "^0.25.0",
     "react-router-dom": "^5.2.0",
-    "react-scripts": "^3.4.4",
+    "react-scripts": "^4.0.3",
     "reactstrap": "^8.9.0",
     "rimraf": "^2.6.2",
+    "sass": "^1.49.9",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
     "ajv": "^6.12.6",
     "cross-env": "^5.2.0",
-    "eslint": "^6.8.0",
-    "eslint-config-react-app": "^5.2.1",
-    "eslint-plugin-flowtype": "^4.7.0",
-    "eslint-plugin-import": "^2.23.4",
-    "eslint-plugin-jsx-a11y": "^6.4.1",
-    "eslint-plugin-react": "^7.24.0",
+    "eslint": "^7.11.0",
     "nan": "^2.14.2",
-    "sass": "^1.49.9",
     "typescript": "^3.9.10"
   },
   "eslintConfig": {
     "extends": "react-app"
   },
   "scripts": {
-    "start": "SET NODE_OPTIONS=--openssl-legacy-provider && react-scripts start",
-    "build": "SET NODE_OPTIONS=--openssl-legacy-provider && react-scripts build",
-    "start:server": "SET NODE_OPTIONS=--openssl-legacy-provider && http-server -p 3000 ./dist"
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "start:server": "http-server -p 3000 ./dist"
   },
   "browserslist": {
     "production": [

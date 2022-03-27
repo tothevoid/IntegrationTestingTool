@@ -8,10 +8,10 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ServerApp.Tests.Service
+namespace ServerApp.Tests
 {
     [TestClass]
-    internal class EndpointServiceTest
+    public class EndpointServiceTest
     {
         private EndpointService EndpointService { get; }
 

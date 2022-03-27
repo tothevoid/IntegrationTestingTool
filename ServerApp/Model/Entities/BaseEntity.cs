@@ -3,12 +3,16 @@ using System;
 
 namespace IntegrationTestingTool.Model.Entities
 {
-    public class BaseEntity
+    public class BaseEntity: ICloneable
     {
         [BsonId]
         public Guid Id { get; set; }
 
         public DateTime CreatedOn { get; set; } = DateTime.Now;
 
+        public object Clone()
+        {
+            return this.MemberwiseClone();
+        }
     }
 }

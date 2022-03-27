@@ -17,7 +17,7 @@ namespace ServerApp.Tests.DatabaseMock
         private DatabaseContext GetContext()
         {
             var settings = new DatabaseSettings("tests", "localhost", "27017");
-            return new DatabaseContext(settings);
+            return new MockContext(settings);
         }
     }
 }

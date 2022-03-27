@@ -28,10 +28,21 @@ namespace ServerApp.Tests
                 OutputStatusCode = 200
             };
 
-        public static Group GetGroup() =>
-            new Group()
+        public static Group GetGroup()
+        {
+            var date = DateTime.UtcNow;
+            return new Group()
             {
-                Name = "Test"
+                Name = "Test",
+                CreatedOn = new DateTime(date.Year, date.Month, date.Day, date.Hour, date.Minute, date.Second, date.Kind)
+            };
+        }
+
+        public static RequestLog GetLog() =>
+            new RequestLog
+            {
+                Received = "TestLog",
+                IsError = false
             };
     }
 }

@@ -60,7 +60,6 @@ namespace IntegrationTestingTool.Services.Entity
 
         public async Task<Endpoint> Create(Endpoint endpoint)
         {
-            endpoint.Id = Guid.NewGuid();
             var updatedEndpoint = await PreprocessEndpointData(endpoint);
             await EndpointRepository.Insert(updatedEndpoint);
 
@@ -142,9 +141,9 @@ namespace IntegrationTestingTool.Services.Entity
             return endpoint;
         }
 
-        public async Task<IEnumerable<Endpoint>> FindByParameter(string parameterName, string value, int limit = 1)
+        public async Task<IEnumerable<Endpoint>> FindByPath(string path, int limit = 1)
         {
-            var pathFilter = Builders<Endpoint>.Filter.Eq(parameterName, value);
+            var pathFilter = Builders<Endpoint>.Filter.Eq(x => x.Path, path);
             var endpoints = await EndpointRepository.GetAll(pathFilter, limit: limit);
             return endpoints.ToList();
         }

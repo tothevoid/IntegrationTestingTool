@@ -20,7 +20,7 @@ namespace IntegrationTestingTool.Services
         }
 
         public async Task<Endpoint> GetEndpointByPath(string path) =>
-            (await EndpointService.FindByParameter(nameof(Endpoint.Path), path)).FirstOrDefault();
+            (await EndpointService.FindByPath(path)).FirstOrDefault();
 
         public async Task<Endpoint> GetEndpointByPathAndMethod(string path, string method,
             IHeaderDictionary requestHeaders)

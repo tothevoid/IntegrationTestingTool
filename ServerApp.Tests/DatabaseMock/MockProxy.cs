@@ -19,7 +19,7 @@ namespace ServerApp.Tests.DatabaseMock
         public async Task SendCoreAsync(string method, object[] args,
             CancellationToken cancellationToken = default)
         {
-            MessageSent?.Invoke(method, args);
+            await Task.Run(() => MessageSent?.Invoke(method, args));
         }
     }
 }

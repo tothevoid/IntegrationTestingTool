@@ -19,9 +19,6 @@ namespace IntegrationTestingTool.Services
             FileService = fileService;
         }
 
-        public async Task<Endpoint> GetEndpointByPath(string path) =>
-            (await EndpointService.FindByPath(path)).FirstOrDefault();
-
         public async Task<Endpoint> GetEndpointByPathAndMethod(string path, string method,
             IHeaderDictionary requestHeaders)
         {

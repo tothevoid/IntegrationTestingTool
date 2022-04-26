@@ -21,6 +21,7 @@ namespace IntegrationTestingTool.Services
 
         public async Task<ObjectId> Create(Guid id, string data) =>
             await FileRepository.Create(id, data);
+
         public async Task<ObjectId> Create(Guid id, Stream stream) =>
            await FileRepository.Create(id, stream);
 

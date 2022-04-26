@@ -1,10 +1,7 @@
-﻿using IntegrationTestingTool.Socket;
-using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.SignalR;
 using Moq;
 using ServerApp.Tests.DatabaseMock;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace ServerApp.Tests
 {

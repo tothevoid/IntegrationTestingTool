@@ -2,8 +2,8 @@ import "./Logs.scss"
 import React, { Component, Fragment } from 'react';
 import { HubConnectionBuilder } from '@microsoft/signalr';
 import { Button } from "../../controls/Button/Button"
-import { formatDate, getCurrentDate } from "../../../utils/dateExtensions"
-import { formatFileSize } from "../../../utils/coreExtensions"
+import { Log } from "../Log/Log"
+import { getCurrentDate } from "../../../utils/dateExtensions"
 import {withTranslation} from "react-i18next";
 
 class Logs extends Component {
@@ -19,7 +19,9 @@ class Logs extends Component {
     componentDidMount = async () => {
         const { dateFilter } = this.state;
         await this.fetchLogs(dateFilter);
+    }
 
+    attachDynamicLogs = () => {
         const hubConnection = new HubConnectionBuilder()
             .withUrl(`${this.props.config.wsURL}/hubs/logs`)
             .withAutomaticReconnect()
@@ -38,37 +40,9 @@ class Logs extends Component {
         this.setState({ hubConnection }, () =>
             this.state.hubConnection.start()
         );
-    } 
-
-    renderLog = (log, theme) => {
-        const { t } = this.props;
-        return <div onMouseEnter={() => this.onMouseEnter(log)} key={log.id} className={`log ${theme}`}>
-            <span className="log-date">{formatDate(new Date(log.createdOn))}</span>
-            {
-                (log.isError) ? 
-                    <div>{t("logs.error", {message: log.returned})}</div> :
-                    <Fragment/>
-            }
-            <div className="log-url">[{log.endpoint.method}] {this.props?.config?.mockURL}/{log.endpoint.path}</div>
-            <div>{t("logs.received")}: {log.received}</div>
-            {
-                (!log.isError) ?
-                    <Fragment>
-                        <b>{t("logs.returned")}:</b>
-                        <div>{t("logs.code")}: {log.endpoint.outputStatusCode}</div>
-                        <div>{t("logs.dataSize")}: {formatFileSize(log.endpoint.outputDataSize)}</div>
-                    </Fragment>:
-                    null
-            }
-            {
-                log.isNew ?
-                    <span className="new-label">{t("logs.new")}</span> :
-                    null
-            }
-        </div>
     }
 
-    onMouseEnter = ({isNew, id}) => {
+    onLogHovered = ({isNew, id}) => {
         if (isNew){
             this.setState((state) => {
                 const selected = state.logs.find((log) => log.id === id);
@@ -86,33 +60,33 @@ class Logs extends Component {
         }
     }
 
-    onDateFilterChanged = async (event) => {
-        const date = event.target.value;
-        this.setState({dateFilter: date});
-        await this.fetchLogs(date);
-    }
+    onDateFilterChanged = async (event) => 
+        await this.onDateUpdated(event.target.value);
+    
+    onNewRequestsClick = async () => 
+        await this.onDateUpdated(getCurrentDate());
 
-    onNewRequestsClick = async () => {
-        const date = getCurrentDate();
+    onDateUpdated = async (date) => {
         this.setState({dateFilter: date});
         await this.fetchLogs(date);
     }
 
     render = () => {
-        const {theme, t} = this.props;
+        const {theme, t, config} = this.props;
         return <div>
             <span>
                 <div className={`datepicker ${theme}`}>
-                    <span className="datepicker-label">{t("logs.date")}:  </span>
+                    <span className="datepicker-label">{t("logs.date")}:</span>
                     <input className="datepicker-value" value={this.state.dateFilter} onChange={this.onDateFilterChanged} type="date"/>
                     {
                         (this.state.newLogs.length) ?
-                            <Button onClick={async () => await this.onNewRequestsClick} mode="danger" caption={t("logs.newRequests", {quantity: this.state.newLogs.length})}/> :
+                            <Button onClick={async () => await this.onNewRequestsClick} mode="danger" 
+                                caption={t("logs.newRequests", {quantity: this.state.newLogs.length})}/> :
                             null
                     }
                 </div>
             </span>
-            {this.state.logs.map((log) => this.renderLog(log, theme))}
+            {this.state.logs.map((log) => <Log onLogHovered={this.onLogHovered} config={config} key={log.id} theme={theme} log={log}/>)}
         </div>
     }
 

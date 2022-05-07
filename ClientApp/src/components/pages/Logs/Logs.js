@@ -7,6 +7,8 @@ import { getCurrentDate, getIsoStringWithoutTime, setMaxTimeToDate} from "../../
 import { withTranslation } from "react-i18next";
 
 class Logs extends Component {
+    BATCH_SIZE = 15;
+
     constructor(props) {
         super(props);
         this.state = {
@@ -22,10 +24,12 @@ class Logs extends Component {
         const { dateFilter, offset } = this.state;
         await this.fetchLogs(dateFilter, offset);
         window.addEventListener('scroll', this.handleScroll);
+        this.attachDynamicLogs();
     }
 
     componentWillUnmount = () => {
         window.removeEventListener('scroll', this.handleScroll);
+        this.state.hubConnection.stop();
     }
     
     handleScroll = async () => {
@@ -53,7 +57,8 @@ class Logs extends Component {
 
         hubConnection.on("NewLog", data => {
             const newElement = {isNew: true, ...data};
-            const isCurrentDate = getCurrentDate() === this.state.dateFilter;
+            const isCurrentDate = getIsoStringWithoutTime(getCurrentDate()) === 
+                getIsoStringWithoutTime(this.state.dateFilter);
             
             this.setState(prevState => ({
                 newLogs: [...prevState.newLogs, newElement.id],
@@ -122,7 +127,7 @@ class Logs extends Component {
         const logs = await this.getLogs(date, offset);
         if (logs){
             this.setState({
-                offset: this.state.offset + logs.length,
+                offset: this.state.offset + this.BATCH_SIZE,
                 logs: logs.map(log => {return {...log, isNew: this.state.newLogs.find(newLog => newLog === log.id)}})
             });
         }
@@ -134,7 +139,7 @@ class Logs extends Component {
         const logs = await this.getLogs(dateFilter, offset);
         if (logs && logs.length !== 0){
             this.setState({
-                offset: offset + logs.length,
+                offset: offset + this.BATCH_SIZE,
                 loadingNewLogs: false,
                 logs: [...this.state.logs, ...logs]
             });
@@ -142,7 +147,8 @@ class Logs extends Component {
     }
 
     getLogs = async (date, offset) => {
-        const response = await fetch(`${this.props.config.apiURL}/RequestLog?date=${date}&offset=${offset}`);
+        const timeZoneOffset = new Date().getTimezoneOffset();
+        const response = await fetch(`${this.props.config.apiURL}/RequestLog?date=${date}&offset=${offset}&timeZoneOffset=${timeZoneOffset}`);
         return (response.ok) ?
             await response.json():
             null;

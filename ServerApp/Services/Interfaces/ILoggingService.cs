@@ -7,7 +7,7 @@ namespace IntegrationTestingTool.Services.Interfaces
 {
     public interface ILoggingService
     {
-        Task<IEnumerable<RequestLog>> GetAll(DateTime date, int offset);
+        Task<IEnumerable<RequestLog>> GetAll(DateTime date, int offset, int timeZoneOffset);
 
         Task<RequestLog> Create(RequestLog log);
     }

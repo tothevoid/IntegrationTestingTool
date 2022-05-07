@@ -26,12 +26,12 @@ namespace IntegrationTestingTool.Services.Entity
             HubContext = hubContext;
         }
 
-        public async Task<IEnumerable<RequestLog>> GetAll(DateTime date, int offset)
+        public async Task<IEnumerable<RequestLog>> GetAll(DateTime date, int offset, int timeZoneOffset)
         {
             var sort = Builders<RequestLog>.Sort.Descending(endpoint => endpoint.CreatedOn);
-
+            
             Expression<Func<RequestLog, bool>> filter = log =>
-                log.CreatedOn >= date.Date.ToUniversalTime() && log.CreatedOn <= date.ToUniversalTime();
+                log.CreatedOn >= date.Date.ToUniversalTime().AddMinutes(timeZoneOffset) && log.CreatedOn <= date.ToUniversalTime();
 
             var logs = await LoggingRepository.GetAll(filter, orderBy: sort, 
                 limit: BatchSize, offset: offset);

@@ -18,8 +18,7 @@ class App extends Component {
 
     constructor(props){
         super(props);
-        // let apiURL = process?.env?.REACT_APP_SERVER_URL;
-        let apiURL;
+        let apiURL = process?.env?.REACT_APP_SERVER_URL;
         let wsURL = endpoint.defaultWS
         if (apiURL){
             wsURL = apiURL;

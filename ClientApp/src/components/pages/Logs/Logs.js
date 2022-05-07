@@ -113,7 +113,7 @@ class Logs extends Component {
                     <input className="datepicker-value" value={getIsoStringWithoutTime(this.state.dateFilter)} onChange={this.onDateFilterChanged} type="date"/>
                     {
                         (this.state.newLogs.length) ?
-                            <Button onClick={async () => await this.onNewRequestsClick} mode="danger" 
+                            <Button onClick={async () => await this.onNewRequestsClick()} mode="danger" 
                                 caption={t("logs.newRequests", {quantity: this.state.newLogs.length})}/> :
                             null
                     }
@@ -140,7 +140,7 @@ class Logs extends Component {
         if (logs && logs.length !== 0){
             this.setState({
                 offset: offset + this.BATCH_SIZE,
-                loadingNewLogs: false,
+                loadingNewLogs: this.BATCH_SIZE !== logs.length,
                 logs: [...this.state.logs, ...logs]
             });
         }

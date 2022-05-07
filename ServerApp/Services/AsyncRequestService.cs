@@ -44,7 +44,7 @@ namespace IntegrationTestingTool.Services
         private async Task<Dictionary<string, IEnumerable<string>>> GetAuth(Guid authId)
         {
             var auth = await AuthService.GetById(authId);
-            var authResult = await CallAuthRequest(auth);
+            var authResult = await SendAuthRequest(auth);
 
             var possibleValues = new Dictionary<string, IEnumerable<string>>();
             foreach (var (key, value) in authResult.Headers)
@@ -89,7 +89,7 @@ namespace IntegrationTestingTool.Services
             return possibleValues;
         }
 
-        private async Task<HttpResponseMessage> CallAuthRequest(Auth auth)
+        private async Task<HttpResponseMessage> SendAuthRequest(Auth auth)
         {
             using var client = new HttpClient();
 

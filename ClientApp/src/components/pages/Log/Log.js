@@ -10,23 +10,19 @@ class Log extends Component {
         const { id, createdOn, isError, returned, endpoint, received, isNew } = log;
 
         return <div onMouseEnter={() => onLogHovered(log)} key={id} className={`log ${theme}`}>
-            <span className="log-date">{formatDate(new Date(createdOn))}</span>
-            {
-                isError && this.getErrorHeader(t, returned)
-            }
+            <div>
+                <span className="log-date">{formatDate(new Date(createdOn))}</span>
+                { isError && this.getErrorHeader(t, returned)}
+            </div>
             <div className="log-url">[{endpoint.method}] {this.props?.config?.mockURL}/{endpoint.path}</div>
             <div>{t("logs.received")}: {received}</div>
-            {
-                isError && this.getLogBody(t, endpoint.outputStatusCode, formatFileSize(endpoint.outputDataSize))
-            }
-            {
-                isNew && <span className="new-label">{t("logs.new")}</span>
-            }
+            { isError && this.getLogBody(t, endpoint.outputStatusCode, formatFileSize(endpoint.outputDataSize))}
+            { isNew && <span className="new-label">{t("logs.new")}</span>}
         </div>
     }
 
     getErrorHeader(t, returned){
-        return <div>{t("logs.error", {message: returned})}</div>
+        return <span className="log-status">{t("logs.error", {message: returned})}</span>
     }
 
     getLogBody(t, statusCode, outputDataSize){

@@ -25,11 +25,10 @@ namespace IntegrationTestingTool.Services
             var endpoints = await EndpointService.FindByPathAndMethod(path, method);
             var suitableEndpoint = endpoints.FirstOrDefault(endpoint => ValidateEndpoint(endpoint, requestHeaders));
 
-            if (suitableEndpoint?.OutputDataFile != null)
-            {
-                var file = await FileService.Get(suitableEndpoint.OutputDataFileId);
-                suitableEndpoint.OutputData = file;
-            }
+            if (suitableEndpoint?.OutputDataFile == null) return suitableEndpoint;
+            
+            var file = await FileService.Get(suitableEndpoint.OutputDataFileId);
+            suitableEndpoint.OutputData = file;
             return suitableEndpoint;
         }
 

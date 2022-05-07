@@ -13,7 +13,8 @@ namespace IntegrationTestingTool.Domain.Interfaces
         Task<IEnumerable<TEntity>> GetAll(FilterDefinition<TEntity> filter = null,
             ProjectionDefinition<TEntity> projection = null,
             SortDefinition<TEntity> orderBy = null,
-            int limit = 0);
+            int limit = 0,
+            int offset = 0);
 
         Task<TEntity> GetById(Guid id, ProjectionDefinition<TEntity> projection = null);
 

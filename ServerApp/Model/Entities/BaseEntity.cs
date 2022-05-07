@@ -8,7 +8,7 @@ namespace IntegrationTestingTool.Model.Entities
         [BsonId]
         public Guid Id { get; set; } = Guid.NewGuid();
 
-        public DateTime CreatedOn { get; set; } = DateTime.Now;
+        public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
 
         public object Clone()
         {

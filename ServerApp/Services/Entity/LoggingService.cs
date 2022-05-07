@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.SignalR;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using System.Linq;
@@ -17,20 +18,25 @@ namespace IntegrationTestingTool.Services.Entity
         private IRepository<RequestLog> LoggingRepository { get; }
         private IHubContext<LogsHub> HubContext { get; }
 
+        private const int BatchSize = 15;
+
         public LoggingService(IUnitOfWork unitOfWork, IHubContext<LogsHub> hubContext)
         {
             LoggingRepository = unitOfWork.CreateRepository<RequestLog>("RequestLogs");
             HubContext = hubContext;
         }
 
-        public async Task<IEnumerable<RequestLog>> GetAll(DateTime date)
+        public async Task<IEnumerable<RequestLog>> GetAll(DateTime date, int offset)
         {
             var sort = Builders<RequestLog>.Sort.Descending(endpoint => endpoint.CreatedOn);
 
-            Expression<Func<RequestLog, bool>> filter = endpoint =>
-                endpoint.CreatedOn >= date.Date && endpoint.CreatedOn < date.Date.AddDays(1);
+            Expression<Func<RequestLog, bool>> filter = log =>
+                log.CreatedOn >= date.Date.ToUniversalTime() && log.CreatedOn <= date.ToUniversalTime();
 
-            return (await LoggingRepository.GetAll(filter, orderBy: sort)).ToList();
+            var logs = await LoggingRepository.GetAll(filter, orderBy: sort, 
+                limit: BatchSize, offset: offset);
+            
+            return logs.ToList();
         }
 
         public async Task<RequestLog> Create(RequestLog log)

@@ -28,7 +28,8 @@ namespace IntegrationTestingTool.Domain
         public async Task<IEnumerable<TEntity>> GetAll(FilterDefinition<TEntity> filter = null, 
             ProjectionDefinition<TEntity> projection = null, 
             SortDefinition<TEntity> orderBy = null,
-            int limit = 0)
+            int limit = 0,
+            int offset = 0)
         {
             filter ??= new BsonDocument();
             var options = new FindOptions<TEntity, TEntity>();
@@ -36,11 +37,9 @@ namespace IntegrationTestingTool.Domain
             if (orderBy != null) options.Sort = orderBy;
             if (projection != null) options.Projection = projection;
             if (limit > 0) options.Limit = limit;
+            options.Skip = offset;
 
-            var result = options != null ?
-                await MongoCollection.FindAsync(filter, options):
-                await MongoCollection.FindAsync(filter);
-
+            var result = await MongoCollection.FindAsync(filter, options);
             return result.ToList();
         }
 

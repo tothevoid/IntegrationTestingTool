@@ -18,7 +18,7 @@ namespace IntegrationTestingTool.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<RequestLog>> Get(DateTime date) =>
-            await LoggingService.GetAll(date);
+        public async Task<IEnumerable<RequestLog>> Get(DateTime date, int offset) =>
+            await LoggingService.GetAll(date, offset);
     }
 }
